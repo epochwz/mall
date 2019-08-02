@@ -18,7 +18,11 @@
       name: 'Hello World',
       repo: 'https://github.com/epochwz/epochwz.github.io/tree/docsify',
       // 封面
-      coverpage: true
+      coverpage: true,
+      // 侧边栏目录
+      loadSidebar: true,
+      subMaxLevel: 4,
+      alias: { '/.*/_sidebar.md': '/_sidebar.md' }
     }
   </script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
