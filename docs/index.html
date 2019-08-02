@@ -22,7 +22,11 @@
       // 侧边栏目录
       loadSidebar: true,
       subMaxLevel: 4,
-      alias: { '/.*/_sidebar.md': '/_sidebar.md' }
+      alias: { '/.*/_sidebar.md': '/_sidebar.md' },
+      // 切换页面时自动跳转回页面顶部
+      auto2top: true,
+      // 格式化文章更新时间
+      formatUpdated: '{YYYY}-{MM}-{DD} {HH}:{mm}:{ss}'
     }
   </script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
