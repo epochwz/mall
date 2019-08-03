@@ -34,7 +34,24 @@
         paths: 'auto',
         placeholder: 'Type to search',
         noData: 'No Results!'
-      }
+      },
+      plugins:[
+        function(hook){
+          let url=window.location.href.split("#")[0];
+          hook.beforeEach(function (content) {
+            // 站内链接自动转换：支持在 Markdown 中使用项目根路径作为文档、图片引用的相对链接
+            // 文档
+            //    markdown:   /docs/apis/xxx.md
+            //    html:       http://host:port/path/apis/xxx.md
+            content=content.replace(/([:(])\/docs\/(?!images)/g,"$1" + url + "#/");
+            // 图片
+            //    markdown:   /docs/images/xxx.png
+            //    html:       http://host:port/path/images/xxx.png
+            content=content.replace(/([:(])\/docs\/(images)/g,"$1"+url+"$2");
+            return content;
+          });
+        }
+      ]
     }
   </script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
