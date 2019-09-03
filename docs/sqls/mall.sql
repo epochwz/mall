@@ -203,4 +203,35 @@ CREATE TABLE `order`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+-- ----------------------------
+--  Table structure for `order_item`
+-- ----------------------------
+DROP TABLE IF EXISTS `order_item`;
+CREATE TABLE `order_item`
+(
+    `id`            INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '订单商品明细',
+    `order_no`      BIGINT(20)     NOT NULL
+        COMMENT '订单号',
+    `product_id`    INT(11)        NOT NULL
+        COMMENT '商品的 ID',
+    `product_name`  VARCHAR(100)   NOT NULL
+        COMMENT '商品名称(快照：生成订单时商品的名称，不与商品名称产生关联)',
+    `product_image` VARCHAR(500)
+        COMMENT '商品主图(快照：生成订单时商品的主图 URL，不与商品主图 URL 产生关联)',
+    `quantity`      INT(11)        NOT NULL
+        COMMENT '商品数量',
+    `unit_price`    DECIMAL(20, 2) NOT NULL
+        COMMENT '商品单价(快照：生成订单时商品的单价，不与商品价格产生关联)',
+    `total_price`   DECIMAL(20, 2) NOT NULL
+        COMMENT '商品总价',
+    `create_time`   DATETIME       NOT NULL DEFAULT NOW(),
+    `update_time`   DATETIME       NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    KEY `order_item.key.order_no` (`order_no`) USING BTREE,
+    UNIQUE KEY `order_item.uk.order_no-product_id` (`order_no`, `product_id`) USING BTREE
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
