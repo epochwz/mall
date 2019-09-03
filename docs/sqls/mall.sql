@@ -139,4 +139,29 @@ CREATE TABLE `product`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+-- ----------------------------
+--  Table structure for `cart_item`
+-- ----------------------------
+DROP TABLE IF EXISTS `cart_item`;
+CREATE TABLE `cart_item`
+(
+    `id`          INT(11)  NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '购物车商品条目',
+    `user_id`     INT(11)  NOT NULL
+        COMMENT '所属用户的 ID',
+    `product_id`  INT(11)  NOT NULL
+        COMMENT '所属商品的 ID',
+    `quantity`    INT(11)  NOT NULL
+        COMMENT '数量',
+    `checked`     BOOLEAN  NOT NULL DEFAULT FALSE
+        COMMENT '勾选状态(true-已勾选 / false-未勾选)',
+    `create_time` DATETIME NOT NULL DEFAULT NOW(),
+    `update_time` DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    KEY `cart_item.key.user_id` (`user_id`) USING BTREE,
+    UNIQUE KEY `cart_item.uk.user_id-product_id` (`user_id`, `product_id`)
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
