@@ -83,4 +83,27 @@ CREATE TABLE `shipping`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+-- ----------------------------
+--  Table structure for `category`
+-- ----------------------------
+DROP TABLE IF EXISTS `category`;
+CREATE TABLE `category`
+(
+    `id`          INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '商品类别',
+    `parent_id`   INT(11)     NOT NULL DEFAULT 0
+        COMMENT '父级类别的 ID(0-顶级类别)',
+    `name`        VARCHAR(50) NOT NULL
+        COMMENT '商品类别名称',
+    `status`      TINYINT     NOT NULL DEFAULT 1
+        COMMENT '商品类别状态(0-禁用 / 1-启用)',
+    `create_time` DATETIME    NOT NULL DEFAULT NOW(),
+    `update_time` DATETIME    NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    KEY `category.key.parent_id` (`parent_id`) USING BTREE,
+    UNIQUE KEY `category.uk.parent_id-name` (`parent_id`, `name`) USING BTREE
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
