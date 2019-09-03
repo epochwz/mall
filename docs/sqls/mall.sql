@@ -234,4 +234,31 @@ CREATE TABLE `order_item`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+-- ----------------------------
+--  Table structure for `payment_info`
+-- ----------------------------
+DROP TABLE IF EXISTS `payment_info`;
+CREATE TABLE `payment_info`
+(
+    `id`              INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '订单支付信息',
+    `user_id`         INT(11)      NOT NULL
+        COMMENT '所属用户的 ID',
+    `order_no`        BIGINT(20)   NOT NULL
+        COMMENT '所属订单的 订单号',
+    `platform`        TINYINT      NOT NULL
+        COMMENT '支付平台(1-支付宝 / 2-微信)',
+    `platform_number` VARCHAR(200) NOT NULL
+        COMMENT '支付流水号',
+    `platform_status` VARCHAR(20)  NOT NULL
+        COMMENT '支付状态',
+    `create_time`     DATETIME     NOT NULL DEFAULT NOW(),
+    `update_time`     DATETIME     NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    UNIQUE KEY `payment_info.key.order_no` (`order_no`) USING BTREE,
+    UNIQUE KEY `payment_info.uk.platform_number` (`platform_number`) USING BTREE
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
