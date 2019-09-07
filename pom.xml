@@ -113,6 +113,19 @@
       <artifactId>pagehelper</artifactId>
       <version>5.0.3</version>
     </dependency>
+    <!-- ==================== Spring Database ==================== -->
+    <!-- Spring JDBC -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <!-- Spring Transaction -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
   </dependencies>
 
   <profiles>
