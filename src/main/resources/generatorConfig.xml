@@ -1,0 +1,75 @@
+<!DOCTYPE generatorConfiguration PUBLIC
+    "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+  <!--导入数据库连接配置-->
+  <properties resource="datasource.properties"/>
+  <!--指定数据库驱动路径-->
+  <classPathEntry location="${db.driverLocation}"/>
+  <context id="default" targetRuntime="MyBatis3Simple">
+    <!-- 控制是否添加注释 -->
+    <commentGenerator>
+      <property name="suppressAllComments" value="true"/>
+    </commentGenerator>
+
+    <!-- JDBC Connection -->
+    <jdbcConnection
+        driverClass="${db.driver}"
+        connectionURL="${db.url}"
+        userId="${db.username}"
+        password="${db.password}">
+    </jdbcConnection>
+
+    <!-- Java Model 生成器：生成与数据表映射的实体类 -->
+    <javaModelGenerator targetPackage="fun.epoch.mall.entity" targetProject="./src/main/java">
+      <!-- 是否添加 构造函数 -->
+      <property name="constructorBased" value="false"/>
+      <!-- 是否对类似 CHAR 类型的列的数据进行 trim 操作 -->
+      <property name="trimStrings" value="true"/>
+    </javaModelGenerator>
+
+    <!-- Dao Mapper 生成器：生成操作数据库的接口和实现类 -->
+    <!--
+        type="ANNOTATEDMAPPER", 生成独立接口和基于注解的 Mapper 对象
+        type="MIXEDMAPPER",生成基于简单注解的接口和基于 XML 的 Mapper 对象
+        type="XMLMAPPER",生成独立接口和基于 XML 的 Mapper 对象
+    -->
+    <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="fun.epoch.mall.dao" targetProject="./src/main/java"/>
+
+    <!-- 需要映射的数据表 -->
+    <table tableName="user" domainObjectName="User"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false"/>
+
+    <table tableName="shipping" domainObjectName="Shipping"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false"/>
+
+    <table tableName="category" domainObjectName="Category"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false"/>
+
+    <table tableName="product" domainObjectName="Product"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false">
+      <columnOverride column="detail" jdbcType="VARCHAR"/>
+      <columnOverride column="sub_images" jdbcType="VARCHAR"/>
+    </table>
+
+    <table tableName="cart_item" domainObjectName="CartItem"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false"/>
+
+    <table tableName="order" domainObjectName="Order"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false"/>
+
+    <table tableName="order_item" domainObjectName="OrderItem"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false"/>
+
+    <table tableName="payment_info" domainObjectName="PaymentInfo"
+           enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+           enableSelectByExample="false" selectByExampleQueryId="false"/>
+  </context>
+</generatorConfiguration>
