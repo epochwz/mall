@@ -21,6 +21,11 @@
         </property>
       </bean>
       <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <constructor-arg>
+          <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+            <property name="serializationInclusion" value="NON_NULL"/>
+          </bean>
+        </constructor-arg>
         <property name="supportedMediaTypes">
           <list>
             <value>application/json;charset=UTF-8</value>
