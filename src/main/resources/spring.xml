@@ -12,4 +12,6 @@
   <!-- AOP -->
   <aop:aspectj-autoproxy/>
 
+  <!-- 导入其他 Spring 配置文件 -->
+  <import resource="spring-datasource.xml"/>
 </beans>
