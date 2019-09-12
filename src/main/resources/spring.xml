@@ -14,6 +14,7 @@
 
   <!-- 导入其他 Spring 配置文件 -->
   <import resource="spring-datasource.xml"/>
+  <import resource="spring-mybatis.xml"/>
 
   <!-- 支持使用 @Transactional 进行声明式事务管理 -->
   <tx:annotation-driven proxy-target-class="true"/>
