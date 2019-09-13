@@ -3,4 +3,17 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+  <!-- 扫描 MyBatis Mapper -->
+  <bean name="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="fun.epoch.mall.dao"/>
+  </bean>
+
+  <!-- MyBatis -->
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="plugins">
+      <array>
+      </array>
+    </property>
+  </bean>
 </beans>
