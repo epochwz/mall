@@ -11,6 +11,12 @@
   <!-- MyBatis -->
   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
     <property name="dataSource" ref="dataSource"/>
+    <property name="configuration">
+      <!-- 开启驼峰转换 -->
+      <bean class="org.apache.ibatis.session.Configuration">
+        <property name="mapUnderscoreToCamelCase" value="true"/>
+      </bean>
+    </property>
     <property name="plugins">
       <array>
       </array>
