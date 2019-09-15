@@ -164,4 +164,43 @@ CREATE TABLE `cart_item`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+-- ----------------------------
+--  Table structure for `order`
+-- ----------------------------
+DROP TABLE IF EXISTS `order`;
+CREATE TABLE `order`
+(
+    `id`           INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '订单',
+    `order_no`     BIGINT(20)     NOT NULL
+        COMMENT '订单号',
+    `user_id`      INT(11)        NOT NULL
+        COMMENT '所属用户的 ID',
+    `shipping_id`  INT(11)        NOT NULL
+        COMMENT '收货地址的 ID',
+    `status`       TINYINT        NOT NULL DEFAULT 10
+        COMMENT '订单状态(0-已取消 / 10-待付款 / 30-待发货 / 50-待签收 / 70-交易完成 / 90-交易关闭)',
+    `postage`      DECIMAL(20, 2) NOT NULL DEFAULT 0
+        COMMENT '运费',
+    `payment`      DECIMAL(20, 2) NOT NULL
+        COMMENT '支付金额',
+    `payment_type` TINYINT        NOT NULL DEFAULT 1
+        COMMENT '支付类型(1-在线支付 / 2-货到付款)',
+    `payment_time` DATETIME
+        COMMENT '支付时间(支付平台支付成功后回调的支付时间)',
+    `send_time`    DATETIME
+        COMMENT '发货时间',
+    `end_time`     DATETIME
+        COMMENT '交易完成时间',
+    `close_time`   DATETIME
+        COMMENT '交易关闭时间',
+    `create_time`  DATETIME       NOT NULL DEFAULT NOW(),
+    `update_time`  DATETIME       NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    KEY `order.key.user_id` (`user_id`) USING BTREE,
+    UNIQUE KEY `order.uk.order_no` (`order_no`) USING BTREE
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
