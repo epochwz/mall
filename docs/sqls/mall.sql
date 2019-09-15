@@ -23,4 +23,32 @@ SET NAMES utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+-- ----------------------------
+--  Table structure for `user`
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`
+(
+    `id`          INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '用户',
+    `username`    VARCHAR(50) NOT NULL
+        COMMENT '用户名',
+    `password`    VARCHAR(50) NOT NULL
+        COMMENT '密码(MD5盐值加密)',
+    `email`       VARCHAR(50) COMMENT '电子邮箱',
+    `mobile`      VARCHAR(20) COMMENT '手机号码',
+    `question`    VARCHAR(100) COMMENT '密保问题',
+    `answer`      VARCHAR(100) COMMENT '密保答案',
+    `role`        TINYINT     NOT NULL DEFAULT 1
+        COMMENT '用户角色(0-管理员 / 1-消费者)',
+    `create_time` DATETIME    NOT NULL DEFAULT NOW(),
+    `update_time` DATETIME    NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    UNIQUE KEY `user.uk.username` (`username`) USING BTREE,
+    UNIQUE KEY `user.uk.email` (`email`) USING BTREE,
+    UNIQUE KEY `user.uk.mobile` (`mobile`) USING BTREE
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
