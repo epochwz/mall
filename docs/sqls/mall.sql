@@ -106,4 +106,37 @@ CREATE TABLE `category`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+-- ----------------------------
+--  Table structure for `product`
+-- ----------------------------
+DROP TABLE IF EXISTS `product`;
+CREATE TABLE `product`
+(
+    `id`          INT(11)        NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '商品',
+    `category_id` INT(11)        NOT NULL
+        COMMENT '商品类别的 ID',
+    `name`        VARCHAR(100)   NOT NULL
+        COMMENT '商品名称',
+    `subtitle`    VARCHAR(200)
+        COMMENT '商品副标题',
+    `main_image`  VARCHAR(500)
+        COMMENT '商品主图(图片 URL 相对地址)',
+    `sub_images`  TEXT COMMENT '商品组图(使用逗号分隔的多个图片 URL 相对地址)',
+    `detail`      TEXT COMMENT '商品详情',
+    `price`       DECIMAL(20, 2) NOT NULL
+        COMMENT '商品价格(元，保留两位小数)',
+    `stock`       INT(11)        NOT NULL DEFAULT 0
+        COMMENT '库存数量',
+    `status`      TINYINT        NOT NULL DEFAULT 1
+        COMMENT '销售状态(0-已下架 / 1-出售中)',
+    `create_time` DATETIME       NOT NULL DEFAULT NOW(),
+    `update_time` DATETIME       NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    KEY `product.key.category_id` (`category_id`) USING BTREE,
+    KEY `product.key.name` (`name`) USING BTREE
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
