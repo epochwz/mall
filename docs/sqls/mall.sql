@@ -51,4 +51,36 @@ CREATE TABLE `user`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+-- ----------------------------
+--  Table structure for `shipping`
+-- ----------------------------
+DROP TABLE IF EXISTS `shipping`;
+CREATE TABLE `shipping`
+(
+    `id`          INT(11)      NOT NULL AUTO_INCREMENT PRIMARY KEY
+        COMMENT '收货地址',
+    `user_id`     INT(11)      NOT NULL
+        COMMENT '所属用户的 ID',
+    `name`        VARCHAR(20)  NOT NULL
+        COMMENT '收货人姓名',
+    `mobile`      VARCHAR(20)  NOT NULL
+        COMMENT '移动电话',
+    `province`    VARCHAR(20)  NOT NULL
+        COMMENT '省份',
+    `city`        VARCHAR(20)  NOT NULL
+        COMMENT '城市',
+    `district`    VARCHAR(20)  NOT NULL
+        COMMENT '区/县',
+    `address`     VARCHAR(200) NOT NULL
+        COMMENT '详细地址',
+    `zip`         VARCHAR(6)
+        COMMENT '邮编',
+    `create_time` DATETIME     NOT NULL DEFAULT NOW(),
+    `update_time` DATETIME     NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    KEY `shipping.key.user_id` (`user_id`) USING BTREE
+)
+    ENGINE = InnoDB
+    AUTO_INCREMENT = 1000000
+    DEFAULT CHARSET = utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;
