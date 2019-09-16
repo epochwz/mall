@@ -36,18 +36,18 @@
             noData: 'No Results!'
         },
         plugins: [
-            function (hook) {
+            function (hook, vm) {
                 let url = window.location.href.split("#")[0];
                 hook.beforeEach(function (content) {
                     // 站内链接自动转换：支持在 Markdown 中使用项目根路径作为文档、图片引用的相对链接
                     // 文档
                     //    markdown:   /docs/apis/xxx.md
                     //    html:       http://host:port/path/apis/xxx.md
-                    content = content.replace(/([:(])\/docs\/(?!images)/g, "$1" + url + "#/");
+                    content = content.replace(/([:(]\s*)\/docs\/(?!images)/g, "$1/");
                     // 图片
                     //    markdown:   /docs/images/xxx.png
                     //    html:       http://host:port/path/images/xxx.png
-                    content = content.replace(/([:(])\/docs\/(images)/g, "$1" + url + "$2");
+                    content = content.replace(/([:(]\s*)\/docs\/(images)/g, "$1" + url + "$2");
 
                     // 兼容(自动转换) docsify 语法
                     // 引用内容强调：支持在 Markdown 中使用 "> ! " 进行引用内容的强调；原始语法 "!> "
