@@ -27,7 +27,35 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <!-- 如果同时被勾选，则更后面的生效 -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <deploy.type>dev</deploy.type>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>pro</id>
+            <properties>
+                <deploy.type>pro</deploy.type>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
+        <resources>
+            <!-- 先后顺序决定优先级，前面的优先级比后面的高 -->
+            <resource>
+                <directory>src/main/resources.${deploy.type}</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <finalName>mall</finalName>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
