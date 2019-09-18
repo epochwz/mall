@@ -54,6 +54,13 @@
             <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
+        <!-- DbSetup -->
+        <dependency>
+            <groupId>com.ninja-squad</groupId>
+            <artifactId>DbSetup</artifactId>
+            <version>2.1.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
