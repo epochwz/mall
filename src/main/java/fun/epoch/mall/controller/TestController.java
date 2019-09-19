@@ -3,15 +3,14 @@ package fun.epoch.mall.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-@RequestMapping("test")
+@RequestMapping("/manage/product")
 public class TestController {
     @ResponseBody
-    @RequestMapping("hello.do")
-    public User test() {
-        User user = new User();
-        user.setUsername("小明");
-        return user;
+    @RequestMapping("upload.do")
+    public String test(MultipartFile file) {
+        return "文件上传成功：" + file.getOriginalFilename();
     }
 }
