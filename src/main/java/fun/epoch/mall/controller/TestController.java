@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class TestController {
     @ResponseBody
     @RequestMapping("hello.do")
-    public String test() {
-        return "你好, Spring Web MVC!";
+    public User test() {
+        User user = new User();
+        user.setUsername("小明");
+        return user;
     }
 }
