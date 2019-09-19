@@ -16,6 +16,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <spring.version>4.2.4.RELEASE</spring.version>
     </properties>
 
     <dependencies>
@@ -60,6 +61,13 @@
             <artifactId>DbSetup</artifactId>
             <version>2.1.0</version>
             <scope>test</scope>
+        </dependency>
+        <!-- ==================== Spring Web ==================== -->
+        <!-- Spring Web MVC -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 
