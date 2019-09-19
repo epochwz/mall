@@ -10,6 +10,6 @@ public class TestController {
     @ResponseBody
     @RequestMapping("hello.do")
     public String test() {
-        return "Hello, Spring Web MVC";
+        return "你好, Spring Web MVC!";
     }
 }
