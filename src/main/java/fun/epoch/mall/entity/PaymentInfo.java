@@ -15,7 +15,7 @@ public class PaymentInfo {
     private Integer id;
     private Integer userId;
     private Long orderNo;
-    private Byte platform;
+    private Integer platform;
     private String platformNumber;
     private String platformStatus;
     @JsonIgnore

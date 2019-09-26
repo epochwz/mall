@@ -22,7 +22,7 @@ public class Product {
     private String detail;
     private BigDecimal price;
     private Integer stock;
-    private Byte status;
+    private Integer status;
     @JsonIgnore
     private Date createTime;
     @JsonIgnore

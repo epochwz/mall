@@ -17,10 +17,10 @@ public class Order {
     private Long orderNo;
     private Integer userId;
     private Integer shippingId;
-    private Byte status;
+    private Integer status;
     private BigDecimal postage;
     private BigDecimal payment;
-    private Byte paymentType;
+    private Integer paymentType;
     private Date paymentTime;
     private Date sendTime;
     private Date endTime;

@@ -19,7 +19,7 @@ public class User {
     private String mobile;
     private String question;
     private String answer;
-    private Byte role;
+    private Integer role;
     @JsonIgnore
     private Date createTime;
     @JsonIgnore

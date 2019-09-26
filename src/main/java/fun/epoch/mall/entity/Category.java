@@ -15,7 +15,7 @@ public class Category {
     private Integer id;
     private Integer parentId;
     private String name;
-    private Byte status;
+    private Integer status;
     @JsonIgnore
     private Date createTime;
     @JsonIgnore
