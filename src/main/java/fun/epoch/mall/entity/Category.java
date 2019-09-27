@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -20,4 +21,6 @@ public class Category {
     private Date createTime;
     @JsonIgnore
     private Date updateTime;
+
+    private List<Category> categories;
 }
