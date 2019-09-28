@@ -41,4 +41,24 @@
     <property name="maxInMemorySize" value="4096"/>
     <property name="defaultEncoding" value="UTF-8"/>
   </bean>
+
+  <!-- 拦截器 -->
+  <mvc:interceptors>
+    <!-- 登录检查和权限校验 -->
+    <mvc:interceptor>
+      <mvc:mapping path="/**"/>
+      <mvc:exclude-mapping path="/user/*"/>
+      <mvc:exclude-mapping path="/product/*"/>
+      <mvc:exclude-mapping path="/payment/alipay/callback.do"/>
+      <mvc:exclude-mapping path="/manage/user/*"/>
+      <bean class="fun.epoch.mall.controller.common.AuthorityInterceptor"/>
+    </mvc:interceptor>
+    <mvc:interceptor>
+      <mvc:mapping path="/user/update.do"/>
+      <mvc:mapping path="/user/info.do"/>
+      <mvc:mapping path="/user/reset_password.do"/>
+      <mvc:mapping path="/manage/user/reset_password.do"/>
+      <bean class="fun.epoch.mall.controller.common.AuthorityInterceptor"/>
+    </mvc:interceptor>
+  </mvc:interceptors>
 </beans>
