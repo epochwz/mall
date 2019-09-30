@@ -1,7 +1,9 @@
 package fun.epoch.mall.controller.portal;
 
 import fun.epoch.mall.entity.User;
+import fun.epoch.mall.service.UserService;
 import fun.epoch.mall.utils.response.ServerResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +16,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+    @Autowired
+    UserService userService;
+
     @ResponseBody
     @RequestMapping(value = "register.do", method = POST)
     public ServerResponse<Integer> register(User user) {

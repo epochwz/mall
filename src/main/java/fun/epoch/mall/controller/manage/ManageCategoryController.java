@@ -1,7 +1,9 @@
 package fun.epoch.mall.controller.manage;
 
 import fun.epoch.mall.entity.Category;
+import fun.epoch.mall.service.CategoryService;
 import fun.epoch.mall.utils.response.ServerResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +14,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/manage/category")
 public class ManageCategoryController {
+    @Autowired
+    CategoryService categoryService;
+
     @ResponseBody
     @RequestMapping(value = "add.do", method = POST)
     public ServerResponse<Integer> add(@RequestParam(defaultValue = "0") int parentId, @RequestParam String categoryName) {

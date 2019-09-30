@@ -1,7 +1,9 @@
 package fun.epoch.mall.controller.manage;
 
 import fun.epoch.mall.entity.User;
+import fun.epoch.mall.service.UserService;
 import fun.epoch.mall.utils.response.ServerResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +16,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/manage/user")
 public class ManageUserController {
+    @Autowired
+    UserService userService;
+
     @ResponseBody
     @RequestMapping(value = "login.do", method = POST)
     public ServerResponse<User> login(HttpSession session, @RequestParam String username, @RequestParam String password) {

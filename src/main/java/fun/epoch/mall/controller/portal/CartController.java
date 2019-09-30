@@ -1,7 +1,9 @@
 package fun.epoch.mall.controller.portal;
 
+import fun.epoch.mall.service.CartService;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.CartVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +16,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/cart")
 public class CartController {
+    @Autowired
+    CartService cartService;
+
     @ResponseBody
     @RequestMapping(value = "list.do")
     private ServerResponse<CartVo> list(HttpSession session) {

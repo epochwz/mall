@@ -2,7 +2,9 @@ package fun.epoch.mall.controller.portal;
 
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.entity.Shipping;
+import fun.epoch.mall.service.ShippingService;
 import fun.epoch.mall.utils.response.ServerResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +17,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 @RequestMapping("/shipping")
 public class ShippingController {
+    @Autowired
+    ShippingService shippingService;
+
     @ResponseBody
     @RequestMapping(value = "detail.do")
     public ServerResponse<Shipping> detail(HttpSession session, @RequestParam("id") int shippingId) {
