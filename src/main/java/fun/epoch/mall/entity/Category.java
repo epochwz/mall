@@ -1,6 +1,7 @@
 package fun.epoch.mall.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import fun.epoch.mall.dao.langdriver.LangDriverIgnore;
 import lombok.*;
 
 import java.util.Date;
@@ -21,6 +22,6 @@ public class Category {
     private Date createTime;
     @JsonIgnore
     private Date updateTime;
-
+    @LangDriverIgnore
     private List<Category> categories;
 }
