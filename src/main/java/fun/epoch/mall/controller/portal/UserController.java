@@ -75,7 +75,8 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "info.do")
     public ServerResponse<User> getUserInfo(HttpSession session) {
-        return null;
+        User user = (User) session.getAttribute(CURRENT_USER);
+        return userService.getUserInfo(user.getId());
     }
 
     @ResponseBody

@@ -177,8 +177,23 @@ public class UserControllerTest {
         verify(session).removeAttribute(CURRENT_USER);
     }
 
+    /**
+     * 查看个人信息
+     * <p>
+     * 200  查看成功：调用 service 成功 (已登录)
+     */
+    @Test
+    public void testGetUserInfo_returnSuccess_whenCallServiceSuccess() {
+        User loginUser = User.builder().id(userId).build();
+        when(session.getAttribute(CURRENT_USER)).thenReturn(loginUser);
+
+        when(service.getUserInfo(userId)).thenReturn(ServerResponse.success(loginUser));
+
+        testIfCodeEqualsSuccess(controller.getUserInfo(session));
+    }
 
     // 合法值
+    private static final Integer userId = 1000000;
     private static final String username = "epoch";
     private static final String password = "epoch_pass";
     private static final String email = "epoch@gmail.com";

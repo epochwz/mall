@@ -45,4 +45,8 @@ public class UserService {
         }
         return ServerResponse.error("参数不能为空");
     }
+
+    public ServerResponse<User> getUserInfo(int userId) {
+        return null;
+    }
 }
