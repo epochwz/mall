@@ -65,4 +65,8 @@ public class UserService {
     public ServerResponse<String> commitAnswer(String username, String question, String answer) {
         return null;
     }
+
+    public ServerResponse resetPasswordByToken(String username, String password, String forgetToken) {
+        return null;
+    }
 }

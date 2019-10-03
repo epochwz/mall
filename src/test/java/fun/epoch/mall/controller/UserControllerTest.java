@@ -288,6 +288,25 @@ public class UserControllerTest {
         testIfCodeEqualsSuccess(controller.commitAnswer(username, question, answer));
     }
 
+    /**
+     * 重置密码 (通过 Token)
+     * <p>
+     * 400  非法参数：其中一个参数不合法
+     * 200  重置成功：调用 service 成功
+     */
+    @Test
+    public void testResetPasswordByToken_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(errorUsernames, errorUsername -> controller.resetPasswordByToken(errorUsername, password, forgetToken));
+        testIfCodeEqualsError(errorPasswords, errorPassword -> controller.resetPasswordByToken(username, errorPassword, forgetToken));
+        testIfCodeEqualsError(blankValues, blankValue -> controller.resetPasswordByToken(username, password, blankValue));
+    }
+
+    @Test
+    public void testResetPasswordByToken_returnSuccess_whenCallServiceSuccess() {
+        when(service.resetPasswordByToken(username, password, forgetToken)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.resetPasswordByToken(username, password, forgetToken));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";
@@ -297,9 +316,10 @@ public class UserControllerTest {
     private static final String question = "question";
     private static final String answer = "answer";
 
-    private static final String newPassword = "epoch_pass_new";
-
     private User currentUser = User.builder().id(userId).build();
+
+    private static final String newPassword = "epoch_pass_new";
+    private static final String forgetToken = "b9f655ed-4d71-473f-abff-f989098ff818";
 
     // 错误值
     private static final String[] blankValues = {null, "", " ", "\t", "\n"};

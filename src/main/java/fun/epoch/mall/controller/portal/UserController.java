@@ -122,7 +122,10 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "reset_password_by_token.do", method = POST)
     public ServerResponse resetPasswordByToken(@RequestParam String username, @RequestParam String password, @RequestParam String forgetToken) {
-        return null;
+        if (!checkUsername(username) || !checkPassword(password) || isBlank(forgetToken)) {
+            return ServerResponse.error("参数格式不正确");
+        }
+        return userService.resetPasswordByToken(username, password, forgetToken);
     }
 
     private Integer currentUserId(HttpSession session) {
