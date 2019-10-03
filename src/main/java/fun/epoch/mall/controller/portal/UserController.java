@@ -35,7 +35,11 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "account_verify.do")
     public ServerResponse accountVerify(@RequestParam String account, @RequestParam String type) {
-        return null;
+        ServerResponse checkAccount = checkAccount(account, type);
+        if (checkAccount.isError()) {
+            return checkAccount;
+        }
+        return userService.accountVerify(account, type);
     }
 
     @ResponseBody

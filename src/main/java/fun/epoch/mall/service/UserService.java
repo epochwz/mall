@@ -9,4 +9,8 @@ public class UserService {
     public ServerResponse<Integer> register(User user) {
         return null;
     }
+
+    public ServerResponse accountVerify(String account, String type) {
+        return null;
+    }
 }
