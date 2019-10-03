@@ -53,4 +53,8 @@ public class UserService {
     public ServerResponse<User> update(User user) {
         return null;
     }
+
+    public ServerResponse resetPassword(int userId, String oldPassword, String newPassword) {
+        return null;
+    }
 }

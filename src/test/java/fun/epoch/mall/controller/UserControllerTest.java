@@ -184,10 +184,9 @@ public class UserControllerTest {
      */
     @Test
     public void testGetUserInfo_returnSuccess_whenCallServiceSuccess() {
-        User loginUser = User.builder().id(userId).build();
-        when(session.getAttribute(CURRENT_USER)).thenReturn(loginUser);
+        when(session.getAttribute(CURRENT_USER)).thenReturn(currentUser);
 
-        when(service.getUserInfo(userId)).thenReturn(ServerResponse.success(loginUser));
+        when(service.getUserInfo(userId)).thenReturn(ServerResponse.success(currentUser));
 
         testIfCodeEqualsSuccess(controller.getUserInfo(session));
     }
@@ -210,8 +209,7 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateUserInfo_returnForbidden_whenUserIdNotMatch() {
-        User loginUser = User.builder().id(userId).build();
-        when(session.getAttribute(CURRENT_USER)).thenReturn(loginUser);
+        when(session.getAttribute(CURRENT_USER)).thenReturn(currentUser);
 
         User updateUser = User.builder().id(userId + 1).build();
         testIfCodeEqualsForbidden(controller.update(session, updateUser));
@@ -219,13 +217,37 @@ public class UserControllerTest {
 
     @Test
     public void testUpdateUserInfo_returnSuccess_whenCallServiceSuccess() {
-        User loginUser = User.builder().id(userId).build();
-        when(session.getAttribute(CURRENT_USER)).thenReturn(loginUser);
+        when(session.getAttribute(CURRENT_USER)).thenReturn(currentUser);
 
         when(service.update(any())).thenReturn(ServerResponse.success());
 
         User updateUser = User.builder().id(userId).build();
         testIfCodeEqualsSuccess(controller.update(session, updateUser));
+    }
+
+
+    /**
+     * 重置密码 (已登录)
+     * <p>
+     * 400  非法参数：密码不合法
+     * 200  重置成功：调用 service 成功 (已登录)
+     */
+    @Test
+    public void testResetPassword_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(blankValues, errorPassword -> controller.resetPassword(session, password, errorPassword));
+        testIfCodeEqualsError(blankValues, errorPassword -> controller.resetPassword(session, errorPassword, password));
+
+        testIfCodeEqualsError(errorPasswords, errorPassword -> controller.resetPassword(session, password, errorPassword));
+        testIfCodeEqualsError(errorPasswords, errorPassword -> controller.resetPassword(session, errorPassword, password));
+    }
+
+    @Test
+    public void testResetPassword_returnSuccess_whenCallServiceSuccess() {
+        when(session.getAttribute(CURRENT_USER)).thenReturn(currentUser);
+
+        when(service.resetPassword(userId, password, newPassword)).thenReturn(ServerResponse.success());
+
+        testIfCodeEqualsSuccess(controller.resetPassword(session, password, newPassword));
     }
 
     // 合法值
@@ -234,6 +256,10 @@ public class UserControllerTest {
     private static final String password = "epoch_pass";
     private static final String email = "epoch@gmail.com";
     private static final String mobile = "15626112333";
+
+    private static final String newPassword = "epoch_pass_new";
+
+    private User currentUser = User.builder().id(userId).build();
 
     // 错误值
     private static final String[] blankValues = {null, "", " ", "\t", "\n"};

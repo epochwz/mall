@@ -14,8 +14,7 @@ import java.util.Objects;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
-import static fun.epoch.mall.controller.common.Checker.checkAccount;
-import static fun.epoch.mall.controller.common.Checker.checkAccountsWhenNotEmpty;
+import static fun.epoch.mall.controller.common.Checker.*;
 import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -76,8 +75,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "info.do")
     public ServerResponse<User> getUserInfo(HttpSession session) {
-        User user = (User) session.getAttribute(CURRENT_USER);
-        return userService.getUserInfo(user.getId());
+        return userService.getUserInfo(currentUserId(session));
     }
 
     @ResponseBody
@@ -87,8 +85,7 @@ public class UserController {
             return ServerResponse.error("账号相关参数格式不正确");
         }
 
-        User currentUser = (User) session.getAttribute(CURRENT_USER);
-        if (!Objects.equals(currentUser.getId(), user.getId())) {
+        if (!Objects.equals(currentUserId(session), user.getId())) {
             return ServerResponse.error(FORBIDDEN, "用户 ID 与当前登录用户不一致");
         }
         return userService.update(user);
@@ -97,7 +94,10 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "reset_password.do", method = POST)
     public ServerResponse resetPassword(HttpSession session, @RequestParam String oldPass, @RequestParam String newPass) {
-        return null;
+        if (checkPassword(oldPass) && checkPassword(newPass)) {
+            return userService.resetPassword(currentUserId(session), oldPass, newPass);
+        }
+        return ServerResponse.error("密码格式错误");
     }
 
     @ResponseBody
@@ -116,5 +116,9 @@ public class UserController {
     @RequestMapping(value = "reset_password_by_token.do", method = POST)
     public ServerResponse resetPasswordByToken(@RequestParam String username, @RequestParam String password, @RequestParam String forgetToken) {
         return null;
+    }
+
+    private Integer currentUserId(HttpSession session) {
+        return ((User) session.getAttribute(CURRENT_USER)).getId();
     }
 }
