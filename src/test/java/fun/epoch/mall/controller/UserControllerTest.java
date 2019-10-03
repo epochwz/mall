@@ -268,12 +268,34 @@ public class UserControllerTest {
         testIfCodeEqualsSuccess(controller.forgetPassword(username));
     }
 
+    /**
+     * 提交答案 (获取重置密码的 Token)
+     * <p>
+     * 400  非法参数：其中一个参数不合法
+     * 200  获取成功：调用 service 成功
+     */
+    @Test
+    public void testCommitAnswer_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(errorUsernames, errorUsername -> controller.commitAnswer(errorUsername, question, answer));
+        testIfCodeEqualsError(blankValues, errorUsername -> controller.commitAnswer(errorUsername, question, answer));
+        testIfCodeEqualsError(blankValues, blankValue -> controller.commitAnswer(username, blankValue, answer));
+        testIfCodeEqualsError(blankValues, blankValue -> controller.commitAnswer(username, question, blankValue));
+    }
+
+    @Test
+    public void testCommitAnswer_returnSuccess_whenCallServiceSuccess() {
+        when(service.commitAnswer(username, question, answer)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.commitAnswer(username, question, answer));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";
     private static final String password = "epoch_pass";
     private static final String email = "epoch@gmail.com";
     private static final String mobile = "15626112333";
+    private static final String question = "question";
+    private static final String answer = "answer";
 
     private static final String newPassword = "epoch_pass_new";
 

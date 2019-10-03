@@ -61,4 +61,8 @@ public class UserService {
     public ServerResponse<String> findQuestion(String username) {
         return null;
     }
+
+    public ServerResponse<String> commitAnswer(String username, String question, String answer) {
+        return null;
+    }
 }

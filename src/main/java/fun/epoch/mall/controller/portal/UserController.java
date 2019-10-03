@@ -15,6 +15,7 @@ import java.util.Objects;
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
 import static fun.epoch.mall.controller.common.Checker.*;
+import static fun.epoch.mall.utils.TextUtils.isBlank;
 import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -112,7 +113,10 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "commit_answer.do", method = POST)
     public ServerResponse<String> commitAnswer(@RequestParam String username, @RequestParam String question, @RequestParam String answer) {
-        return null;
+        if (!checkUsername(username) || isBlank(question) || isBlank(answer)) {
+            return ServerResponse.error("参数格式不正确");
+        }
+        return userService.commitAnswer(username, question, answer);
     }
 
     @ResponseBody
