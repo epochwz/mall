@@ -103,7 +103,10 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "forget_password.do")
     public ServerResponse<String> forgetPassword(@RequestParam String username) {
-        return null;
+        if (!checkUsername(username)) {
+            return ServerResponse.error("账号格式不正确");
+        }
+        return userService.findQuestion(username);
     }
 
     @ResponseBody

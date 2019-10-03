@@ -57,4 +57,8 @@ public class UserService {
     public ServerResponse resetPassword(int userId, String oldPassword, String newPassword) {
         return null;
     }
+
+    public ServerResponse<String> findQuestion(String username) {
+        return null;
+    }
 }

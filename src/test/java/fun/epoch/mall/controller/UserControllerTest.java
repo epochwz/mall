@@ -250,6 +250,24 @@ public class UserControllerTest {
         testIfCodeEqualsSuccess(controller.resetPassword(session, password, newPassword));
     }
 
+    /**
+     * 忘记密码 (获取密保问题)
+     * <p>
+     * 400  非法参数：账号不合法
+     * 200  获取成功：调用 service 成功
+     */
+    @Test
+    public void testForgetPassword_returnError_whenParamIsInvalid() {
+        testIfCodeEqualsError(blankValues, errorUsername -> controller.forgetPassword(errorUsername));
+        testIfCodeEqualsError(errorUsernames, errorUsername -> controller.forgetPassword(errorUsername));
+    }
+
+    @Test
+    public void testForgetPassword_returnSuccess_whenCallServiceSuccess() {
+        when(service.findQuestion(username)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.forgetPassword(username));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";
