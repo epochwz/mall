@@ -14,35 +14,35 @@ import static org.junit.Assert.assertEquals;
  * 辅助测试类：提供通用的测试辅助方法
  */
 public class TestHelper {
-    public static <T> void assertObjectEquals(Object expected, Object actual) {
+    public static void assertObjectEquals(Object expected, Object actual) {
         assertEquals(expected.toString().trim(), actual.toString().trim());
     }
 
-    public static <T> void testIfCodeEqualsError(String[] errorValues, Function<String, ServerResponse<T>> mapper) {
+    public static void testIfCodeEqualsError(String[] errorValues, Function<String, ServerResponse> mapper) {
         Arrays.stream(errorValues).map(mapper).forEach(TestHelper::testIfCodeEqualsError);
     }
 
-    public static <T> ServerResponse<T> testIfCodeEqualsError(ServerResponse<T> response) {
+    public static ServerResponse testIfCodeEqualsError(ServerResponse response) {
         return testIfCodeEquals(ERROR, response);
     }
 
-    public static <T> ServerResponse<T> testIfCodeEqualsForbidden(ServerResponse<T> response) {
+    public static ServerResponse testIfCodeEqualsForbidden(ServerResponse response) {
         return testIfCodeEquals(FORBIDDEN, response);
     }
 
-    public static <T> ServerResponse<T> testIfCodeEqualsConflict(ServerResponse<T> response) {
+    public static ServerResponse testIfCodeEqualsConflict(ServerResponse response) {
         return testIfCodeEquals(CONFLICT, response);
     }
 
-    public static <T> ServerResponse<T> testIfCodeEqualsNotFound(ServerResponse<T> response) {
+    public static ServerResponse testIfCodeEqualsNotFound(ServerResponse response) {
         return testIfCodeEquals(NOT_FOUND, response);
     }
 
-    public static <T> ServerResponse<T> testIfCodeEqualsSuccess(ServerResponse<T> response) {
+    public static <T> ServerResponse testIfCodeEqualsSuccess(ServerResponse<T> response) {
         return testIfCodeEquals(SUCCESS, response);
     }
 
-    public static <T> ServerResponse<T> testIfCodeEquals(ResponseCode responseCode, ServerResponse<T> response) {
+    public static ServerResponse testIfCodeEquals(ResponseCode responseCode, ServerResponse response) {
         assertEquals(responseCode.getCode(), response.getCode());
         return response;
     }
