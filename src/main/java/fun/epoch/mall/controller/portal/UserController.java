@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 
+import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
+import static fun.epoch.mall.controller.common.Checker.checkAccount;
+import static fun.epoch.mall.controller.common.Checker.checkAccountsWhenNotEmpty;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
@@ -22,7 +25,11 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "register.do", method = POST)
     public ServerResponse<Integer> register(User user) {
-        return null;
+        if (checkAccountsWhenNotEmpty(user) && checkAccount(user)) {
+            user.setRole(CONSUMER);
+            return userService.register(user);
+        }
+        return ServerResponse.error();
     }
 
     @ResponseBody
