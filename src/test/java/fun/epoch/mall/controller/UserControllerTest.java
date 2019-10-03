@@ -7,17 +7,21 @@ import fun.epoch.mall.utils.response.ServerResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.mock.web.MockHttpSession;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
+import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
 import static fun.epoch.mall.common.Constant.AccountType.*;
+import static fun.epoch.mall.common.Constant.CURRENT_USER;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static fun.epoch.mall.utils.response.ResponseCode.NOT_IMPLEMENTED;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserControllerTest {
@@ -26,6 +30,9 @@ public class UserControllerTest {
 
     @Spy
     UserService service;
+
+    @Mock
+    MockHttpSession session;
 
     /**
      * 注册
@@ -98,6 +105,66 @@ public class UserControllerTest {
         when(service.accountVerify(username, USERNAME)).thenReturn(ServerResponse.success());
         testIfCodeEqualsSuccess(controller.accountVerify(username, USERNAME));
     }
+
+    /**
+     * 登录
+     * <p>
+     * 400  非法参数：密码不合法
+     * 400  非法参数：账号是空值
+     * 400  非法参数：账号类型是空值
+     * 400  非法参数：账号类型相对应的账号参数不合法
+     * 501  非法参数：暂不支持的账号类型
+     * 403  权限不足：账号登录成功，但不是消费者账号
+     * 200  登录成功：账号登录成功，并设置 session
+     */
+    @Test
+    public void testLogin_returnError_whenPasswordIsInvalid() {
+        testIfCodeEqualsError(errorPasswords, errorPassword -> controller.login(session, username, errorPassword, USERNAME));
+    }
+
+    @Test
+    public void testLogin_returnError_whenOneOfParamIsEmpty() {
+        testIfCodeEqualsError(blankValues, type -> controller.login(session, username, password, type));
+        testIfCodeEqualsError(blankValues, type -> controller.login(session, email, password, type));
+        testIfCodeEqualsError(blankValues, type -> controller.login(session, mobile, password, type));
+
+        testIfCodeEqualsError(blankValues, errorUsername -> controller.login(session, errorUsername, password, USERNAME));
+        testIfCodeEqualsError(blankValues, errorEmail -> controller.login(session, errorEmail, password, EMAIL));
+        testIfCodeEqualsError(blankValues, errorMobile -> controller.login(session, errorMobile, password, MOBILE));
+    }
+
+    @Test
+    public void testLogin_returnError_whenAccountIsInvalid() {
+        testIfCodeEqualsError(errorUsernames, errorUsername -> controller.login(session, errorUsername, password, USERNAME));
+        testIfCodeEqualsError(errorEmails, errorEmail -> controller.login(session, errorEmail, password, EMAIL));
+        testIfCodeEqualsError(errorMobiles, errorMobile -> controller.login(session, errorMobile, password, MOBILE));
+    }
+
+    @Test
+    public void testLogin_returnNotImplemented_whenAccountTypeIsNotYetSupported() {
+        testIfCodeEquals(NOT_IMPLEMENTED, controller.login(session, username, password, notSupportedAccountType));
+    }
+
+    @Test
+    public void testLogin_returnForbidden_whenLoginSuccessButNotConsumer() {
+        User loginUser = User.builder().username(username).password(password).role(MANAGER).build();
+        when(service.login(username, password, USERNAME)).thenReturn(ServerResponse.success(loginUser));
+
+        testIfCodeEqualsForbidden(controller.login(session, username, password, USERNAME));
+
+        verify(session, never()).setAttribute(eq(CURRENT_USER), any());
+    }
+
+    @Test
+    public void testLogin_returnSuccess_whenLoginSuccess_andThenSetUserIntoSession() {
+        User loginUser = User.builder().username(username).password(password).role(CONSUMER).build();
+        when(service.login(username, password, USERNAME)).thenReturn(ServerResponse.success(loginUser));
+
+        testIfCodeEqualsSuccess(controller.login(session, username, password, USERNAME));
+
+        verify(session).setAttribute(CURRENT_USER, loginUser);
+    }
+
 
     // 合法值
     private static final String username = "epoch";

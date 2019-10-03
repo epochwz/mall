@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpSession;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
+import static fun.epoch.mall.common.Constant.CURRENT_USER;
 import static fun.epoch.mall.controller.common.Checker.checkAccount;
 import static fun.epoch.mall.controller.common.Checker.checkAccountsWhenNotEmpty;
+import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
@@ -35,7 +37,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "account_verify.do")
     public ServerResponse accountVerify(@RequestParam String account, @RequestParam String type) {
-        ServerResponse checkAccount = checkAccount(account, type);
+        ServerResponse checkAccount = userService.checkAccount(account, type);
         if (checkAccount.isError()) {
             return checkAccount;
         }
@@ -45,7 +47,22 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "login.do", method = POST)
     public ServerResponse<User> login(HttpSession session, @RequestParam String account, @RequestParam String password, @RequestParam String type) {
-        return null;
+        ServerResponse checkAccount = userService.checkAccount(account, password, type);
+        if (checkAccount.isError()) {
+            return checkAccount;
+        }
+
+        ServerResponse<User> login = userService.login(account, password, type);
+        if (login.isError()) {
+            return login;
+        }
+
+        User currentUser = login.getData();
+        if (currentUser != null && CONSUMER == currentUser.getRole()) {
+            session.setAttribute(CURRENT_USER, currentUser);
+            return login;
+        }
+        return ServerResponse.error(FORBIDDEN, "无访问权限 (不是消费者账号)");
     }
 
     @ResponseBody
