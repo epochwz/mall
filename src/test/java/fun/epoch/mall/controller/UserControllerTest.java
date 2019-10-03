@@ -119,6 +119,7 @@ public class UserControllerTest {
      */
     @Test
     public void testLogin_returnError_whenPasswordIsInvalid() {
+        testIfCodeEqualsError(blankValues, errorPassword -> controller.login(session, username, errorPassword, USERNAME));
         testIfCodeEqualsError(errorPasswords, errorPassword -> controller.login(session, username, errorPassword, USERNAME));
     }
 
@@ -163,6 +164,17 @@ public class UserControllerTest {
         testIfCodeEqualsSuccess(controller.login(session, username, password, USERNAME));
 
         verify(session).setAttribute(CURRENT_USER, loginUser);
+    }
+
+    /**
+     * 登出 (退出登录)
+     * <p>
+     * 200  登出成功：删除 session 中的 user
+     */
+    @Test
+    public void testLogout_returnSuccess_andThenDeleteUserFromSession() {
+        testIfCodeEqualsSuccess(controller.logout(session));
+        verify(session).removeAttribute(CURRENT_USER);
     }
 
 

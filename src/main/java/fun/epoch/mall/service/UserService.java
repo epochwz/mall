@@ -34,7 +34,7 @@ public class UserService {
         if (isNotBlank(type) && isNotBlank(account)) {
             switch (type) {
                 case USERNAME:
-                    return checkUsername(account) ? ServerResponse.success() : ServerResponse.error("昵称格式不正确");
+                    return checkUsername(account) ? ServerResponse.success() : ServerResponse.error("账号格式不正确");
                 case EMAIL:
                     return checkEmail(account) ? ServerResponse.success() : ServerResponse.error("邮箱格式不正确");
                 case MOBILE:

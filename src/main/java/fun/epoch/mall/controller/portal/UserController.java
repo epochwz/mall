@@ -67,8 +67,9 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "logout.do")
-    public ServerResponse<User> logout(HttpSession session) {
-        return null;
+    public ServerResponse logout(HttpSession session) {
+        session.removeAttribute(CURRENT_USER);
+        return ServerResponse.success("成功退出登录");
     }
 
     @ResponseBody
