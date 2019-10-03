@@ -49,4 +49,8 @@ public class UserService {
     public ServerResponse<User> getUserInfo(int userId) {
         return null;
     }
+
+    public ServerResponse<User> update(User user) {
+        return null;
+    }
 }

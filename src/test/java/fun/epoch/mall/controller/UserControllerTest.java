@@ -192,6 +192,42 @@ public class UserControllerTest {
         testIfCodeEqualsSuccess(controller.getUserInfo(session));
     }
 
+    /**
+     * 更新个人信息
+     * <p>
+     * 400  非法参数：账号非空时不合法
+     * 400  非法参数：邮箱非空时不合法
+     * 400  非法参数：手机非空时不合法
+     * 403  权限不足：用户 ID 与当前登录用户不一致
+     * 200  更新成功：调用 service 成功 (已登录)
+     */
+    @Test
+    public void testUpdateUserInfo_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(errorUsernames, errorUsername -> controller.update(session, User.builder().id(userId).username(errorUsername).password(password).build()));
+        testIfCodeEqualsError(errorEmails, errorEmail -> controller.update(session, User.builder().id(userId).username(username).password(password).email(errorEmail).build()));
+        testIfCodeEqualsError(errorMobiles, errorMobile -> controller.update(session, User.builder().id(userId).username(username).password(password).mobile(errorMobile).build()));
+    }
+
+    @Test
+    public void testUpdateUserInfo_returnForbidden_whenUserIdNotMatch() {
+        User loginUser = User.builder().id(userId).build();
+        when(session.getAttribute(CURRENT_USER)).thenReturn(loginUser);
+
+        User updateUser = User.builder().id(userId + 1).build();
+        testIfCodeEqualsForbidden(controller.update(session, updateUser));
+    }
+
+    @Test
+    public void testUpdateUserInfo_returnSuccess_whenCallServiceSuccess() {
+        User loginUser = User.builder().id(userId).build();
+        when(session.getAttribute(CURRENT_USER)).thenReturn(loginUser);
+
+        when(service.update(any())).thenReturn(ServerResponse.success());
+
+        User updateUser = User.builder().id(userId).build();
+        testIfCodeEqualsSuccess(controller.update(session, updateUser));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";

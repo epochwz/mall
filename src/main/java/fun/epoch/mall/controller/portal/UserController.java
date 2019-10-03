@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.Objects;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
@@ -82,7 +83,15 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
     public ServerResponse<User> update(HttpSession session, User user) {
-        return null;
+        if (!checkAccountsWhenNotEmpty(user)) {
+            return ServerResponse.error("账号相关参数格式不正确");
+        }
+
+        User currentUser = (User) session.getAttribute(CURRENT_USER);
+        if (!Objects.equals(currentUser.getId(), user.getId())) {
+            return ServerResponse.error(FORBIDDEN, "用户 ID 与当前登录用户不一致");
+        }
+        return userService.update(user);
     }
 
     @ResponseBody
