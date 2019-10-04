@@ -53,6 +53,9 @@ public class ManageUserController {
     @ResponseBody
     @RequestMapping(value = "reset_password.do", method = POST)
     public ServerResponse resetPassword(HttpSession session, @RequestParam String oldPass, @RequestParam String newPass) {
-        return null;
+        if (checkPassword(oldPass) && checkPassword(newPass)) {
+            return userService.resetPassword(((User) session.getAttribute(CURRENT_USER)).getId(), oldPass, newPass);
+        }
+        return ServerResponse.error("密码格式不正确");
     }
 }

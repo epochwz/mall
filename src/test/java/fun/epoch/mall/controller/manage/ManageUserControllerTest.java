@@ -74,9 +74,33 @@ public class ManageUserControllerTest {
         verify(session).removeAttribute(CURRENT_USER);
     }
 
+    /**
+     * 重置密码 (已登录)
+     * <p>
+     * 400  非法参数：密码不合法
+     * 200  重置成功：调用 service 成功 (已登录)
+     */
+    @Test
+    public void testResetPassword_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(errorPasswords, errorPassword -> controller.resetPassword(session, password, errorPassword));
+        testIfCodeEqualsError(errorPasswords, errorPassword -> controller.resetPassword(session, errorPassword, password));
+    }
+
+    @Test
+    public void testResetPassword_returnSuccess_whenCallServiceSuccess() {
+        when(session.getAttribute(CURRENT_USER)).thenReturn(User.builder().id(userId).build());
+
+        when(service.resetPassword(userId, password, newPassword)).thenReturn(ServerResponse.success());
+
+        testIfCodeEqualsSuccess(controller.resetPassword(session, password, newPassword));
+    }
+
     // 合法值
+    private static final Integer userId = 1000000;
     private static final String username = "epoch";
     private static final String password = "epoch_password";
+
+    private static final String newPassword = "epoch_pass_new";
 
     // 错误值
     private static final String[] errorPasswords = {null, "", " ", "\t", "\n", "short", "ThisIsAErrorPasswordLongerThan32Chars"};
