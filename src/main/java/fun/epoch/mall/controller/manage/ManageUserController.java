@@ -46,7 +46,8 @@ public class ManageUserController {
 
     @RequestMapping(value = "logout.do")
     public ServerResponse logout(HttpSession session) {
-        return null;
+        session.removeAttribute(CURRENT_USER);
+        return ServerResponse.success();
     }
 
     @ResponseBody

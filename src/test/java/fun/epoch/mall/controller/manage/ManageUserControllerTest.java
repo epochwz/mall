@@ -63,6 +63,17 @@ public class ManageUserControllerTest {
         verify(session).setAttribute(CURRENT_USER, loginUser);
     }
 
+    /**
+     * 登出 (退出登录)
+     * <p>
+     * 200  登出成功：删除 session 中的 user
+     */
+    @Test
+    public void testLogout_returnSuccess_andThenDeleteUserFromSession() {
+        testIfCodeEqualsSuccess(controller.logout(session));
+        verify(session).removeAttribute(CURRENT_USER);
+    }
+
     // 合法值
     private static final String username = "epoch";
     private static final String password = "epoch_password";
