@@ -18,6 +18,7 @@ import static fun.epoch.mall.common.Constant.FORGET_TOKEN_PREFIX;
 import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
 import static fun.epoch.mall.common.Constant.settings;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
+import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
 import static fun.epoch.mall.utils.response.ResponseCode.UN_AUTHORIZED;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -309,6 +310,36 @@ public class UserServiceTest {
         assertEquals(SimpleCache.get(forgetTokenKey), response.getData());
     }
 
+    /**
+     * 重置密码 (通过 Token)
+     * <p>
+     * 404  Token 已失效
+     * 401  Token 不匹配
+     * 200  重置密码成功
+     */
+    @Test
+    public void testResetPasswordByToken_returnNotFound_whenTokenNotExist() {
+        SimpleCache.clearAll();
+
+        testIfCodeEquals(NOT_FOUND, service.resetPasswordByToken(username, password, "tokenNotExist"));
+    }
+
+    @Test
+    public void testResetPasswordByToken_returnUnAuthorized_whenTokenNotMatch() {
+        SimpleCache.put(forgetTokenKey, forgetToken);
+
+        testIfCodeEquals(UN_AUTHORIZED, service.resetPasswordByToken(username, password, "tokenNotMatch"));
+    }
+
+    @Test
+    public void testResetPasswordByToken_returnSuccess() {
+        SimpleCache.put(forgetTokenKey, forgetToken);
+
+        when(userMapper.updatePasswordByUsername(username, MD5Password)).thenReturn(1);
+
+        testIfCodeEqualsSuccess(service.resetPasswordByToken(username, password, forgetToken));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";
@@ -335,4 +366,5 @@ public class UserServiceTest {
     private static final String newMD5Password = MD5Utils.encodeUTF8(newPassword, settings.get(PASSWORD_SALT));
 
     private static final String forgetTokenKey = FORGET_TOKEN_PREFIX + username;
+    private static final String forgetToken = "b9f655ed-4d71-473f-abff-f989098ff818";
 }

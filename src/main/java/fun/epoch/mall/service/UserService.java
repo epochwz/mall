@@ -8,6 +8,7 @@ import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import static fun.epoch.mall.common.Constant.AccountType.*;
@@ -160,7 +161,17 @@ public class UserService {
     }
 
     public ServerResponse resetPasswordByToken(String username, String password, String forgetToken) {
-        return null;
+        String currentForgetToken = SimpleCache.get(FORGET_TOKEN_PREFIX + username);
+        if (isBlank(currentForgetToken)) {
+            return ServerResponse.error(NOT_FOUND, "Token 不存在");
+        }
+        if (!Objects.equals(currentForgetToken, forgetToken)) {
+            return ServerResponse.error(UN_AUTHORIZED, "Token 不匹配");
+        }
+        if (userMapper.updatePasswordByUsername(username, MD5Utils.encodeUTF8(password, settings.get(PASSWORD_SALT))) != 1) {
+            return ServerResponse.error(INTERNAL_SERVER_ERROR, "重置密码失败");
+        }
+        return ServerResponse.success();
     }
 
     public ServerResponse checkAccount(String account, String password, String type) {

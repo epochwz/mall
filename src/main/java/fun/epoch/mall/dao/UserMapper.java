@@ -56,4 +56,6 @@ public interface UserMapper {
     String selectQuestionByUsername(String username);
 
     int selectCountByUsernameAndQuestionAndAnswer(String username, String question, String answer);
+
+    int updatePasswordByUsername(String username, String password);
 }
