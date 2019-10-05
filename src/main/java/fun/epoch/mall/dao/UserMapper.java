@@ -50,4 +50,6 @@ public interface UserMapper {
     int selectCountByEmailExceptCurrentUser(int userId, String email);
 
     int selectCountByMobileExceptCurrentUser(int userId, String mobile);
+
+    int updatePasswordByOldPassword(int userId, String oldPassword, String newPassword);
 }

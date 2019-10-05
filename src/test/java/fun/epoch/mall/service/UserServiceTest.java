@@ -20,6 +20,7 @@ import static fun.epoch.mall.utils.response.ResponseCode.UN_AUTHORIZED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -239,6 +240,25 @@ public class UserServiceTest {
         verify(user).setAnswer(null);
     }
 
+    /**
+     * 重置密码
+     * <p>
+     * 401  旧密码错误
+     * 200  重置成功 (重置前需要对新密码进行 MD5 加密)
+     */
+    @Test
+    public void testResetPassword_returnUnAuthorized_whenOldPassError() {
+        when(userMapper.updatePasswordByOldPassword(eq(userId), eq(MD5Password), any())).thenReturn(0);
+        testIfCodeEquals(UN_AUTHORIZED, service.resetPassword(userId, password, newPassword));
+    }
+
+    @Test
+    public void testResetPassword_returnSuccess() {
+        when(userMapper.updatePasswordByOldPassword(userId, MD5Password, newMD5Password)).thenReturn(1);
+        testIfCodeEqualsSuccess(service.resetPassword(userId, password, newPassword));
+    }
+
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";
@@ -260,4 +280,7 @@ public class UserServiceTest {
     );
 
     private static final String MD5Password = MD5Utils.encodeUTF8(password, settings.get(PASSWORD_SALT));
+
+    private static final String newPassword = "epoch_pass_new";
+    private static final String newMD5Password = MD5Utils.encodeUTF8(newPassword, settings.get(PASSWORD_SALT));
 }

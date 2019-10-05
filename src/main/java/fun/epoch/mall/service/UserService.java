@@ -125,7 +125,12 @@ public class UserService {
     }
 
     public ServerResponse resetPassword(int userId, String oldPassword, String newPassword) {
-        return null;
+        String oldMD5Password = MD5Utils.encodeUTF8(oldPassword, settings.get(PASSWORD_SALT));
+        String newMD5Password = MD5Utils.encodeUTF8(newPassword, settings.get(PASSWORD_SALT));
+        if (userMapper.updatePasswordByOldPassword(userId, oldMD5Password, newMD5Password) > 0) {
+            return ServerResponse.success();
+        }
+        return ServerResponse.error(UN_AUTHORIZED, "旧密码错误");
     }
 
     public ServerResponse<String> findQuestion(String username) {
