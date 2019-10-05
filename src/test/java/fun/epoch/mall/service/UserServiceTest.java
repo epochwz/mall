@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import static fun.epoch.mall.common.Constant.AccountType.*;
 import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
 import static fun.epoch.mall.common.Constant.settings;
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsConflict;
@@ -69,6 +70,36 @@ public class UserServiceTest {
         ServerResponse response = testIfCodeEqualsSuccess(service.register(user));
 
         assertEquals(userId, response.getData());
+    }
+
+    /**
+     * 账号校验
+     * <p>
+     * 409  校验失败，账号已存在
+     * 200  校验成功 (账号不存在)
+     */
+    @Test
+    public void testAccountVerify_returnConflict_whenAccountAlreadyExist() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(1);
+        testIfCodeEqualsConflict(service.accountVerify(username, USERNAME));
+
+        when(userMapper.selectCountByEmail(email)).thenReturn(1);
+        testIfCodeEqualsConflict(service.accountVerify(email, EMAIL));
+
+        when(userMapper.selectCountByMobile(mobile)).thenReturn(1);
+        testIfCodeEqualsConflict(service.accountVerify(mobile, MOBILE));
+    }
+
+    @Test
+    public void testAccountVerify_returnSuccess_whenAccountNotYetExist() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(0);
+        testIfCodeEqualsSuccess(service.accountVerify(username, USERNAME));
+
+        when(userMapper.selectCountByEmail(email)).thenReturn(0);
+        testIfCodeEqualsSuccess(service.accountVerify(email, EMAIL));
+
+        when(userMapper.selectCountByMobile(mobile)).thenReturn(0);
+        testIfCodeEqualsSuccess(service.accountVerify(mobile, MOBILE));
     }
 
     // 合法值

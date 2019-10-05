@@ -38,7 +38,20 @@ public class UserService {
     }
 
     public ServerResponse accountVerify(String account, String type) {
-        return null;
+        ServerResponse validResult = checkAccount(account, type);
+        if (validResult.isSuccess()) {
+            switch (type) {
+                case USERNAME:
+                    return userMapper.selectCountByUsername(account) == 0 ? ServerResponse.success() : ServerResponse.error(CONFLICT, "账号已存在");
+                case EMAIL:
+                    return userMapper.selectCountByEmail(account) == 0 ? ServerResponse.success() : ServerResponse.error(CONFLICT, "邮箱已存在");
+                case MOBILE:
+                    return userMapper.selectCountByMobile(account) == 0 ? ServerResponse.success() : ServerResponse.error(CONFLICT, "手机已存在");
+                default:
+                    return ServerResponse.error(NOT_IMPLEMENTED, "暂不支持的账号类型");
+            }
+        }
+        return validResult;
     }
 
     public ServerResponse<User> login(String username, String password, String type) {
