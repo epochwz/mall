@@ -52,4 +52,6 @@ public interface UserMapper {
     int selectCountByMobileExceptCurrentUser(int userId, String mobile);
 
     int updatePasswordByOldPassword(int userId, String oldPassword, String newPassword);
+
+    String selectQuestionByUsername(String username);
 }

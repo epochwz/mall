@@ -258,6 +258,34 @@ public class UserServiceTest {
         testIfCodeEqualsSuccess(service.resetPassword(userId, password, newPassword));
     }
 
+    /**
+     * 忘记密码 (获取密保问题)
+     * <p>
+     * 404  用户名不存在
+     * 404  密保问题不存在
+     * 200  获取成功，返回密保问题
+     */
+    @Test
+    public void testFindQuestion_returnNotFound_whenUsernameNotExist() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(0);
+        testIfCodeEqualsNotFound(service.findQuestion(username));
+    }
+
+    @Test
+    public void testFindQuestion_returnNotFound_whenQuestionNotExist() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(1);
+        when(userMapper.selectQuestionByUsername(username)).thenReturn("");
+        testIfCodeEqualsNotFound(service.findQuestion(username));
+    }
+
+    @Test
+    public void testFindQuestion_returnSuccess_withQuestion() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(1);
+        when(userMapper.selectQuestionByUsername(username)).thenReturn(question);
+
+        ServerResponse response = testIfCodeEqualsSuccess(service.findQuestion(username));
+        assertEquals(question, response.getData());
+    }
 
     // 合法值
     private static final Integer userId = 1000000;

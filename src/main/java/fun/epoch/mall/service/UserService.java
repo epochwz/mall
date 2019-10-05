@@ -11,6 +11,7 @@ import static fun.epoch.mall.common.Constant.AccountType.*;
 import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
 import static fun.epoch.mall.common.Constant.settings;
 import static fun.epoch.mall.controller.common.Checker.*;
+import static fun.epoch.mall.utils.TextUtils.isBlank;
 import static fun.epoch.mall.utils.TextUtils.isNotBlank;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
 
@@ -134,7 +135,14 @@ public class UserService {
     }
 
     public ServerResponse<String> findQuestion(String username) {
-        return null;
+        if (userMapper.selectCountByUsername(username) == 0) {
+            return ServerResponse.error(NOT_FOUND, "账号不存在");
+        }
+        String question = userMapper.selectQuestionByUsername(username);
+        if (isBlank(question)) {
+            return ServerResponse.error(NOT_FOUND, "未设置密保问题");
+        }
+        return ServerResponse.success(question);
     }
 
     public ServerResponse<String> commitAnswer(String username, String question, String answer) {
