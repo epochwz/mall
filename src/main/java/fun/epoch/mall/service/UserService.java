@@ -1,18 +1,40 @@
 package fun.epoch.mall.service;
 
+import fun.epoch.mall.dao.UserMapper;
 import fun.epoch.mall.entity.User;
+import fun.epoch.mall.utils.MD5Utils;
 import fun.epoch.mall.utils.response.ServerResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static fun.epoch.mall.common.Constant.AccountType.*;
+import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
+import static fun.epoch.mall.common.Constant.settings;
 import static fun.epoch.mall.controller.common.Checker.*;
 import static fun.epoch.mall.utils.TextUtils.isNotBlank;
-import static fun.epoch.mall.utils.response.ResponseCode.NOT_IMPLEMENTED;
+import static fun.epoch.mall.utils.response.ResponseCode.*;
 
 @Service
 public class UserService {
+    @Autowired
+    UserMapper userMapper;
+
     public ServerResponse<Integer> register(User user) {
-        return null;
+        if (userMapper.selectCountByUsername(user.getUsername()) == 1) {
+            return ServerResponse.error(CONFLICT, "账号已存在");
+        }
+        if (isNotBlank(user.getEmail()) && userMapper.selectCountByEmail(user.getEmail()) == 1) {
+            return ServerResponse.error(CONFLICT, "邮箱已存在");
+        }
+        if (isNotBlank(user.getMobile()) && userMapper.selectCountByMobile(user.getMobile()) == 1) {
+            return ServerResponse.error(CONFLICT, "手机已存在");
+        }
+
+        user.setPassword(MD5Utils.encodeUTF8(user.getPassword(), settings.get(PASSWORD_SALT)));
+        if (userMapper.insert(user) == 1) {
+            return ServerResponse.success(user.getId());
+        }
+        return ServerResponse.error(INTERNAL_SERVER_ERROR, "注册失败");
     }
 
     public ServerResponse accountVerify(String account, String type) {

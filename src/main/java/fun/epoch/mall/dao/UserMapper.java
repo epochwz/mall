@@ -32,4 +32,10 @@ public interface UserMapper {
     @Update("update user <selective>")
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(User user);
+
+    int selectCountByUsername(String username);
+
+    int selectCountByEmail(String email);
+
+    int selectCountByMobile(String mobile);
 }
