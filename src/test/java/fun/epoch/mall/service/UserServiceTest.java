@@ -192,6 +192,52 @@ public class UserServiceTest {
         verify(user).setAnswer(null);
     }
 
+    /**
+     * 更新个人信息
+     * <p>
+     * 409  用户名 / 邮箱 / 手机已存在且不属于当前用户
+     * 200  更新成功，返回更新后的用户信息, 并隐藏密码和密保答案
+     */
+    @Test
+    public void testUpdateUserInfo_returnConflict_whenUsernameAlreadyExist() {
+        when(userMapper.selectCountByUsernameExceptCurrentUser(userId, username)).thenReturn(1);
+        testIfCodeEqualsConflict(service.update(user));
+    }
+
+    @Test
+    public void testUpdateUserInfo_returnConflict_whenEmailAlreadyExist() {
+        when(userMapper.selectCountByEmailExceptCurrentUser(userId, email)).thenReturn(1);
+        testIfCodeEqualsConflict(service.update(user));
+    }
+
+    @Test
+    public void testUpdateUserInfo_returnConflict_whenMobileAlreadyExist() {
+        when(userMapper.selectCountByMobileExceptCurrentUser(userId, mobile)).thenReturn(1);
+        testIfCodeEqualsConflict(service.update(user));
+    }
+
+    @Test
+    public void testUpdateUserInfo_returnSuccess_withUpdatedUserWithoutPasswordAndAnswer() {
+        when(userMapper.selectCountByUsernameExceptCurrentUser(userId, username)).thenReturn(0);
+        when(userMapper.selectCountByEmailExceptCurrentUser(userId, email)).thenReturn(0);
+        when(userMapper.selectCountByMobileExceptCurrentUser(userId, mobile)).thenReturn(0);
+
+        when(userMapper.updateSelectiveByPrimaryKey(any())).thenReturn(1);
+
+        when(userMapper.selectByPrimaryKey(userId)).thenReturn(user);
+
+        User updateUser = User.builder().id(userId).username(username).email(email).mobile(mobile).build();
+        ServerResponse response = testIfCodeEqualsSuccess(service.update(updateUser));
+
+        User responseUser = (User) response.getData();
+        assertEquals(user, responseUser);
+
+        assertNull(responseUser.getPassword());
+        assertNull(responseUser.getAnswer());
+
+        verify(user).setPassword(null);
+        verify(user).setAnswer(null);
+    }
 
     // 合法值
     private static final Integer userId = 1000000;

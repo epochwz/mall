@@ -44,4 +44,10 @@ public interface UserMapper {
     User selectByEmailAndPassword(String email, String password);
 
     User selectByMobileAndPassword(String mobile, String password);
+
+    int selectCountByUsernameExceptCurrentUser(int userId, String username);
+
+    int selectCountByEmailExceptCurrentUser(int userId, String email);
+
+    int selectCountByMobileExceptCurrentUser(int userId, String mobile);
 }

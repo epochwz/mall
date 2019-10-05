@@ -99,7 +99,29 @@ public class UserService {
     }
 
     public ServerResponse<User> update(User user) {
-        return null;
+        // 检查账号唯一性
+        if (isNotBlank(user.getUsername()) && userMapper.selectCountByUsernameExceptCurrentUser(user.getId(), user.getUsername()) > 0) {
+            return ServerResponse.error(CONFLICT, "账号已存在");
+        }
+        if (isNotBlank(user.getEmail()) && userMapper.selectCountByEmailExceptCurrentUser(user.getId(), user.getEmail()) > 0) {
+            return ServerResponse.error(CONFLICT, "邮箱已存在");
+        }
+        if (isNotBlank(user.getMobile()) && userMapper.selectCountByMobileExceptCurrentUser(user.getId(), user.getMobile()) > 0) {
+            return ServerResponse.error(CONFLICT, "手机已存在");
+        }
+
+        // 避免更新不必要的字段
+        User updateUser = User.builder().id(user.getId()).build();
+        if (isNotBlank(user.getUsername())) updateUser.setUsername(user.getUsername());
+        if (isNotBlank(user.getEmail())) updateUser.setUsername(user.getEmail());
+        if (isNotBlank(user.getMobile())) updateUser.setUsername(user.getMobile());
+        if (isNotBlank(user.getQuestion())) updateUser.setUsername(user.getQuestion());
+        if (isNotBlank(user.getAnswer())) updateUser.setUsername(user.getAnswer());
+
+        if (userMapper.updateSelectiveByPrimaryKey(updateUser) == 1) {
+            return getUserInfo(user.getId());
+        }
+        return ServerResponse.error(INTERNAL_SERVER_ERROR, "更新用户信息失败");
     }
 
     public ServerResponse resetPassword(int userId, String oldPassword, String newPassword) {
