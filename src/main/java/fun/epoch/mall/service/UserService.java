@@ -54,31 +54,38 @@ public class UserService {
         return validResult;
     }
 
-    public ServerResponse<User> login(String username, String password, String type) {
-        return null;
-    }
-
-    public ServerResponse checkAccount(String account, String password, String type) {
-        if (!checkPassword(password)) {
-            return ServerResponse.error("密码格式不正确");
+    public ServerResponse<User> login(String account, String password, String type) {
+        User user;
+        String md5Password = MD5Utils.encodeUTF8(password, settings.get(PASSWORD_SALT));
+        switch (type) {
+            case USERNAME:
+                if (userMapper.selectCountByUsername(account) == 0) {
+                    return ServerResponse.error(NOT_FOUND, "账号不存在");
+                }
+                user = userMapper.selectByUsernameAndPassword(account, md5Password);
+                break;
+            case EMAIL:
+                if (userMapper.selectCountByEmail(account) == 0) {
+                    return ServerResponse.error(NOT_FOUND, "邮箱不存在");
+                }
+                user = userMapper.selectByEmailAndPassword(account, md5Password);
+                break;
+            case MOBILE:
+                if (userMapper.selectCountByMobile(account) == 0) {
+                    return ServerResponse.error(NOT_FOUND, "手机不存在");
+                }
+                user = userMapper.selectByMobileAndPassword(account, md5Password);
+                break;
+            default:
+                return ServerResponse.error(NOT_IMPLEMENTED, "暂不支持的账号类型");
         }
-        return checkAccount(account, type);
-    }
 
-    public ServerResponse checkAccount(String account, String type) {
-        if (isNotBlank(type) && isNotBlank(account)) {
-            switch (type) {
-                case USERNAME:
-                    return checkUsername(account) ? ServerResponse.success() : ServerResponse.error("账号格式不正确");
-                case EMAIL:
-                    return checkEmail(account) ? ServerResponse.success() : ServerResponse.error("邮箱格式不正确");
-                case MOBILE:
-                    return checkMobile(account) ? ServerResponse.success() : ServerResponse.error("手机格式不正确");
-                default:
-                    return ServerResponse.error(NOT_IMPLEMENTED, "暂不支持的账号类型");
-            }
+        if (user != null) {
+            user.setPassword(null);
+            user.setAnswer(null);
+            return ServerResponse.success(user);
         }
-        return ServerResponse.error("参数不能为空");
+        return ServerResponse.error(UN_AUTHORIZED, "密码错误");
     }
 
     public ServerResponse<User> getUserInfo(int userId) {
@@ -103,5 +110,28 @@ public class UserService {
 
     public ServerResponse resetPasswordByToken(String username, String password, String forgetToken) {
         return null;
+    }
+
+    public ServerResponse checkAccount(String account, String password, String type) {
+        if (!checkPassword(password)) {
+            return ServerResponse.error("密码格式不正确");
+        }
+        return checkAccount(account, type);
+    }
+
+    public ServerResponse checkAccount(String account, String type) {
+        if (isNotBlank(type) && isNotBlank(account)) {
+            switch (type) {
+                case USERNAME:
+                    return checkUsername(account) ? ServerResponse.success() : ServerResponse.error("账号格式不正确");
+                case EMAIL:
+                    return checkEmail(account) ? ServerResponse.success() : ServerResponse.error("邮箱格式不正确");
+                case MOBILE:
+                    return checkMobile(account) ? ServerResponse.success() : ServerResponse.error("手机格式不正确");
+                default:
+                    return ServerResponse.error(NOT_IMPLEMENTED, "暂不支持的账号类型");
+            }
+        }
+        return ServerResponse.error("参数不能为空");
     }
 }

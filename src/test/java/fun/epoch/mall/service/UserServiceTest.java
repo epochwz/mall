@@ -15,10 +15,12 @@ import org.mockito.stubbing.Answer;
 import static fun.epoch.mall.common.Constant.AccountType.*;
 import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
 import static fun.epoch.mall.common.Constant.settings;
-import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsConflict;
-import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
+import static fun.epoch.mall.common.enhanced.TestHelper.*;
+import static fun.epoch.mall.utils.response.ResponseCode.UN_AUTHORIZED;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -100,6 +102,73 @@ public class UserServiceTest {
 
         when(userMapper.selectCountByMobile(mobile)).thenReturn(0);
         testIfCodeEqualsSuccess(service.accountVerify(mobile, MOBILE));
+    }
+
+    /**
+     * 登录
+     * <p>
+     * 404  用户名 / 邮箱 / 手机不存在
+     * 401  密码错误
+     * 200  登录成功 (验证 用户名 / 邮箱 / 手机 三种方式)
+     * 200  登录成功，返回用户信息并隐藏密码和密保答案
+     */
+    @Test
+    public void testLogin_returnNotFound_whenAccountNotExist() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(0);
+        testIfCodeEqualsNotFound(service.login(username, password, USERNAME));
+
+        when(userMapper.selectCountByEmail(email)).thenReturn(0);
+        testIfCodeEqualsNotFound(service.login(email, password, EMAIL));
+
+        when(userMapper.selectCountByMobile(mobile)).thenReturn(0);
+        testIfCodeEqualsNotFound(service.login(mobile, password, MOBILE));
+    }
+
+    @Test
+    public void testLogin_returnUnAuthorized_whenPasswordError() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(1);
+        when(userMapper.selectByUsernameAndPassword(username, MD5Password)).thenReturn(null);
+        testIfCodeEquals(UN_AUTHORIZED, service.login(username, password, USERNAME));
+
+        when(userMapper.selectCountByEmail(email)).thenReturn(1);
+        when(userMapper.selectByEmailAndPassword(email, MD5Password)).thenReturn(null);
+        testIfCodeEquals(UN_AUTHORIZED, service.login(email, password, EMAIL));
+
+        when(userMapper.selectCountByMobile(mobile)).thenReturn(1);
+        when(userMapper.selectByMobileAndPassword(mobile, MD5Password)).thenReturn(null);
+        testIfCodeEquals(UN_AUTHORIZED, service.login(mobile, password, MOBILE));
+    }
+
+    @Test
+    public void testLogin_returnSuccess() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(1);
+        when(userMapper.selectByUsernameAndPassword(username, MD5Password)).thenReturn(user);
+        testIfCodeEqualsSuccess(service.login(username, password, USERNAME));
+
+        when(userMapper.selectCountByEmail(email)).thenReturn(1);
+        when(userMapper.selectByEmailAndPassword(email, MD5Password)).thenReturn(user);
+        testIfCodeEqualsSuccess(service.login(email, password, EMAIL));
+
+        when(userMapper.selectCountByMobile(any())).thenReturn(1);
+        when(userMapper.selectByMobileAndPassword(mobile, MD5Password)).thenReturn(user);
+        testIfCodeEqualsSuccess(service.login(mobile, password, MOBILE));
+    }
+
+    @Test
+    public void testLogin_returnSuccess_withUserWithoutPasswordAndAnswer() {
+        when(userMapper.selectCountByUsername(username)).thenReturn(1);
+        when(userMapper.selectByUsernameAndPassword(username, MD5Password)).thenReturn(user);
+
+        ServerResponse response = testIfCodeEqualsSuccess(service.login(username, password, USERNAME));
+
+        User responseUser = (User) response.getData();
+        assertEquals(user, responseUser);
+
+        assertNull(responseUser.getPassword());
+        assertNull(responseUser.getAnswer());
+
+        verify(user).setPassword(null);
+        verify(user).setAnswer(null);
     }
 
     // 合法值

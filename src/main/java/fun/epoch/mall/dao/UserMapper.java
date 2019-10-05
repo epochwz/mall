@@ -38,4 +38,10 @@ public interface UserMapper {
     int selectCountByEmail(String email);
 
     int selectCountByMobile(String mobile);
+
+    User selectByUsernameAndPassword(String username, String password);
+
+    User selectByEmailAndPassword(String email, String password);
+
+    User selectByMobileAndPassword(String mobile, String password);
 }
