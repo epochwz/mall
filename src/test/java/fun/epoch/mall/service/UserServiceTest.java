@@ -3,6 +3,7 @@ package fun.epoch.mall.service;
 import fun.epoch.mall.dao.UserMapper;
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.utils.MD5Utils;
+import fun.epoch.mall.utils.cache.SimpleCache;
 import fun.epoch.mall.utils.response.ServerResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,12 +14,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static fun.epoch.mall.common.Constant.AccountType.*;
+import static fun.epoch.mall.common.Constant.FORGET_TOKEN_PREFIX;
 import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
 import static fun.epoch.mall.common.Constant.settings;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static fun.epoch.mall.utils.response.ResponseCode.UN_AUTHORIZED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -287,6 +288,27 @@ public class UserServiceTest {
         assertEquals(question, response.getData());
     }
 
+    /**
+     * 提交答案 (获取重置密码的 Token)
+     * <p>
+     * 401  密保答案错误
+     * 200  提交成功，返回重置密码的 Token
+     */
+    @Test
+    public void testCommitAnswer_returnUnAuthorized_whenAnswerError() {
+        when(userMapper.selectCountByUsernameAndQuestionAndAnswer(username, question, answer)).thenReturn(0);
+        testIfCodeEquals(UN_AUTHORIZED, service.commitAnswer(username, question, answer));
+    }
+
+    @Test
+    public void testCommitAnswer_returnSuccess_withToken() {
+        when(userMapper.selectCountByUsernameAndQuestionAndAnswer(username, question, answer)).thenReturn(1);
+
+        ServerResponse response = testIfCodeEqualsSuccess(service.commitAnswer(username, question, answer));
+        assertNotNull(response.getData());
+        assertEquals(SimpleCache.get(forgetTokenKey), response.getData());
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";
@@ -311,4 +333,6 @@ public class UserServiceTest {
 
     private static final String newPassword = "epoch_pass_new";
     private static final String newMD5Password = MD5Utils.encodeUTF8(newPassword, settings.get(PASSWORD_SALT));
+
+    private static final String forgetTokenKey = FORGET_TOKEN_PREFIX + username;
 }

@@ -3,11 +3,15 @@ package fun.epoch.mall.service;
 import fun.epoch.mall.dao.UserMapper;
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.utils.MD5Utils;
+import fun.epoch.mall.utils.cache.SimpleCache;
 import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 import static fun.epoch.mall.common.Constant.AccountType.*;
+import static fun.epoch.mall.common.Constant.FORGET_TOKEN_PREFIX;
 import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
 import static fun.epoch.mall.common.Constant.settings;
 import static fun.epoch.mall.controller.common.Checker.*;
@@ -146,7 +150,13 @@ public class UserService {
     }
 
     public ServerResponse<String> commitAnswer(String username, String question, String answer) {
-        return null;
+        if (userMapper.selectCountByUsernameAndQuestionAndAnswer(username, question, answer) == 0) {
+            return ServerResponse.error(UN_AUTHORIZED, "密保答案错误");
+        }
+        String forgetToken = UUID.randomUUID().toString();
+        String forgetTokenKey = FORGET_TOKEN_PREFIX + username;
+        SimpleCache.put(forgetTokenKey, forgetToken);
+        return ServerResponse.success(forgetToken);
     }
 
     public ServerResponse resetPasswordByToken(String username, String password, String forgetToken) {

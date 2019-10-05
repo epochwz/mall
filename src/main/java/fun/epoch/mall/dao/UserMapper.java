@@ -54,4 +54,6 @@ public interface UserMapper {
     int updatePasswordByOldPassword(int userId, String oldPassword, String newPassword);
 
     String selectQuestionByUsername(String username);
+
+    int selectCountByUsernameAndQuestionAndAnswer(String username, String question, String answer);
 }
