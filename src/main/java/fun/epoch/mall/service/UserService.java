@@ -89,7 +89,13 @@ public class UserService {
     }
 
     public ServerResponse<User> getUserInfo(int userId) {
-        return null;
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user != null) {
+            user.setPassword(null);
+            user.setAnswer(null);
+            return ServerResponse.success(user);
+        }
+        return ServerResponse.error(INTERNAL_SERVER_ERROR);
     }
 
     public ServerResponse<User> update(User user) {

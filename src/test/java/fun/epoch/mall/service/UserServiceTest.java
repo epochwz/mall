@@ -171,6 +171,28 @@ public class UserServiceTest {
         verify(user).setAnswer(null);
     }
 
+    /**
+     * 查看个人信息
+     * <p>
+     * 200  查看成功，返回用户信息并隐藏密码和密保答案
+     */
+    @Test
+    public void testGetUserInfo_returnSuccess_withUserWithoutPasswordAndAnswer() {
+        when(userMapper.selectByPrimaryKey(userId)).thenReturn(user);
+
+        ServerResponse response = testIfCodeEqualsSuccess(service.getUserInfo(userId));
+
+        User responseUser = (User) response.getData();
+        assertEquals(user, responseUser);
+
+        assertNull(responseUser.getPassword());
+        assertNull(responseUser.getAnswer());
+
+        verify(user).setPassword(null);
+        verify(user).setAnswer(null);
+    }
+
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final String username = "epoch";
