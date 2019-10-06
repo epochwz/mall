@@ -15,7 +15,7 @@ import static fun.epoch.mall.common.Constant.AccountType.*;
 import static fun.epoch.mall.common.Constant.FORGET_TOKEN_PREFIX;
 import static fun.epoch.mall.common.Constant.SettingKeys.PASSWORD_SALT;
 import static fun.epoch.mall.common.Constant.settings;
-import static fun.epoch.mall.controller.common.Checker.*;
+import static fun.epoch.mall.controller.common.Checker.checkAccount;
 import static fun.epoch.mall.utils.TextUtils.isBlank;
 import static fun.epoch.mall.utils.TextUtils.isNotBlank;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
@@ -172,28 +172,5 @@ public class UserService {
             return ServerResponse.error(INTERNAL_SERVER_ERROR, "重置密码失败");
         }
         return ServerResponse.success();
-    }
-
-    public ServerResponse checkAccount(String account, String password, String type) {
-        if (!checkPassword(password)) {
-            return ServerResponse.error("密码格式不正确");
-        }
-        return checkAccount(account, type);
-    }
-
-    public ServerResponse checkAccount(String account, String type) {
-        if (isNotBlank(type) && isNotBlank(account)) {
-            switch (type) {
-                case USERNAME:
-                    return checkUsername(account) ? ServerResponse.success() : ServerResponse.error("账号格式不正确");
-                case EMAIL:
-                    return checkEmail(account) ? ServerResponse.success() : ServerResponse.error("邮箱格式不正确");
-                case MOBILE:
-                    return checkMobile(account) ? ServerResponse.success() : ServerResponse.error("手机格式不正确");
-                default:
-                    return ServerResponse.error(NOT_IMPLEMENTED, "暂不支持的账号类型");
-            }
-        }
-        return ServerResponse.error("参数不能为空");
     }
 }

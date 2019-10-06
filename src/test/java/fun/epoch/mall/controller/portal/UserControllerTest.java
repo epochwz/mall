@@ -1,6 +1,5 @@
-package fun.epoch.mall.controller;
+package fun.epoch.mall.controller.portal;
 
-import fun.epoch.mall.controller.portal.UserController;
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.service.UserService;
 import fun.epoch.mall.utils.response.ServerResponse;
@@ -9,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpSession;
 
@@ -28,7 +26,7 @@ public class UserControllerTest {
     @InjectMocks
     UserController controller;
 
-    @Spy
+    @Mock
     UserService service;
 
     @Mock

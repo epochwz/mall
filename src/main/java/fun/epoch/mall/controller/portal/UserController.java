@@ -38,7 +38,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "account_verify.do")
     public ServerResponse accountVerify(@RequestParam String account, @RequestParam String type) {
-        ServerResponse checkAccount = userService.checkAccount(account, type);
+        ServerResponse checkAccount = checkAccount(account, type);
         if (checkAccount.isError()) {
             return checkAccount;
         }
@@ -48,7 +48,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "login.do", method = POST)
     public ServerResponse<User> login(HttpSession session, @RequestParam String account, @RequestParam String password, @RequestParam String type) {
-        ServerResponse checkAccount = userService.checkAccount(account, password, type);
+        ServerResponse checkAccount = checkAccount(account, password, type);
         if (checkAccount.isError()) {
             return checkAccount;
         }
