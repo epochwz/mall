@@ -33,29 +33,42 @@ public interface UserMapper {
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(User user);
 
+    @Select("select count(1) from user where username=#{username}")
     int selectCountByUsername(String username);
 
-    int selectCountByEmail(String email);
-
+    @Select("select count(1) from user where mobile=#{mobile}")
     int selectCountByMobile(String mobile);
 
-    User selectByUsernameAndPassword(String username, String password);
+    @Select("select count(1) from user where email=#{email}")
+    int selectCountByEmail(String email);
 
-    User selectByEmailAndPassword(String email, String password);
+    @Select(selectAll + "where username=#{username} and password=#{password}")
+    User selectByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
 
-    User selectByMobileAndPassword(String mobile, String password);
+    @Select(selectAll + "where email=#{email} and password=#{password}")
+    User selectByEmailAndPassword(@Param("email") String email, @Param("password") String password);
 
-    int selectCountByUsernameExceptCurrentUser(int userId, String username);
+    @Select(selectAll + "where mobile=#{mobile} and password=#{password}")
+    User selectByMobileAndPassword(@Param("mobile") String mobile, @Param("password") String password);
 
-    int selectCountByEmailExceptCurrentUser(int userId, String email);
+    @Select("select count(1) from user where username=#{username} and id!=#{id} ")
+    int selectCountByUsernameExceptCurrentUser(@Param("id") int id, @Param("username") String username);
 
-    int selectCountByMobileExceptCurrentUser(int userId, String mobile);
+    @Select("select count(1) from user where email=#{email} and id!=#{id} ")
+    int selectCountByEmailExceptCurrentUser(@Param("id") int id, @Param("email") String email);
 
-    int updatePasswordByOldPassword(int userId, String oldPassword, String newPassword);
+    @Select("select count(1) from user where mobile=#{mobile} and id!=#{id} ")
+    int selectCountByMobileExceptCurrentUser(@Param("id") int id, @Param("mobile") String mobile);
 
+    @Update("update user set password=#{newPass} where id=#{id} and password=#{oldPass}")
+    int updatePasswordByOldPassword(@Param("id") int id, @Param("oldPass") String oldPass, @Param("newPass") String newPass);
+
+    @Select("select question from user where username=#{username}")
     String selectQuestionByUsername(String username);
 
-    int selectCountByUsernameAndQuestionAndAnswer(String username, String question, String answer);
+    @Select("select count(1) from user where username=#{username} and question=#{question} and answer=#{answer}")
+    int selectCountByUsernameAndQuestionAndAnswer(@Param("username") String username, @Param("question") String question, @Param("answer") String answer);
 
-    int updatePasswordByUsername(String username, String password);
+    @Update("update user set password=#{password} where username=#{username}")
+    int updatePasswordByUsername(@Param("username") String username, @Param("password") String password);
 }
