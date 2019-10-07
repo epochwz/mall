@@ -5,6 +5,7 @@ import fun.epoch.mall.service.UserService;
 import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,7 +28,7 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "register.do", method = POST)
-    public ServerResponse<Integer> register(User user) {
+    public ServerResponse<Integer> register(@RequestBody User user) {
         if (checkAccountsWhenNotEmpty(user) && checkAccount(user)) {
             user.setRole(CONSUMER);
             return userService.register(user);
@@ -81,7 +82,7 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
-    public ServerResponse<User> update(HttpSession session, User user) {
+    public ServerResponse<User> update(HttpSession session, @RequestBody User user) {
         if (!checkAccountsWhenNotEmpty(user)) {
             return ServerResponse.error("账号相关参数格式不正确");
         }

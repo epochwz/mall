@@ -6,6 +6,7 @@ import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.ProductVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -41,13 +42,13 @@ public class ManageProductController {
 
     @ResponseBody
     @RequestMapping(value = "add.do", method = POST)
-    public ServerResponse<Integer> add(ProductVo productVo) {
+    public ServerResponse<Integer> add(@RequestBody ProductVo productVo) {
         return null;
     }
 
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
-    public ServerResponse<ProductVo> update(ProductVo productVo) {
+    public ServerResponse<ProductVo> update(@RequestBody ProductVo productVo) {
         return null;
     }
 

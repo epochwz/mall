@@ -6,6 +6,7 @@ import fun.epoch.mall.service.ShippingService;
 import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,13 +39,13 @@ public class ShippingController {
 
     @ResponseBody
     @RequestMapping(value = "add.do", method = POST)
-    public ServerResponse<Integer> add(HttpSession session, Shipping shipping) {
+    public ServerResponse<Integer> add(HttpSession session, @RequestBody Shipping shipping) {
         return null;
     }
 
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
-    public ServerResponse<Shipping> update(HttpSession session, Shipping shipping) {
+    public ServerResponse<Shipping> update(HttpSession session, @RequestBody Shipping shipping) {
         return null;
     }
 
