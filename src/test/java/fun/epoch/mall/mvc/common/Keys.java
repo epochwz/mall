@@ -17,4 +17,11 @@ public interface Keys {
         String order_item = "order_item";
         String payment_info = "payment_info";
     }
+
+    /**
+     * SQL 测试文件
+     */
+    interface MockSqls {
+        String COMMON_SQLS = "mock/tables.sql";
+    }
 }
