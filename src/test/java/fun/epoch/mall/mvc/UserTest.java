@@ -4,18 +4,17 @@ import fun.epoch.mall.entity.User;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.Constant.AccountType.*;
-import static fun.epoch.mall.mvc.common.Apis.portal.user.account_verify;
-import static fun.epoch.mall.mvc.common.Apis.portal.user.register;
+import static fun.epoch.mall.mvc.common.Apis.portal.user.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.AUTO_INCREMENT;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.Tables.user;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.*;
-import static fun.epoch.mall.utils.response.ResponseCode.CONFLICT;
-import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
+import static fun.epoch.mall.utils.response.ResponseCode.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class UserTest extends CustomMvcTest {
@@ -86,6 +85,50 @@ public class UserTest extends CustomMvcTest {
         perform(CONFLICT, post(account_verify)
                 .param("account", mobile)
                 .param("type", MOBILE)
+        );
+    }
+
+    /**
+     * 登录
+     * <p>
+     * 200  登录成功，返回用户信息
+     * 404  账号不存在
+     * 401  密码错误
+     * 403  无访问权限 (不是消费者账号)
+     */
+    @Test
+    public void testLogin_200_withUser() {
+        MockHttpServletRequestBuilder loginByUsername = post(login)
+                .param("account", username)
+                .param("password", password)
+                .param("type", USERNAME);
+        perform(loginByUsername, SUCCESS, userId, username, email, mobile, question);
+    }
+
+    @Test
+    public void testLogin_404_whenAccountNotExist() {
+        perform(NOT_FOUND, post(login)
+                .param("account", usernameNotExist)
+                .param("password", password)
+                .param("type", USERNAME)
+        );
+    }
+
+    @Test
+    public void testLogin_401_whenPasswordError() {
+        perform(UN_AUTHORIZED, post(login)
+                .param("account", username)
+                .param("password", passwordNotExist)
+                .param("type", USERNAME)
+        );
+    }
+
+    @Test
+    public void testLogin_403_whenLoginSuccessButNotConsumer() {
+        perform(FORBIDDEN, post(login)
+                .param("account", admin)
+                .param("password", adminPassword)
+                .param("type", USERNAME)
         );
     }
 
