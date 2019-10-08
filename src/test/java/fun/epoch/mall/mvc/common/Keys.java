@@ -1,5 +1,7 @@
 package fun.epoch.mall.mvc.common;
 
+import static fun.epoch.mall.common.Constant.FORGET_TOKEN_PREFIX;
+
 /**
  * 测试常量
  */
@@ -32,6 +34,8 @@ public interface Keys {
         String passwordNotExist = "xiaoming_pass";
         String emailNotExist = "xiaoming@gmail.com";
         String mobileNotExist = "15699999999";
+
+        String notExist = "not_exist";
     }
 
     interface UserKeys {
@@ -51,5 +55,7 @@ public interface Keys {
 
         String admin = "admin";
         String adminPassword = "admin_pass";
+
+        String forgetTokenKey = FORGET_TOKEN_PREFIX + username;
     }
 }

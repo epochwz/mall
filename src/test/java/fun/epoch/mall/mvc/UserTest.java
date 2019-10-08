@@ -2,6 +2,7 @@ package fun.epoch.mall.mvc;
 
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
+import fun.epoch.mall.utils.cache.SimpleCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -234,6 +235,42 @@ public class UserTest extends CustomMvcTest {
     @Test
     public void testForgetPassword_404_whenQuestionNotExist() {
         perform(NOT_FOUND, post(forget_password).param("username", username2));
+    }
+
+    /**
+     * 提交答案 (获取重置密码的 Token)
+     * <p>
+     * 200  获取 Token 成功
+     * 401  密保答案错误
+     */
+    @Test
+    public void testCommitAnswer_200() {
+        MockHttpServletRequestBuilder commitAnswer = post(commit_answer)
+                .param("username", username)
+                .param("question", question)
+                .param("answer", answer);
+        expected(perform(commitAnswer, SUCCESS), SimpleCache.get(forgetTokenKey));
+    }
+
+    @Test
+    public void testCommitAnswer_401() {
+        perform(UN_AUTHORIZED, post(commit_answer)
+                .param("username", notExist)
+                .param("question", question)
+                .param("answer", answer)
+        );
+
+        perform(UN_AUTHORIZED, post(commit_answer)
+                .param("username", username)
+                .param("question", notExist)
+                .param("answer", answer)
+        );
+
+        perform(UN_AUTHORIZED, post(commit_answer)
+                .param("username", username)
+                .param("question", question)
+                .param("answer", notExist)
+        );
     }
 
     private User.UserBuilder mockNewUser() {
