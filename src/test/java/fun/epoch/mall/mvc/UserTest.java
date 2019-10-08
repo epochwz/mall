@@ -152,7 +152,33 @@ public class UserTest extends CustomMvcTest {
         perform(post(info), SUCCESS, userId, username, email, mobile, question);
     }
 
+    /**
+     * 更新个人信息
+     * <p>
+     * 200  更新个人信息成功
+     * 409  用户名 / 邮箱 / 手机号码 已存在
+     */
+    @Test
+    public void testUpdate_200() {
+        postJson(update, User.builder().id(UserId).build(), SUCCESS, username, email, mobile, question);
+
+        postJson(update, mockUser().username(usernameNotExist).question("\t").mobile("").build(), SUCCESS, usernameNotExist, email, mobile, question);
+
+        postJson(update, mockUser().email(emailNotExist).mobile(mobileNotExist).build(), SUCCESS, username, emailNotExist, mobileNotExist, question);
+    }
+
+    @Test
+    public void testUpdate_409_whenAccountAlreadyExist() {
+        postJson(update, mockUser().username(username2).build(), CONFLICT);
+        postJson(update, mockUser().email(email2).build(), CONFLICT);
+        postJson(update, mockUser().mobile(mobile2).build(), CONFLICT);
+    }
+
     private User.UserBuilder mockNewUser() {
         return User.builder().username(usernameNotExist).email(emailNotExist).mobile(mobileNotExist).password(passwordNotExist);
+    }
+
+    private User.UserBuilder mockUser() {
+        return User.builder().id(UserId).username(username).email(email).mobile(mobile).password(password);
     }
 }

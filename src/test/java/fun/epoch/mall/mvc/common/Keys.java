@@ -35,6 +35,7 @@ public interface Keys {
     }
 
     interface UserKeys {
+        Integer UserId = 1000000;
         String userId = "1000000";
         String username = "epoch";
         String email = "epoch@gmail.com";
