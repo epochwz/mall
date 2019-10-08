@@ -53,6 +53,7 @@ public interface Keys {
         String email2 = "epochwz@gmail.com";
         String mobile2 = "15611112222";
 
+        String adminId = "1000002";
         String admin = "admin";
         String adminPassword = "admin_pass";
 

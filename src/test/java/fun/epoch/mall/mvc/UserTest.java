@@ -1,6 +1,7 @@
 package fun.epoch.mall.mvc;
 
 import fun.epoch.mall.entity.User;
+import fun.epoch.mall.mvc.common.Apis;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
 import fun.epoch.mall.utils.cache.SimpleCache;
 import org.junit.Before;
@@ -309,6 +310,46 @@ public class UserTest extends CustomMvcTest {
                 .param("username", username)
                 .param("password", password)
                 .param("forgetToken", forgetToken)
+        );
+    }
+
+    /**
+     * 后台：登录
+     * <p>
+     * 200  登录成功，返回用户信息
+     * 404  用户名不存在
+     * 401  密码错误
+     * 403  无访问权限 (不是管理员账号)
+     */
+    @Test
+    public void testManageLogin_200_withUser() {
+        MockHttpServletRequestBuilder loginByUsername = post(Apis.manage.user.login)
+                .param("username", admin)
+                .param("password", adminPassword);
+        perform(loginByUsername, SUCCESS, adminId, admin);
+    }
+
+    @Test
+    public void testManageLogin_404_whenUsernameNotExist() {
+        perform(NOT_FOUND, post(Apis.manage.user.login)
+                .param("username", notExist)
+                .param("password", adminPassword)
+        );
+    }
+
+    @Test
+    public void testManageLogin_401_whenPasswordError() {
+        perform(UN_AUTHORIZED, post(Apis.manage.user.login)
+                .param("username", admin)
+                .param("password", notExist)
+        );
+    }
+
+    @Test
+    public void testManageLogin_403_whenLoginSuccessButNotManage() {
+        perform(FORBIDDEN, post(Apis.manage.user.login)
+                .param("username", username)
+                .param("password", password)
         );
     }
 
