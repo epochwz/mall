@@ -174,6 +174,46 @@ public class UserTest extends CustomMvcTest {
         postJson(update, mockUser().mobile(mobile2).build(), CONFLICT);
     }
 
+    /**
+     * 重置密码 (已登录状态)
+     * <p>
+     * 200  重置密码成功
+     * 401  旧密码错误
+     */
+    @Test
+    public void testResetPassword_200() {
+        perform(SUCCESS, post(login)
+                .param("account", username)
+                .param("password", password)
+                .param("type", USERNAME)
+        );
+
+        perform(SUCCESS, post(reset_password)
+                .param("oldPass", password)
+                .param("newPass", passwordNotExist)
+        );
+
+        perform(SUCCESS, post(login)
+                .param("account", username)
+                .param("password", passwordNotExist)
+                .param("type", USERNAME)
+        );
+
+        perform(UN_AUTHORIZED, post(login)
+                .param("account", username)
+                .param("password", password)
+                .param("type", USERNAME)
+        );
+    }
+
+    @Test
+    public void testResetPassword_401_whenPasswordError() {
+        perform(UN_AUTHORIZED, post(reset_password)
+                .param("oldPass", passwordNotExist)
+                .param("newPass", password)
+        );
+    }
+
     private User.UserBuilder mockNewUser() {
         return User.builder().username(usernameNotExist).email(emailNotExist).mobile(mobileNotExist).password(passwordNotExist);
     }
