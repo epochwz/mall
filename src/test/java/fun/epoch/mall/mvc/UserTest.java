@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.UUID;
+
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.Constant.AccountType.*;
 import static fun.epoch.mall.mvc.common.Apis.portal.user.*;
@@ -270,6 +272,43 @@ public class UserTest extends CustomMvcTest {
                 .param("username", username)
                 .param("question", question)
                 .param("answer", notExist)
+        );
+    }
+
+    /**
+     * 重置密码 (通过 Token)
+     * <p>
+     * 200  重置密码成功
+     * 404  Token 已失效
+     * 401  Token 不匹配
+     */
+    @Test
+    public void testResetPasswordByToken_200() {
+        SimpleCache.put(forgetTokenKey, forgetToken);
+        perform(SUCCESS, post(reset_password_by_token)
+                .param("username", username)
+                .param("password", password)
+                .param("forgetToken", forgetToken)
+        );
+    }
+
+    @Test
+    public void testResetPasswordByToken_404_whenTokenNotExist() {
+        SimpleCache.clearAll();
+        perform(NOT_FOUND, post(reset_password_by_token)
+                .param("username", username)
+                .param("password", password)
+                .param("forgetToken", forgetToken)
+        );
+    }
+
+    @Test
+    public void testResetPasswordByToken_401_whenTokenNotMatch() {
+        SimpleCache.put(forgetTokenKey, UUID.randomUUID().toString());
+        perform(UN_AUTHORIZED, post(reset_password_by_token)
+                .param("username", username)
+                .param("password", password)
+                .param("forgetToken", forgetToken)
         );
     }
 

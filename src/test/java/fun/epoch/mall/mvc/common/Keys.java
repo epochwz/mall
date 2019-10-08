@@ -57,5 +57,6 @@ public interface Keys {
         String adminPassword = "admin_pass";
 
         String forgetTokenKey = FORGET_TOKEN_PREFIX + username;
+        String forgetToken = "b9f655ed-4d71-473f-abff-f989098ff818";
     }
 }
