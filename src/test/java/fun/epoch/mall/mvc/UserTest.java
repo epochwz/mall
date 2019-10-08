@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
+import static fun.epoch.mall.common.Constant.AccountType.*;
+import static fun.epoch.mall.mvc.common.Apis.portal.user.account_verify;
 import static fun.epoch.mall.mvc.common.Apis.portal.user.register;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.AUTO_INCREMENT;
@@ -14,6 +16,7 @@ import static fun.epoch.mall.mvc.common.Keys.Tables.user;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.*;
 import static fun.epoch.mall.utils.response.ResponseCode.CONFLICT;
 import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class UserTest extends CustomMvcTest {
     @Before
@@ -42,6 +45,48 @@ public class UserTest extends CustomMvcTest {
         postJson(register, mockNewUser().username(username).build(), CONFLICT);
         postJson(register, mockNewUser().email(email).build(), CONFLICT);
         postJson(register, mockNewUser().mobile(mobile2).build(), CONFLICT);
+    }
+
+    /**
+     * 账号校验
+     * <p>
+     * 200  校验成功 (账号不存在)
+     * 409  校验失败 (账号已存在)
+     */
+    @Test
+    public void testAccountVerify_200_whenAccountNotYetExist() {
+        perform(SUCCESS, post(account_verify)
+                .param("account", usernameNotExist)
+                .param("type", USERNAME)
+        );
+
+        perform(SUCCESS, post(account_verify)
+                .param("account", emailNotExist)
+                .param("type", EMAIL)
+        );
+
+        perform(SUCCESS, post(account_verify)
+                .param("account", mobileNotExist)
+                .param("type", MOBILE)
+        );
+    }
+
+    @Test
+    public void testAccountVerify_409_whenAccountAlreadyExist() {
+        perform(CONFLICT, post(account_verify)
+                .param("account", username)
+                .param("type", USERNAME)
+        );
+
+        perform(CONFLICT, post(account_verify)
+                .param("account", email)
+                .param("type", EMAIL)
+        );
+
+        perform(CONFLICT, post(account_verify)
+                .param("account", mobile)
+                .param("type", MOBILE)
+        );
     }
 
     private User.UserBuilder mockNewUser() {
