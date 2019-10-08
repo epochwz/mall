@@ -148,7 +148,7 @@ public class UserTest extends CustomMvcTest {
      * 200  查看个人信息成功
      */
     @Test
-    public void testGetUserInfoSuccess() {
+    public void testGetUserInfo_200() {
         perform(post(info), SUCCESS, userId, username, email, mobile, question);
     }
 
