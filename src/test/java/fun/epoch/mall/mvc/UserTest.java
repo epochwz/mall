@@ -142,6 +142,16 @@ public class UserTest extends CustomMvcTest {
         perform(SUCCESS, post(logout));
     }
 
+    /**
+     * 查看个人信息
+     * <p>
+     * 200  查看个人信息成功
+     */
+    @Test
+    public void testGetUserInfoSuccess() {
+        perform(post(info), SUCCESS, userId, username, email, mobile, question);
+    }
+
     private User.UserBuilder mockNewUser() {
         return User.builder().username(usernameNotExist).email(emailNotExist).mobile(mobileNotExist).password(passwordNotExist);
     }
