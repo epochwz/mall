@@ -392,6 +392,16 @@ public class UserTest extends CustomMvcTest {
                 );
     }
 
+    /**
+     * 后台：登出
+     * <p>
+     * 200  登出成功
+     */
+    @Test
+    public void testManageLogout_200() {
+        perform(SUCCESS, post(Apis.manage.user.logout));
+    }
+
     private User.UserBuilder mockNewUser() {
         return User.builder().username(usernameNotExist).email(emailNotExist).mobile(mobileNotExist).password(passwordNotExist);
     }

@@ -44,6 +44,7 @@ public class ManageUserController {
         return ServerResponse.error("参数格式不正确");
     }
 
+    @ResponseBody
     @RequestMapping(value = "logout.do")
     public ServerResponse logout(HttpSession session) {
         session.removeAttribute(CURRENT_USER);
