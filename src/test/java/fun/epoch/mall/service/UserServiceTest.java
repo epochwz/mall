@@ -225,21 +225,29 @@ public class UserServiceTest {
         when(userMapper.selectCountByEmailExceptCurrentUser(userId, email)).thenReturn(0);
         when(userMapper.selectCountByMobileExceptCurrentUser(userId, mobile)).thenReturn(0);
 
-        when(userMapper.updateSelectiveByPrimaryKey(any())).thenReturn(1);
+        // 模拟数据库更新
+        User dbUser = User.builder().username("xxx").password("xxx").email("xxx").mobile("xxx").question("xxx").answer("xxx").build();
+        when(userMapper.updateSelectiveByPrimaryKey(any())).thenAnswer((Answer<Integer>) invocation -> {
+            User user = invocation.getArgument(0);
+            if (user.getUsername() != null) dbUser.setUsername(user.getUsername());
+            if (user.getEmail() != null) dbUser.setEmail(user.getEmail());
+            if (user.getMobile() != null) dbUser.setMobile(user.getMobile());
+            if (user.getQuestion() != null) dbUser.setQuestion(user.getQuestion());
+            if (user.getAnswer() != null) dbUser.setAnswer(user.getAnswer());
+            return 1;
+        });
 
-        when(userMapper.selectByPrimaryKey(userId)).thenReturn(user);
+        when(userMapper.selectByPrimaryKey(userId)).thenReturn(dbUser);
 
-        User updateUser = User.builder().id(userId).username(username).email(email).mobile(mobile).build();
+        User updateUser = User.builder().id(userId).username(username).password(password).email("\t").question(question).build();
         ServerResponse response = testIfCodeEqualsSuccess(service.update(updateUser));
 
         User responseUser = (User) response.getData();
-        assertEquals(user, responseUser);
+        User expectedUser = User.builder().username(username).email("xxx").mobile("xxx").question(question).build();
+        assertObjectEquals(expectedUser, responseUser);
 
         assertNull(responseUser.getPassword());
         assertNull(responseUser.getAnswer());
-
-        verify(user).setPassword(null);
-        verify(user).setAnswer(null);
     }
 
     /**

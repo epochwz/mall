@@ -119,10 +119,10 @@ public class UserService {
         // 避免更新不必要的字段
         User updateUser = User.builder().id(user.getId()).build();
         if (isNotBlank(user.getUsername())) updateUser.setUsername(user.getUsername());
-        if (isNotBlank(user.getEmail())) updateUser.setUsername(user.getEmail());
-        if (isNotBlank(user.getMobile())) updateUser.setUsername(user.getMobile());
-        if (isNotBlank(user.getQuestion())) updateUser.setUsername(user.getQuestion());
-        if (isNotBlank(user.getAnswer())) updateUser.setUsername(user.getAnswer());
+        if (isNotBlank(user.getEmail())) updateUser.setEmail(user.getEmail());
+        if (isNotBlank(user.getMobile())) updateUser.setMobile(user.getMobile());
+        if (isNotBlank(user.getQuestion())) updateUser.setQuestion(user.getQuestion());
+        if (isNotBlank(user.getAnswer())) updateUser.setAnswer(user.getAnswer());
 
         if (userMapper.updateSelectiveByPrimaryKey(updateUser) == 1) {
             return getUserInfo(user.getId());
