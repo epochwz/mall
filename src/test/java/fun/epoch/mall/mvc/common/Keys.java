@@ -24,4 +24,8 @@ public interface Keys {
     interface MockSqls {
         String COMMON_SQLS = "mock/tables.sql";
     }
+
+    interface UserKeys {
+        String userId = "1000000";
+    }
 }
