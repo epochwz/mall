@@ -214,6 +214,28 @@ public class UserTest extends CustomMvcTest {
         );
     }
 
+    /**
+     * 忘记密码 (获取密保问题)
+     * <p>
+     * 200  获取密保问题成功
+     * 404  用户名不存在
+     * 404  未设置密保问题
+     */
+    @Test
+    public void testForgetPassword_200() {
+        perform(post(forget_password).param("username", username), SUCCESS, question);
+    }
+
+    @Test
+    public void testForgetPassword_404_whenUsernameNotExist() {
+        perform(NOT_FOUND, post(forget_password).param("username", usernameNotExist));
+    }
+
+    @Test
+    public void testForgetPassword_404_whenQuestionNotExist() {
+        perform(NOT_FOUND, post(forget_password).param("username", username2));
+    }
+
     private User.UserBuilder mockNewUser() {
         return User.builder().username(usernameNotExist).email(emailNotExist).mobile(mobileNotExist).password(passwordNotExist);
     }
