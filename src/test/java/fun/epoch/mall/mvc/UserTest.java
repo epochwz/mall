@@ -138,7 +138,7 @@ public class UserTest extends CustomMvcTest {
      * 200  登出成功
      */
     @Test
-    public void testLogoutSuccess() {
+    public void testLogout_200() {
         perform(SUCCESS, post(logout));
     }
 
