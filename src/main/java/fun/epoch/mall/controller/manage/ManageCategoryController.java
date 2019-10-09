@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import static fun.epoch.mall.utils.TextUtils.isBlank;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
@@ -20,7 +21,10 @@ public class ManageCategoryController {
     @ResponseBody
     @RequestMapping(value = "add.do", method = POST)
     public ServerResponse<Integer> add(@RequestParam(defaultValue = "0") int parentId, @RequestParam String categoryName) {
-        return null;
+        if (isBlank(categoryName)) {
+            return ServerResponse.error("商品类别名称不能为空");
+        }
+        return categoryService.add(parentId, categoryName);
     }
 
     @ResponseBody
