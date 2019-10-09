@@ -51,12 +51,12 @@ public class ManageCategoryController {
     @ResponseBody
     @RequestMapping(value = "list.do")
     public ServerResponse<Category> list(@RequestParam(value = "id", defaultValue = "0") int categoryId) {
-        return null;
+        return categoryService.list(categoryId);
     }
 
     @ResponseBody
     @RequestMapping(value = "list_all.do")
     public ServerResponse<Category> listAll(@RequestParam(value = "id", defaultValue = "0") int categoryId) {
-        return null;
+        return categoryService.listAll(categoryId);
     }
 }

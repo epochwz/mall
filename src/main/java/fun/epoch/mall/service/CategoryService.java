@@ -21,4 +21,12 @@ public class CategoryService {
     public ServerResponse disable(int[] ids) {
         return null;
     }
+
+    public ServerResponse<Category> list(int categoryId) {
+        return null;
+    }
+
+    public ServerResponse<Category> listAll(int categoryId) {
+        return null;
+    }
 }

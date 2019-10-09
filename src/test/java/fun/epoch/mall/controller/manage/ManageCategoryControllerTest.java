@@ -1,5 +1,6 @@
 package fun.epoch.mall.controller.manage;
 
+import fun.epoch.mall.entity.Category;
 import fun.epoch.mall.service.CategoryService;
 import fun.epoch.mall.utils.response.ServerResponse;
 import org.junit.Test;
@@ -75,6 +76,28 @@ public class ManageCategoryControllerTest {
     public void testDisableCategory_returnSuccess_whenCallServiceSuccess() {
         when(service.disable(any())).thenReturn(ServerResponse.success());
         testIfCodeEqualsSuccess(controller.disable(null));
+    }
+
+    /**
+     * 查询商品类别列表 (平级)
+     * <p>
+     * 200  查询成功：调用 service 成功
+     */
+    @Test
+    public void testListCategory_returnSuccess_whenCallServiceSuccess() {
+        when(service.list(categoryId)).thenReturn(ServerResponse.success(new Category()));
+        testIfCodeEqualsSuccess(controller.list(categoryId));
+    }
+
+    /**
+     * 查询商品类别列表 (递归)
+     * <p>
+     * 200  查询成功：调用 service 成功
+     */
+    @Test
+    public void testListAllCategory_returnSuccess_whenCallServiceSuccess() {
+        when(service.listAll(categoryId)).thenReturn(ServerResponse.success(new Category()));
+        testIfCodeEqualsSuccess(controller.listAll(categoryId));
     }
 
     // 合法值
