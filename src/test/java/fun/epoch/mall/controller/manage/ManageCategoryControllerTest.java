@@ -37,8 +37,26 @@ public class ManageCategoryControllerTest {
         testIfCodeEqualsSuccess(controller.add(parentId, categoryName));
     }
 
+    /**
+     * 更新商品类别
+     * <p>
+     * 400  非法参数：商品类别名称-空值
+     * 200  更新成功：调用 service 成功
+     */
+    @Test
+    public void testUpdateCategory_returnError_whenCategoryNameIsEmpty() {
+        testIfCodeEqualsError(blankValues, errorCategoryName -> controller.update(categoryId, errorCategoryName));
+    }
+
+    @Test
+    public void testUpdateCategory_returnSuccess_whenCallServiceSuccess() {
+        when(service.update(categoryId, categoryName)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.update(categoryId, categoryName));
+    }
+
     // 合法值
     private static final int parentId = 0;
+    private static final int categoryId = 1111111;
     private static final String categoryName = "食品";
 
     // 错误值

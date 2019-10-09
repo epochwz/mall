@@ -30,7 +30,10 @@ public class ManageCategoryController {
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
     public ServerResponse<Category> update(@RequestParam("id") int categoryId, @RequestParam String categoryName) {
-        return null;
+        if (isBlank(categoryName)) {
+            return ServerResponse.error("商品类别名称不能为空");
+        }
+        return categoryService.update(categoryId, categoryName);
     }
 
     @ResponseBody
