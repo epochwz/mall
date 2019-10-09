@@ -39,13 +39,13 @@ public class ManageCategoryController {
     @ResponseBody
     @RequestMapping(value = "enable.do", method = POST)
     public ServerResponse enable(int[] ids) {
-        return null;
+        return categoryService.enable(ids);
     }
 
     @ResponseBody
     @RequestMapping(value = "disable.do", method = POST)
     public ServerResponse disable(int[] ids) {
-        return null;
+        return categoryService.disable(ids);
     }
 
     @ResponseBody

@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsError;
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,6 +53,28 @@ public class ManageCategoryControllerTest {
     public void testUpdateCategory_returnSuccess_whenCallServiceSuccess() {
         when(service.update(categoryId, categoryName)).thenReturn(ServerResponse.success());
         testIfCodeEqualsSuccess(controller.update(categoryId, categoryName));
+    }
+
+    /**
+     * 启用商品类别
+     * <p>
+     * 200  启用成功：调用 service 成功
+     */
+    @Test
+    public void testEnableCategory_returnSuccess_whenCallServiceSuccess() {
+        when(service.enable(any())).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.enable(null));
+    }
+
+    /**
+     * 禁用商品类别
+     * <p>
+     * 200  禁用成功：调用 service 成功
+     */
+    @Test
+    public void testDisableCategory_returnSuccess_whenCallServiceSuccess() {
+        when(service.disable(any())).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.disable(null));
     }
 
     // 合法值

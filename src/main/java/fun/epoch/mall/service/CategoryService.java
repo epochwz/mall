@@ -13,4 +13,12 @@ public class CategoryService {
     public ServerResponse<Category> update(int categoryId, String categoryName) {
         return null;
     }
+
+    public ServerResponse enable(int[] ids) {
+        return null;
+    }
+
+    public ServerResponse disable(int[] ids) {
+        return null;
+    }
 }
