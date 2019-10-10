@@ -59,11 +59,59 @@ public class CategoryServiceTest {
         assertEquals(newCategoryId, response.getData());
     }
 
+    /**
+     * 更新商品类别
+     * <p>
+     * 404  商品类别不存在
+     * 409  上级类别中已存在该商品类别名称
+     * 200  更新成功：返回更新后的商品类别
+     */
+    @Test
+    public void testUpdateCategory_returnNotFound_whenCategoryNotExist() {
+        when(mapper.selectByPrimaryKey(categoryIdNotExist)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.update(categoryIdNotExist, newCategoryName));
+    }
+
+    @Test
+    public void testUpdateCategory_returnConflict_whenCategoryAlreadyExist() {
+        when(mapper.selectByPrimaryKey(categoryId)).thenReturn(category);
+        when(mapper.selectCountByParentIdAndCategoryNameExceptCurrentId(parentId, newCategoryName, categoryId)).thenReturn(1);
+
+        testIfCodeEqualsConflict(service.update(categoryId, newCategoryName));
+    }
+
+    @Test
+    public void testUpdateCategory_returnSuccess_withUpdatedCategory() {
+        when(mapper.selectByPrimaryKey(categoryId)).thenReturn(category);
+        when(mapper.selectCountByParentIdAndCategoryNameExceptCurrentId(parentId, newCategoryName, categoryId)).thenReturn(0);
+
+        when(mapper.updateSelectiveByPrimaryKey(any())).thenAnswer((Answer<Integer>) invocation -> {
+            Category temp = invocation.getArgument(0);
+            if (temp.getName() != null) category.setName(temp.getName());
+            return 1;
+        });
+
+        ServerResponse<Category> response1 = testIfCodeEqualsSuccess(service.update(categoryId, ""));
+        assertEquals(categoryName, response1.getData().getName());
+        assertEquals(categoryName, category.getName());
+
+        ServerResponse<Category> response = testIfCodeEqualsSuccess(service.update(categoryId, newCategoryName));
+        assertEquals(newCategoryName, response.getData().getName());
+        assertEquals(newCategoryName, category.getName());
+    }
+
     // 合法值
     private static final int parentId = 1000001;
+
+    private static final int categoryId = 1111111;
     private static final String categoryName = "食品";
+
     private static final int newCategoryId = 2222222;
+    private static final String newCategoryName = "服装";
+
+    private Category category = Category.builder().parentId(parentId).id(categoryId).name(categoryName).build();
 
     // 非法值
     private static final int parentIdNotExist = 999;
+    private static final int categoryIdNotExist = 999;
 }
