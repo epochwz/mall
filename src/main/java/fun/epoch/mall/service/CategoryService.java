@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fun.epoch.mall.common.Constant.CategoryStatus.DISABLE;
 import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
 
@@ -49,17 +50,11 @@ public class CategoryService {
     }
 
     public ServerResponse enable(int[] ids) {
-        if (ids != null && ids.length > 0) {
-            List<Integer> list = Arrays.stream(ids).boxed().collect(Collectors.toList());
-            if (categoryMapper.updateStatusByPrimaryKey(list, ENABLE) == 0) {
-                return ServerResponse.error(INTERNAL_SERVER_ERROR, "启用商品类别失败");
-            }
-        }
-        return ServerResponse.success();
+        return updateStatus(ids, ENABLE);
     }
 
     public ServerResponse disable(int[] ids) {
-        return null;
+        return updateStatus(ids, DISABLE);
     }
 
     public ServerResponse<Category> list(int categoryId) {
@@ -68,5 +63,16 @@ public class CategoryService {
 
     public ServerResponse<Category> listAll(int categoryId) {
         return null;
+    }
+
+    private ServerResponse updateStatus(int[] ids, int status) {
+        if (ids != null && ids.length > 0) {
+            List<Integer> list = Arrays.stream(ids).boxed().collect(Collectors.toList());
+            if (categoryMapper.updateStatusByPrimaryKey(list, status) == 0) {
+                String errorMsg = String.format("更新商品类别状态失败：%s --> %s", Arrays.toString(ids), status == ENABLE ? "启用" : "禁用");
+                return ServerResponse.error(INTERNAL_SERVER_ERROR, errorMsg);
+            }
+        }
+        return ServerResponse.success();
     }
 }

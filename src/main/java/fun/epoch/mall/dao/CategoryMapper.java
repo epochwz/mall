@@ -39,5 +39,5 @@ public interface CategoryMapper {
 
     int selectCountByParentIdAndCategoryNameExceptCurrentId(int parentId, String categoryName, int categoryId);
 
-    int updateStatusByPrimaryKey(List<Integer> categoryId, int status);
+    int updateStatusByPrimaryKey(List<Integer> ids, int status);
 }

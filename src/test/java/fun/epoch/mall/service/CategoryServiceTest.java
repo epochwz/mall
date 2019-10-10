@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import static fun.epoch.mall.common.Constant.CategoryStatus.DISABLE;
 import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
@@ -126,6 +127,31 @@ public class CategoryServiceTest {
     public void testEnableCategory_returnSuccess() {
         when(mapper.updateStatusByPrimaryKey(any(), eq(ENABLE))).thenReturn(1);
         testIfCodeEqualsSuccess(service.enable(ids));
+    }
+
+    /**
+     * 禁用商品类别
+     * <p>
+     * 500  禁用失败
+     * 200  禁用成功 (参数为空时)
+     * 200  禁用成功
+     */
+    @Test
+    public void testDisableCategory_returnInternalServerError_whenDisableError() {
+        when(mapper.updateStatusByPrimaryKey(any(), eq(DISABLE))).thenReturn(0);
+        testIfCodeEquals(INTERNAL_SERVER_ERROR, service.disable(ids));
+    }
+
+    @Test
+    public void testDisableCategory_returnSuccess_whenIdsIsEmpty() {
+        testIfCodeEqualsSuccess(service.disable(null));
+        testIfCodeEqualsSuccess(service.disable(new int[0]));
+    }
+
+    @Test
+    public void testDisableCategory_returnSuccess() {
+        when(mapper.updateStatusByPrimaryKey(any(), eq(DISABLE))).thenReturn(1);
+        testIfCodeEqualsSuccess(service.disable(ids));
     }
 
     // 合法值
