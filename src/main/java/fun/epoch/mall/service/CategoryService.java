@@ -63,7 +63,7 @@ public class CategoryService {
     }
 
     public ServerResponse<Category> listAll(int categoryId) {
-        return null;
+        return list(categoryId, true);
     }
 
     private ServerResponse updateStatus(int[] ids, int status) {

@@ -18,6 +18,7 @@ import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -177,6 +178,48 @@ public class CategoryServiceTest {
 
         ServerResponse<Category> response = testIfCodeEqualsSuccess(service.list(category.getId()));
         assertObjectEquals(expected, response.getData());
+    }
+
+    /**
+     * (递归)查询商品类别
+     * <p>
+     * 200  查询成功：返回商品类别对象 (内含递归的子类别)
+     */
+    @Test
+    public void testListAllCategory_returnSuccessForever() {
+        Category category = Category.builder().id(0).parentId(0).name("全部商品类别").build();
+
+        Category category1 = Category.builder().id(1111111).name("食品").build();
+        Category category2 = Category.builder().id(2222222).name("服装").build();
+        List<Category> categories = Arrays.asList(category1, category2);
+        when(mapper.selectByParentId(category.getId())).thenReturn(categories);
+
+        Category category1_1 = Category.builder().id(1111112).name("坚果").build();
+        Category category1_2 = Category.builder().id(1111113).name("水果").build();
+        List<Category> categories1 = Arrays.asList(category1_1, category1_2);
+        when(mapper.selectByParentId(category1.getId())).thenReturn(categories1);
+
+        Category category2_1 = Category.builder().id(2222223).name("上衣").build();
+        Category category2_2 = Category.builder().id(2222224).name("裤子").build();
+        List<Category> categories2 = Arrays.asList(category2_1, category2_2);
+        when(mapper.selectByParentId(category2.getId())).thenReturn(categories2);
+
+        Category category1_2_1 = Category.builder().id(1111114).name("苹果").build();
+        Category category1_2_2 = Category.builder().id(1111116).name("香蕉").build();
+        List<Category> categories1_2 = Arrays.asList(category1_2_1, category1_2_2);
+        when(mapper.selectByParentId(category1_2.getId())).thenReturn(categories1_2);
+
+        ServerResponse<Category> response = testIfCodeEqualsSuccess(service.listAll(category.getId()));
+        String result = response.getData().toString();
+        assertTrue(result.contains("全部商品类别"));
+        assertTrue(result.contains("食品"));
+        assertTrue(result.contains("服装"));
+        assertTrue(result.contains("坚果"));
+        assertTrue(result.contains("水果"));
+        assertTrue(result.contains("上衣"));
+        assertTrue(result.contains("裤子"));
+        assertTrue(result.contains("苹果"));
+        assertTrue(result.contains("香蕉"));
     }
 
     // 合法值
