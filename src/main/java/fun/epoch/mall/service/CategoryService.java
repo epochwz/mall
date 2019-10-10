@@ -7,6 +7,7 @@ import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class CategoryService {
     }
 
     public ServerResponse<Category> list(int categoryId) {
-        return null;
+        return list(categoryId, false);
     }
 
     public ServerResponse<Category> listAll(int categoryId) {
@@ -74,5 +75,29 @@ public class CategoryService {
             }
         }
         return ServerResponse.success();
+    }
+
+    private ServerResponse<Category> list(int categoryId, boolean recursive) {
+        Category category;
+        if (categoryId == 0) {
+            category = Category.builder().id(0).parentId(0).name("全部商品类别").build();
+        } else {
+            category = categoryMapper.selectByPrimaryKey(categoryId);
+        }
+        if (category != null) {
+            fill(category, recursive);
+        }
+        return ServerResponse.success(category);
+    }
+
+    // 递归查询子类别并填充自身
+    private void fill(Category category, boolean recursive) {
+        List<Category> categories = categoryMapper.selectByParentId(category.getId());
+        category.setCategories(categories != null ? categories : new ArrayList<>());
+        if (recursive) {
+            for (Category c : category.getCategories()) {
+                fill(c, true);
+            }
+        }
     }
 }

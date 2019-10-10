@@ -10,6 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static fun.epoch.mall.common.Constant.CategoryStatus.DISABLE;
 import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
@@ -152,6 +155,28 @@ public class CategoryServiceTest {
     public void testDisableCategory_returnSuccess() {
         when(mapper.updateStatusByPrimaryKey(any(), eq(DISABLE))).thenReturn(1);
         testIfCodeEqualsSuccess(service.disable(ids));
+    }
+
+    /**
+     * 查询商品类别列表 (平级)
+     * <p>
+     * 200  查询成功：返回商品类别对象 (内含子类别)
+     */
+    @Test
+    public void testListCategory_returnSuccess_withCategoryIncludeSubCategories() {
+        Category category = Category.builder().id(0).parentId(0).name("全部商品类别").build();
+
+        List<Category> categories = Arrays.asList(
+                Category.builder().id(1111111).name("食品").build(),
+                Category.builder().id(2222222).name("服装").build()
+        );
+        when(mapper.selectByParentId(category.getId())).thenReturn(categories);
+
+        Category expected = Category.builder().id(0).parentId(0).name("全部商品类别").build();
+        expected.setCategories(categories);
+
+        ServerResponse<Category> response = testIfCodeEqualsSuccess(service.list(category.getId()));
+        assertObjectEquals(expected, response.getData());
     }
 
     // 合法值
