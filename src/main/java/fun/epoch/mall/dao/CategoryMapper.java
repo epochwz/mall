@@ -32,4 +32,8 @@ public interface CategoryMapper {
     @Update("update category <selective>")
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(Category category);
+
+    int selectCountByPrimaryKey(int id);
+
+    int selectCountByParentIdAndCategoryName(int parentId, String categoryName);
 }
