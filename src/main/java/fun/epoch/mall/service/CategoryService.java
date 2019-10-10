@@ -7,6 +7,11 @@ import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
 
 @Service
@@ -44,7 +49,13 @@ public class CategoryService {
     }
 
     public ServerResponse enable(int[] ids) {
-        return null;
+        if (ids != null && ids.length > 0) {
+            List<Integer> list = Arrays.stream(ids).boxed().collect(Collectors.toList());
+            if (categoryMapper.updateStatusByPrimaryKey(list, ENABLE) == 0) {
+                return ServerResponse.error(INTERNAL_SERVER_ERROR, "启用商品类别失败");
+            }
+        }
+        return ServerResponse.success();
     }
 
     public ServerResponse disable(int[] ids) {

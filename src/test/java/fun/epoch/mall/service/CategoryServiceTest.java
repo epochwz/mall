@@ -10,9 +10,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
+import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -100,6 +103,31 @@ public class CategoryServiceTest {
         assertEquals(newCategoryName, category.getName());
     }
 
+    /**
+     * 启用商品类别
+     * <p>
+     * 500  启用失败
+     * 200  启用成功 (参数为空时)
+     * 200  启用成功
+     */
+    @Test
+    public void testEnableCategory_returnInternalServerError() {
+        when(mapper.updateStatusByPrimaryKey(any(), eq(ENABLE))).thenReturn(0);
+        testIfCodeEquals(INTERNAL_SERVER_ERROR, service.enable(ids));
+    }
+
+    @Test
+    public void testEnableCategory_returnSuccess_whenIdsIsEmpty() {
+        testIfCodeEqualsSuccess(service.enable(null));
+        testIfCodeEqualsSuccess(service.enable(new int[0]));
+    }
+
+    @Test
+    public void testEnableCategory_returnSuccess() {
+        when(mapper.updateStatusByPrimaryKey(any(), eq(ENABLE))).thenReturn(1);
+        testIfCodeEqualsSuccess(service.enable(ids));
+    }
+
     // 合法值
     private static final int parentId = 1000001;
 
@@ -108,6 +136,8 @@ public class CategoryServiceTest {
 
     private static final int newCategoryId = 2222222;
     private static final String newCategoryName = "服装";
+
+    private static final int[] ids = {1111111, 2222222, 3333333};
 
     private Category category = Category.builder().parentId(parentId).id(categoryId).name(categoryName).build();
 

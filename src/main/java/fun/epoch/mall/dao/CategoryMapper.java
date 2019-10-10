@@ -38,4 +38,6 @@ public interface CategoryMapper {
     int selectCountByParentIdAndCategoryName(int parentId, String categoryName);
 
     int selectCountByParentIdAndCategoryNameExceptCurrentId(int parentId, String categoryName, int categoryId);
+
+    int updateStatusByPrimaryKey(List<Integer> categoryId, int status);
 }
