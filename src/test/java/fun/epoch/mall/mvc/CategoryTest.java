@@ -103,6 +103,37 @@ public class CategoryTest extends CustomMvcTest {
         );
     }
 
+    /**
+     * 更新商品类别
+     * <p>
+     * 200  更新成功，返回更新后的商品类别信息
+     * 404  商品类别不存在
+     * 409  上级类别中已存在该商品类别名称
+     */
+    @Test
+    public void testUpdate_200_withUpdatedCategory() {
+        MockHttpServletRequestBuilder updateCategory = post(update)
+                .param("id", categoryId)
+                .param("categoryName", newCategoryName);
+        perform(updateCategory, SUCCESS, categoryId, newCategoryName);
+    }
+
+    @Test
+    public void testUpdate_404_whenCategoryNotExist() {
+        perform(NOT_FOUND, post(update)
+                .param("id", idNotExist)
+                .param("categoryName", newCategoryName)
+        );
+    }
+
+    @Test
+    public void testUpdate_409_whenCategoryAlreadyExist() {
+        perform(CONFLICT, post(update)
+                .param("id", categoryId)
+                .param("categoryName", categoryName2)
+        );
+    }
+
     private void assertEqualsExpectedJson(String expectedJson, MockHttpServletRequestBuilder request) {
         Category actual = categoryFrom(perform(SUCCESS, request));
         Category expected = categoryFrom(expectedJson);
