@@ -22,13 +22,13 @@ public class CategoryService {
     CategoryMapper categoryMapper;
 
     public ServerResponse<Integer> add(int parentId, String categoryName) {
-        if (categoryMapper.selectCountByPrimaryKey(parentId) == 0) {
+        if (parentId != 0 && categoryMapper.selectCountByPrimaryKey(parentId) == 0) {
             return ServerResponse.error(NOT_FOUND, "上级类别不存在");
         }
         if (categoryMapper.selectCountByParentIdAndCategoryName(parentId, categoryName) > 0) {
             return ServerResponse.error(CONFLICT, "商品类别已存在");
         }
-        Category category = Category.builder().parentId(parentId).name(categoryName).build();
+        Category category = Category.builder().parentId(parentId).name(categoryName).status(ENABLE).build();
         if (categoryMapper.insert(category) == 1) {
             return ServerResponse.success(category.getId(), "新增商品类别成功");
         }

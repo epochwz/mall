@@ -8,14 +8,13 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
-import static fun.epoch.mall.mvc.common.Apis.manage.category.list;
-import static fun.epoch.mall.mvc.common.Apis.manage.category.list_all;
-import static fun.epoch.mall.mvc.common.Keys.CategoryKeys.categoryId;
+import static fun.epoch.mall.mvc.common.Apis.manage.category.*;
+import static fun.epoch.mall.mvc.common.Keys.CategoryKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.Tables.category;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
-import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
+import static fun.epoch.mall.utils.response.ResponseCode.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class CategoryTest extends CustomMvcTest {
@@ -69,6 +68,39 @@ public class CategoryTest extends CustomMvcTest {
     @Test
     public void testListAll_200_whenCategoryNotExist() {
         perform(SUCCESS, post(list_all).param("id", idNotExist));
+    }
+
+    /**
+     * 添加商品类别
+     * <p>
+     * 200  添加成功，返回新增商品类别的 id
+     * 404  上级类别不存在
+     * 409  上级类别中已存在该商品类别名称
+     */
+    @Test
+    public void testAdd_200_withCategoryId() {
+        this.database().truncate(category).launch();
+
+        MockHttpServletRequestBuilder addCategory = post(add)
+                .param("parentId", parentId)
+                .param("categoryName", categoryName);
+        perform(addCategory, SUCCESS, categoryId);
+    }
+
+    @Test
+    public void testAdd_404_whenSuperCategoryNotExist() {
+        perform(NOT_FOUND, post(add)
+                .param("parentId", idNotExist)
+                .param("categoryName", categoryName)
+        );
+    }
+
+    @Test
+    public void testAdd_409_whenCategoryAlreadyExist() {
+        perform(CONFLICT, post(add)
+                .param("parentId", parentId)
+                .param("categoryName", categoryName)
+        );
     }
 
     private void assertEqualsExpectedJson(String expectedJson, MockHttpServletRequestBuilder request) {
