@@ -222,8 +222,6 @@ public class UserServiceTest {
     @Test
     public void testUpdateUserInfo_returnSuccess_withUpdatedUserWithoutPasswordAndAnswer() {
         when(userMapper.selectCountByUsernameExceptCurrentUser(userId, username)).thenReturn(0);
-        when(userMapper.selectCountByEmailExceptCurrentUser(userId, email)).thenReturn(0);
-        when(userMapper.selectCountByMobileExceptCurrentUser(userId, mobile)).thenReturn(0);
 
         // 模拟数据库更新
         User dbUser = User.builder().username("xxx").password("xxx").email("xxx").mobile("xxx").question("xxx").answer("xxx").build();
