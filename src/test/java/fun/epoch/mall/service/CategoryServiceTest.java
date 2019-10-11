@@ -129,7 +129,7 @@ public class CategoryServiceTest {
 
     @Test
     public void testEnableCategory_returnSuccess() {
-        when(mapper.updateStatusByPrimaryKey(any(), eq(ENABLE))).thenReturn(1);
+        when(mapper.updateStatusByPrimaryKey(any(), eq(ENABLE))).thenReturn(ids.length);
         testIfCodeEqualsSuccess(service.enable(ids));
     }
 
@@ -154,7 +154,7 @@ public class CategoryServiceTest {
 
     @Test
     public void testDisableCategory_returnSuccess() {
-        when(mapper.updateStatusByPrimaryKey(any(), eq(DISABLE))).thenReturn(1);
+        when(mapper.updateStatusByPrimaryKey(any(), eq(DISABLE))).thenReturn(ids.length);
         testIfCodeEqualsSuccess(service.disable(ids));
     }
 

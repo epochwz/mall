@@ -134,6 +134,24 @@ public class CategoryTest extends CustomMvcTest {
         );
     }
 
+    /**
+     * 启用商品类别
+     * <p>
+     * 200  启用成功
+     * 500  启用失败
+     */
+    @Test
+    public void testEnable_200() {
+        perform(SUCCESS, post(enable).param("ids", categoryId, categoryId2));
+    }
+
+    @Test
+    public void testEnable_500_whenOneOfError() {
+        perform(INTERNAL_SERVER_ERROR, post(enable)
+                .param("ids", categoryId, categoryId2, idNotExist)
+        );
+    }
+
     private void assertEqualsExpectedJson(String expectedJson, MockHttpServletRequestBuilder request) {
         Category actual = categoryFrom(perform(SUCCESS, request));
         Category expected = categoryFrom(expectedJson);

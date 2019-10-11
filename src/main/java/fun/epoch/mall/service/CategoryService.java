@@ -69,7 +69,7 @@ public class CategoryService {
     private ServerResponse updateStatus(int[] ids, int status) {
         if (ids != null && ids.length > 0) {
             List<Integer> list = Arrays.stream(ids).boxed().collect(Collectors.toList());
-            if (categoryMapper.updateStatusByPrimaryKey(list, status) == 0) {
+            if (categoryMapper.updateStatusByPrimaryKey(list, status) != ids.length) {
                 String errorMsg = String.format("更新商品类别状态失败：%s --> %s", Arrays.toString(ids), status == ENABLE ? "启用" : "禁用");
                 return ServerResponse.error(INTERNAL_SERVER_ERROR, errorMsg);
             }
