@@ -60,4 +60,16 @@ public interface Keys {
         String forgetTokenKey = FORGET_TOKEN_PREFIX + username;
         String forgetToken = "b9f655ed-4d71-473f-abff-f989098ff818";
     }
+
+    interface CategoryKeys {
+        String parentId = "0";
+
+        String categoryId = "1";
+        String categoryName = "图书";
+
+        String categoryId2 = "2";
+        String categoryName2 = "服装";
+
+        String newCategoryName = "食品";
+    }
 }

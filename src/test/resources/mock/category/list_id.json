@@ -1,0 +1,24 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "id": 1,
+    "parentId": 0,
+    "name": "图书",
+    "status": 1,
+    "categories": [
+      {
+        "id": 11,
+        "parentId": 1,
+        "name": "小说",
+        "status": 1
+      },
+      {
+        "id": 12,
+        "parentId": 1,
+        "name": "文学",
+        "status": 1
+      }
+    ]
+  }
+}

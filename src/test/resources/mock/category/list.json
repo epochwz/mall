@@ -1,0 +1,23 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "id": 0,
+    "parentId": 0,
+    "name": "全部商品类别",
+    "categories": [
+      {
+        "id": 1,
+        "parentId": 0,
+        "name": "图书",
+        "status": 1
+      },
+      {
+        "id": 2,
+        "parentId": 0,
+        "name": "服装",
+        "status": 1
+      }
+    ]
+  }
+}
