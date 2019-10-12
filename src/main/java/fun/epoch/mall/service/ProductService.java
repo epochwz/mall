@@ -14,4 +14,8 @@ public class ProductService {
     public ServerResponse<PageInfo<ProductVo>> searchOnlyOnSale(int categoryId, String keyword, int pageNum, int pageSize) {
         return null;
     }
+
+    public ServerResponse<Integer> add(ProductVo productVo) {
+        return null;
+    }
 }

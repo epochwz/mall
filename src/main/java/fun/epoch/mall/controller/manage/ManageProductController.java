@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
+import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
+import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
+import static fun.epoch.mall.utils.TextUtils.isNotBlank;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
@@ -43,7 +47,15 @@ public class ManageProductController {
     @ResponseBody
     @RequestMapping(value = "add.do", method = POST)
     public ServerResponse<Integer> add(@RequestBody ProductVo productVo) {
-        return null;
+        if (isNotBlank(productVo.getName())
+                && productVo.getPrice() != null
+                && productVo.getPrice().compareTo(new BigDecimal("0")) > 0
+                && (productVo.getStock() == null || productVo.getStock() >= 0)
+                && (productVo.getStatus() == null || productVo.getStatus() == ON_SALE || productVo.getStatus() == OFF_SALE)
+        ) {
+            return productService.add(productVo);
+        }
+        return ServerResponse.error("参数不合法");
     }
 
     @ResponseBody
