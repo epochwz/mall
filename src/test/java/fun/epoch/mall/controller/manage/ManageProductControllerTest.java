@@ -15,6 +15,7 @@ import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsError;
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,6 +81,23 @@ public class ManageProductControllerTest {
     public void testUpdateProduct_returnSuccess_whenCallServiceSuccess() {
         when(service.update(any())).thenReturn(ServerResponse.success());
         testIfCodeEqualsSuccess(controller.update(mock().build()));
+    }
+
+    /**
+     * 上下架商品
+     * <p>
+     * 400  非法参数：销售状态非空且必须是系统支持的销售状态
+     * 200  上下架成功：调用 service 成功
+     */
+    @Test
+    public void testShelve_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(controller.shelve(null, statusNotSupported));
+    }
+
+    @Test
+    public void testShelve_returnSuccess_whenCallServiceSuccess() {
+        when(service.shelve(any(), anyInt())).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.shelve(null, status));
     }
 
     private ProductVo.ProductVoBuilder mock() {

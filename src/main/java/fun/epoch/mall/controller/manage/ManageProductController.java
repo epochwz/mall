@@ -74,7 +74,10 @@ public class ManageProductController {
     @ResponseBody
     @RequestMapping(value = "shelve.do", method = POST)
     public ServerResponse shelve(int[] ids, @RequestParam int status) {
-        return null;
+        if (status == ON_SALE || status == OFF_SALE) {
+            return productService.shelve(ids, status);
+        }
+        return ServerResponse.error("暂不支持的商品销售状态");
     }
 
     @ResponseBody

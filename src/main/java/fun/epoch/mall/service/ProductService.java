@@ -22,4 +22,8 @@ public class ProductService {
     public ServerResponse<ProductVo> update(ProductVo productVo) {
         return null;
     }
+
+    public ServerResponse shelve(int[] ids, int status) {
+        return null;
+    }
 }
