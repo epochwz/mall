@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.ProductVo;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProductService {
@@ -32,6 +33,10 @@ public class ProductService {
     }
 
     public ServerResponse<PageInfo<ProductVo>> search(Integer productId, Integer categoryId, String keyword, int pageNum, int pageSize) {
+        return null;
+    }
+
+    public ServerResponse<String> upload(MultipartFile file) {
         return null;
     }
 }

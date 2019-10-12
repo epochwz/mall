@@ -8,6 +8,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -120,6 +122,20 @@ public class ManageProductControllerTest {
     public void testSearchProduct_returnSuccess_whenCallServiceSuccess() {
         when(service.search(productId, categoryId, keyword, pageNum, pageSize)).thenReturn(ServerResponse.success());
         testIfCodeEqualsSuccess(controller.search(productId, categoryId, keyword, pageNum, pageSize));
+    }
+
+    /**
+     * 上传商品图片
+     * <p>
+     * 200  上传成功：调用 service 成功
+     */
+    @Test
+    public void testUpload_returnSuccess_whenCallServiceSuccess() {
+        MultipartFile file = new MockMultipartFile("avatar.jpg", new byte[]{});
+
+        when(service.upload(file)).thenReturn(ServerResponse.success());
+
+        testIfCodeEqualsSuccess(controller.upload(file));
     }
 
     private ProductVo.ProductVoBuilder mock() {

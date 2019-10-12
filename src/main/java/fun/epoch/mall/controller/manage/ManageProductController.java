@@ -83,7 +83,7 @@ public class ManageProductController {
     @ResponseBody
     @RequestMapping(value = "upload.do", method = POST)
     public ServerResponse<String> upload(@RequestParam MultipartFile file) {
-        return null;
+        return productService.upload(file);
     }
 
     @ResponseBody
