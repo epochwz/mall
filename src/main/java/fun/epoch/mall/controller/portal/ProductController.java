@@ -19,7 +19,7 @@ public class ProductController {
     @ResponseBody
     @RequestMapping(value = "detail.do")
     public ServerResponse<ProductVo> detail(@RequestParam("id") int productId) {
-        return null;
+        return productService.detailOnlyOnSale(productId);
     }
 
     @ResponseBody
