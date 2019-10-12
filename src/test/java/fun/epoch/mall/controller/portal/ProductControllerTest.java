@@ -25,6 +25,16 @@ public class ProductControllerTest {
         testIfCodeEqualsSuccess(controller.detail(productId));
     }
 
+    @Test
+    public void testSearchProduct_returnSuccess_whenCallServiceSuccess() {
+        when(service.searchOnlyOnSale(categoryId, keyword, pageNum, pageSize)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.search(categoryId, keyword, pageNum, pageSize));
+    }
+
     // 合法值
     private static final int productId = 1111111;
+    private static final int categoryId = 1111111;
+    private static final String keyword = "";
+    private static final int pageNum = 1;
+    private static final int pageSize = 5;
 }

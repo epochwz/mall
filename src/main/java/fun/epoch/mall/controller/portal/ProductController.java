@@ -30,6 +30,6 @@ public class ProductController {
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "5") int pageSize
     ) {
-        return null;
+        return productService.searchOnlyOnSale(categoryId, keyword, pageNum, pageSize);
     }
 }
