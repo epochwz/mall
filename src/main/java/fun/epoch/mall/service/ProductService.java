@@ -26,4 +26,8 @@ public class ProductService {
     public ServerResponse shelve(int[] ids, int status) {
         return null;
     }
+
+    public ServerResponse<ProductVo> detail(int productId) {
+        return null;
+    }
 }

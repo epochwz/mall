@@ -29,7 +29,7 @@ public class ManageProductController {
     @ResponseBody
     @RequestMapping(value = "detail.do")
     public ServerResponse<ProductVo> detail(@RequestParam("id") int productId) {
-        return null;
+        return productService.detail(productId);
     }
 
     @ResponseBody

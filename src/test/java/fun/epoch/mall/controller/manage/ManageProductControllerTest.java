@@ -100,6 +100,17 @@ public class ManageProductControllerTest {
         testIfCodeEqualsSuccess(controller.shelve(null, status));
     }
 
+    /**
+     * 查看商品详情
+     * <p>
+     * 200  查看成功：调用 service 成功
+     */
+    @Test
+    public void testDetailProduct_returnSuccess_whenCallServiceSuccess() {
+        when(service.detail(productId)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.detail(productId));
+    }
+
     private ProductVo.ProductVoBuilder mock() {
         return ProductVo.builder().id(productId).categoryId(categoryId).name(name).price(price).stock(stock).status(status);
     }
