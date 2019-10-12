@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
@@ -89,6 +90,18 @@ public class ManageProductController {
     @ResponseBody
     @RequestMapping(value = "upload_by_simditor.do", method = POST)
     public Map<String, Object> uploadBySimditor(@RequestParam MultipartFile file) {
-        return null;
+        Map<String, Object> map = new HashMap<>();
+
+        ServerResponse<String> result = productService.upload(file);
+        if (result.isError()) {
+            map.put("success", false);
+            map.put("msg", "图片上传失败");
+        } else {
+            map.put("success", true);
+            map.put("msg", "图片上传成功");
+            map.put("file_path", result.getData());
+        }
+
+        return map;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsError;
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
@@ -136,6 +137,35 @@ public class ManageProductControllerTest {
         when(service.upload(file)).thenReturn(ServerResponse.success());
 
         testIfCodeEqualsSuccess(controller.upload(file));
+    }
+
+    /**
+     * 上传商品图片 (Simditor)
+     * <p>
+     * 500  上传失败
+     * 200  上传成功：调用 service 成功，并封装成 Simditor 响应
+     */
+    @Test
+    public void testUploadBySimditor_returnInternalServerError_andThenAssembleSimditorResponse() {
+        MultipartFile file = new MockMultipartFile("avatar.jpg", new byte[]{});
+
+        when(service.upload(file)).thenReturn(ServerResponse.error());
+
+        Map<String, Object> result = controller.uploadBySimditor(file);
+        assertEquals(false, result.get("success"));
+    }
+
+    @Test
+    public void testUploadBySimditor_returnSuccess_andThenAssembleSimditorResponse() {
+        String fileName = "avatar.jpg";
+        MultipartFile file = new MockMultipartFile(fileName, new byte[]{});
+
+        String filePath = "/path/to/" + fileName;
+        when(service.upload(file)).thenReturn(ServerResponse.success(filePath));
+
+        Map<String, Object> result = controller.uploadBySimditor(file);
+        assertEquals(true, result.get("success"));
+        assertEquals(filePath, result.get("file_path"));
     }
 
     private ProductVo.ProductVoBuilder mock() {
