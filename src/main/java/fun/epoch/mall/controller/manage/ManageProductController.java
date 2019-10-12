@@ -41,7 +41,7 @@ public class ManageProductController {
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "5") int pageSize
     ) {
-        return null;
+        return productService.search(productId, categoryId, keyword, pageNum, pageSize);
     }
 
     @ResponseBody

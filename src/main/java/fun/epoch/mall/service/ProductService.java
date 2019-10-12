@@ -30,4 +30,8 @@ public class ProductService {
     public ServerResponse<ProductVo> detail(int productId) {
         return null;
     }
+
+    public ServerResponse<PageInfo<ProductVo>> search(Integer productId, Integer categoryId, String keyword, int pageNum, int pageSize) {
+        return null;
+    }
 }

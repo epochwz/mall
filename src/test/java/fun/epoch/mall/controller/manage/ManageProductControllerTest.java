@@ -111,6 +111,17 @@ public class ManageProductControllerTest {
         testIfCodeEqualsSuccess(controller.detail(productId));
     }
 
+    /**
+     * 搜索商品
+     * <p>
+     * 200  搜索成功：调用 service 成功
+     */
+    @Test
+    public void testSearchProduct_returnSuccess_whenCallServiceSuccess() {
+        when(service.search(productId, categoryId, keyword, pageNum, pageSize)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.search(productId, categoryId, keyword, pageNum, pageSize));
+    }
+
     private ProductVo.ProductVoBuilder mock() {
         return ProductVo.builder().id(productId).categoryId(categoryId).name(name).price(price).stock(stock).status(status);
     }
@@ -122,6 +133,10 @@ public class ManageProductControllerTest {
     private static final BigDecimal price = new BigDecimal("10.9");
     private static final Integer stock = 10;
     private static final Integer status = 1;
+
+    private static final String keyword = "";
+    private static final int pageNum = 1;
+    private static final int pageSize = 5;
 
     // 错误值
     private static final String[] blankValues = {null, "", " ", "\t", "\n"};
