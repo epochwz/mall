@@ -61,7 +61,14 @@ public class ManageProductController {
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
     public ServerResponse<ProductVo> update(@RequestBody ProductVo productVo) {
-        return null;
+        if (productVo.getId() != null
+                && (productVo.getPrice() == null || productVo.getPrice().compareTo(new BigDecimal("0")) > 0)
+                && (productVo.getStock() == null || productVo.getStock() >= 0)
+                && (productVo.getStatus() == null || productVo.getStatus() == ON_SALE || productVo.getStatus() == OFF_SALE)
+        ) {
+            return productService.update(productVo);
+        }
+        return ServerResponse.error("参数不合法");
     }
 
     @ResponseBody

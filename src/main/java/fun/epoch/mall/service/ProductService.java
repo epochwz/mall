@@ -18,4 +18,8 @@ public class ProductService {
     public ServerResponse<Integer> add(ProductVo productVo) {
         return null;
     }
+
+    public ServerResponse<ProductVo> update(ProductVo productVo) {
+        return null;
+    }
 }

@@ -55,6 +55,33 @@ public class ManageProductControllerTest {
         assertEquals(productId, response.getData());
     }
 
+    /**
+     * 更新商品
+     * <p>
+     * 400  非法参数：商品 id 非空
+     * 400  非法参数：价格非空时必须大于 0
+     * 400  非法参数：库存非空时必须大于等于 0
+     * 400  非法参数：销售状态非空时必须是系统支持的销售状态
+     * 200  添加成功：调用 service 成功
+     */
+    @Test
+    public void testUpdateProduct_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(controller.update(mock().id(null).build()));
+
+        testIfCodeEqualsError(controller.update(mock().price(new BigDecimal("0")).build()));
+        testIfCodeEqualsError(controller.update(mock().price(new BigDecimal("-1")).build()));
+
+        testIfCodeEqualsError(controller.update(mock().stock(-1).build()));
+
+        testIfCodeEqualsError(controller.update(mock().status(statusNotSupported).build()));
+    }
+
+    @Test
+    public void testUpdateProduct_returnSuccess_whenCallServiceSuccess() {
+        when(service.update(any())).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.update(mock().build()));
+    }
+
     private ProductVo.ProductVoBuilder mock() {
         return ProductVo.builder().id(productId).categoryId(categoryId).name(name).price(price).stock(stock).status(status);
     }
