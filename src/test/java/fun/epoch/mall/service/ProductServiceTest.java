@@ -1,6 +1,7 @@
 package fun.epoch.mall.service;
 
 import com.github.pagehelper.PageInfo;
+import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.dao.CategoryMapper;
 import fun.epoch.mall.dao.ProductMapper;
 import fun.epoch.mall.entity.Category;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import static fun.epoch.mall.common.Constant.CategoryStatus.DISABLE;
 import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
+import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
 import static org.junit.Assert.assertArrayEquals;
@@ -191,6 +193,27 @@ public class ProductServiceTest {
         for (int i = 0; i < response.getData().getSize(); i++) {
             assertObjectEquals(products.get(i), response.getData().getList().get(i).to());
         }
+    }
+
+    /**
+     * 查看商品详情 (排除已下架商品)
+     * <p>
+     * 404  商品不存在 / 已下架
+     * 200  查看成功，返回商品详情
+     */
+    @Test
+    public void testDetailOnlyOnSale_returnNotFound_whenProductNotExistOrOffSale() {
+        when(productMapper.selectOnlyOnSaleByPrimaryKey(productId)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.detailOnlyOnSale(productId));
+    }
+
+    @Test
+    public void testDetailOnlyOnSale_returnSuccess_withProduct() {
+        Product product = mock().status(OFF_SALE).build().to();
+        when(productMapper.selectOnlyOnSaleByPrimaryKey(productId)).thenReturn(product);
+
+        ServerResponse<ProductVo> response = testIfCodeEqualsSuccess(service.detailOnlyOnSale(productId));
+        assertObjectEquals(new ProductVo(product), response.getData());
     }
 
     private Answer<Integer> answerForUpdate(Product product) {

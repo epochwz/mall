@@ -36,4 +36,6 @@ public interface ProductMapper {
     int updateStatusByPrimaryKey(List<Integer> ids, int status);
 
     List<Product> selectSelective(Product product);
+
+    Product selectOnlyOnSaleByPrimaryKey(int id);
 }

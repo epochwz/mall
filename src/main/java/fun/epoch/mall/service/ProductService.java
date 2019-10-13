@@ -32,7 +32,11 @@ public class ProductService {
     ProductMapper productMapper;
 
     public ServerResponse<ProductVo> detailOnlyOnSale(int productId) {
-        return null;
+        Product product = productMapper.selectOnlyOnSaleByPrimaryKey(productId);
+        if (product == null) {
+            return ServerResponse.error(NOT_FOUND, "商品不存在 / 已下架");
+        }
+        return ServerResponse.success(new ProductVo(product));
     }
 
     public ServerResponse<PageInfo<ProductVo>> searchOnlyOnSale(int categoryId, String keyword, int pageNum, int pageSize) {
