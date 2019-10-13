@@ -96,10 +96,40 @@ public class ProductServiceTest {
 
     @Test
     public void testUpdateProduct_returnSuccess_withNewProduct() {
-        Product product = Product.builder().mainImage("mainImage").build();
-        when(productMapper.selectByPrimaryKey(productId)).thenReturn(product);
         when(categoryMapper.selectByPrimaryKey(categoryId)).thenReturn(Category.builder().status(ENABLE).build());
-        when(productMapper.updateSelectiveByPrimaryKey(any())).thenAnswer((Answer<Integer>) invocation -> {
+
+        Product dbProduct = Product.builder().mainImage("mainImage").build();
+        when(productMapper.selectByPrimaryKey(productId)).thenReturn(dbProduct);
+        when(productMapper.updateSelectiveByPrimaryKey(any())).thenAnswer(answerForUpdate(dbProduct));
+
+        ServerResponse<ProductVo> response = testIfCodeEqualsSuccess(service.update(mockUpdate().build()));
+        ProductVo updatedProduct = response.getData();
+        assertEquals(newProductName, updatedProduct.getName());
+        assertEquals(stock * 2, updatedProduct.getStock().intValue());
+        assertEquals("detail", updatedProduct.getDetail());
+        assertEquals("mainImage", updatedProduct.getMainImage());
+        assertArrayEquals(new String[]{"subImage"}, updatedProduct.getSubImages());
+    }
+
+    @Test
+    public void testUpdateProduct_returnSuccess_withNewProduct_whenOriginMainImageIsNull() {
+        when(categoryMapper.selectByPrimaryKey(categoryId)).thenReturn(Category.builder().status(ENABLE).build());
+
+        Product dbProduct = Product.builder().build();
+        when(productMapper.selectByPrimaryKey(productId)).thenReturn(dbProduct);
+        when(productMapper.updateSelectiveByPrimaryKey(any())).thenAnswer(answerForUpdate(dbProduct));
+
+        ServerResponse<ProductVo> response = testIfCodeEqualsSuccess(service.update(mockUpdate().build()));
+        ProductVo updatedProduct = response.getData();
+        assertEquals(newProductName, updatedProduct.getName());
+        assertEquals(stock * 2, updatedProduct.getStock().intValue());
+        assertEquals("detail", updatedProduct.getDetail());
+        assertEquals("subImage", updatedProduct.getMainImage());
+        assertArrayEquals(new String[]{"subImage"}, updatedProduct.getSubImages());
+    }
+
+    private Answer<Integer> answerForUpdate(Product product) {
+        return invocation -> {
             Product updatedProduct = invocation.getArgument(0);
             if (updatedProduct.getCategoryId() != null) product.setCategoryId(updatedProduct.getCategoryId());
             if (updatedProduct.getName() != null) product.setName(updatedProduct.getName());
@@ -111,23 +141,18 @@ public class ProductServiceTest {
             if (updatedProduct.getMainImage() != null) product.setMainImage(updatedProduct.getMainImage());
             if (updatedProduct.getSubImages() != null) product.setSubImages(updatedProduct.getSubImages());
             return 1;
-        });
+        };
+    }
 
-        ProductVo updated = ProductVo.builder()
+    private ProductVo.ProductVoBuilder mockUpdate() {
+        return ProductVo.builder()
                 .id(productId)
                 .categoryId(categoryId)
                 .name(newProductName)
                 .stock(stock * 2)
                 .subtitle("\t")
                 .detail("detail")
-                .subImages(new String[]{"subImage"})
-                .build();
-        ServerResponse<ProductVo> response = testIfCodeEqualsSuccess(service.update(updated));
-        assertEquals(newProductName, response.getData().getName());
-        assertEquals(stock * 2, response.getData().getStock().intValue());
-        assertEquals("detail", response.getData().getDetail());
-        assertEquals("mainImage", response.getData().getMainImage());
-        assertArrayEquals(new String[]{"subImage"}, response.getData().getSubImages());
+                .subImages(new String[]{"subImage"});
     }
 
     private ProductVo.ProductVoBuilder mock() {
