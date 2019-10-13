@@ -5,7 +5,10 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+import static fun.epoch.mall.common.Constant.SettingKeys.IMAGE_HOST;
+import static fun.epoch.mall.common.Constant.settings;
 import static fun.epoch.mall.utils.TextUtils.isBlank;
+import static fun.epoch.mall.utils.TextUtils.isNotBlank;
 
 @Builder
 @NoArgsConstructor
@@ -26,6 +29,20 @@ public class ProductVo {
     private String[] subImages;
     private String imageHost;
 
+    public ProductVo(Product product) {
+        setId(product.getId());
+        setCategoryId(product.getCategoryId());
+        setName(product.getName());
+        setSubtitle(product.getSubtitle());
+        setDetail(product.getDetail());
+        setPrice(product.getPrice());
+        setStock(product.getStock());
+        setStatus(product.getStatus());
+        setMainImage(extractMainImage(product));
+        setSubImages(str2Array(product.getSubImages()));
+        setImageHost(settings.get(IMAGE_HOST));
+    }
+
     public Product to() {
         return Product.builder()
                 .id(id)
@@ -37,11 +54,15 @@ public class ProductVo {
                 .stock(stock)
                 .status(status)
                 .mainImage(extractMainImage(mainImage, subImages))
-                .subImages(array2String(subImages))
+                .subImages(array2Str(subImages))
                 .build();
     }
 
-    public String array2String(String[] subImages) {
+    public static String[] str2Array(String images) {
+        return isNotBlank(images) ? images.split(",") : new String[0];
+    }
+
+    public static String array2Str(String[] subImages) {
         StringBuilder result = new StringBuilder();
         if (subImages != null && subImages.length > 0) {
             for (String subImage : subImages) {
@@ -52,7 +73,13 @@ public class ProductVo {
         return result.toString();
     }
 
-    public String extractMainImage(String mainImage, String[] subImages) {
+    public static String extractMainImage(Product product) {
+        String mainImage = product.getMainImage();
+        String[] subImages = str2Array(product.getSubImages());
+        return extractMainImage(mainImage, subImages);
+    }
+
+    public static String extractMainImage(String mainImage, String[] subImages) {
         if (isBlank(mainImage)) {
             if (subImages != null && subImages.length > 0) {
                 return subImages[0];
