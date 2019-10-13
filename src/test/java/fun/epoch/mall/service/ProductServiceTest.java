@@ -151,6 +151,27 @@ public class ProductServiceTest {
         testIfCodeEqualsSuccess(service.shelve(new int[]{}, status));
     }
 
+    /**
+     * 查看商品详情
+     * <p>
+     * 404  商品不存在
+     * 200  查看成功，返回商品详情
+     */
+    @Test
+    public void testDetail_returnNotFound_whenProductNotExist() {
+        when(productMapper.selectByPrimaryKey(productId)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.detail(productId));
+    }
+
+    @Test
+    public void testDetail_returnSuccess_withProduct() {
+        Product product = mock().build().to();
+        when(productMapper.selectByPrimaryKey(productId)).thenReturn(product);
+
+        ServerResponse<ProductVo> response = testIfCodeEqualsSuccess(service.detail(productId));
+        assertObjectEquals(new ProductVo(product), response.getData());
+    }
+
     private Answer<Integer> answerForUpdate(Product product) {
         return invocation -> {
             Product updatedProduct = invocation.getArgument(0);
