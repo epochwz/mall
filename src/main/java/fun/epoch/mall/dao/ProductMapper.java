@@ -32,4 +32,6 @@ public interface ProductMapper {
     @Update("update product <selective>")
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(Product product);
+
+    int updateStatusByPrimaryKey(List<Integer> ids, int status);
 }

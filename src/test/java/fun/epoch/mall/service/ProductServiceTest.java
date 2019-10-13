@@ -17,11 +17,12 @@ import java.math.BigDecimal;
 
 import static fun.epoch.mall.common.Constant.CategoryStatus.DISABLE;
 import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
-import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsNotFound;
-import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
+import static fun.epoch.mall.common.enhanced.TestHelper.*;
+import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -128,6 +129,28 @@ public class ProductServiceTest {
         assertArrayEquals(new String[]{"subImage"}, updatedProduct.getSubImages());
     }
 
+    /**
+     * 商品上下架
+     * <p>
+     * 500  上下架失败
+     * 200  上下架成功
+     */
+    @Test
+    public void testShelve_returnInternalServerError() {
+        when(productMapper.updateStatusByPrimaryKey(any(), anyInt())).thenReturn(0);
+        testIfCodeEquals(INTERNAL_SERVER_ERROR, service.shelve(ids, ENABLE));
+        testIfCodeEquals(INTERNAL_SERVER_ERROR, service.shelve(ids, DISABLE));
+    }
+
+    @Test
+    public void testShelve_returnSuccess() {
+        when(productMapper.updateStatusByPrimaryKey(any(), anyInt())).thenReturn(ids.length);
+        testIfCodeEqualsSuccess(service.shelve(ids, ENABLE));
+        testIfCodeEqualsSuccess(service.shelve(ids, DISABLE));
+        testIfCodeEqualsSuccess(service.shelve(null, status));
+        testIfCodeEqualsSuccess(service.shelve(new int[]{}, status));
+    }
+
     private Answer<Integer> answerForUpdate(Product product) {
         return invocation -> {
             Product updatedProduct = invocation.getArgument(0);
@@ -168,4 +191,6 @@ public class ProductServiceTest {
     private static final Integer status = 1;
 
     private static final String newProductName = "新瓜子";
+
+    private static final int[] ids = new int[]{1111111, 2222222, 3333333};
 }

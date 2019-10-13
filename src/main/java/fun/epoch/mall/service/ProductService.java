@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
 import static fun.epoch.mall.utils.TextUtils.isBlank;
 import static fun.epoch.mall.utils.TextUtils.isNotBlank;
 import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
@@ -74,7 +78,14 @@ public class ProductService {
     }
 
     public ServerResponse shelve(int[] ids, int status) {
-        return null;
+        if (ids != null && ids.length > 0) {
+            int count = productMapper.updateStatusByPrimaryKey(Arrays.stream(ids).boxed().collect(Collectors.toList()), status);
+            if (count != ids.length) {
+                String msg = String.format("更新商品销售状态失败：%s --> %s", Arrays.toString(ids), ON_SALE == status ? "上架" : "下架");
+                return ServerResponse.error(INTERNAL_SERVER_ERROR, msg);
+            }
+        }
+        return ServerResponse.success();
     }
 
     public ServerResponse<ProductVo> detail(int productId) {
