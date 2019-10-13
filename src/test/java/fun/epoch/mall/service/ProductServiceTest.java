@@ -1,7 +1,6 @@
 package fun.epoch.mall.service;
 
 import com.github.pagehelper.PageInfo;
-import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.dao.CategoryMapper;
 import fun.epoch.mall.dao.ProductMapper;
 import fun.epoch.mall.entity.Category;
@@ -16,12 +15,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static fun.epoch.mall.common.Constant.CategoryStatus.DISABLE;
 import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
 import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
+import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
 import static org.junit.Assert.assertArrayEquals;
@@ -214,6 +215,30 @@ public class ProductServiceTest {
 
         ServerResponse<ProductVo> response = testIfCodeEqualsSuccess(service.detailOnlyOnSale(productId));
         assertObjectEquals(new ProductVo(product), response.getData());
+    }
+
+    /**
+     * 搜索商品
+     * <p>
+     * 200  搜索成功，返回商品列表
+     */
+    @Test
+    public void testListProductOnlyOnSale_returnSuccess_withProductList() {
+        List<Product> products = Collections.singletonList(mock().build().to());
+        when(productMapper.selectSelective(any())).thenAnswer((Answer<List<Product>>) invocation -> {
+            Product product = invocation.getArgument(0);
+            if (product.getStatus() == ON_SALE) {
+                return products;
+            }
+            return Collections.emptyList();
+        });
+
+        ServerResponse<PageInfo<ProductVo>> response = testIfCodeEqualsSuccess(service.searchOnlyOnSale(null, null, 1, 5));
+
+        assertEquals(1, response.getData().getSize());
+        for (int i = 0; i < response.getData().getSize(); i++) {
+            assertObjectEquals(products.get(i), response.getData().getList().get(i).to());
+        }
     }
 
     private Answer<Integer> answerForUpdate(Product product) {

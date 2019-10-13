@@ -39,8 +39,9 @@ public class ProductService {
         return ServerResponse.success(new ProductVo(product));
     }
 
-    public ServerResponse<PageInfo<ProductVo>> searchOnlyOnSale(int categoryId, String keyword, int pageNum, int pageSize) {
-        return null;
+    public ServerResponse<PageInfo<ProductVo>> searchOnlyOnSale(Integer categoryId, String keyword, int pageNum, int pageSize) {
+        Product selective = Product.builder().categoryId(categoryId).name(keyword).status(ON_SALE).build();
+        return getPageInfoServerResponse(pageNum, pageSize, selective);
     }
 
     public ServerResponse<Integer> add(ProductVo productVo) {
