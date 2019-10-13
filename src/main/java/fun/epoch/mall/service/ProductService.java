@@ -1,5 +1,6 @@
 package fun.epoch.mall.service;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.dao.CategoryMapper;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
@@ -97,7 +99,8 @@ public class ProductService {
     }
 
     public ServerResponse<PageInfo<ProductVo>> search(Integer productId, Integer categoryId, String keyword, int pageNum, int pageSize) {
-        return null;
+        Product selective = Product.builder().id(productId).categoryId(categoryId).name(keyword).build();
+        return getPageInfoServerResponse(pageNum, pageSize, selective);
     }
 
     public ServerResponse<String> upload(MultipartFile file) {
@@ -113,5 +116,12 @@ public class ProductService {
             return ServerResponse.error(NOT_FOUND, "商品类别已弃用");
         }
         return ServerResponse.success();
+    }
+
+    private ServerResponse<PageInfo<ProductVo>> getPageInfoServerResponse(int pageNum, int pageSize, Product selective) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Product> products = productMapper.selectSelective(selective);
+        List<ProductVo> productVos = products.stream().map(ProductVo::new).collect(Collectors.toList());
+        return ServerResponse.success(new PageInfo<>(productVos));
     }
 }

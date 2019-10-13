@@ -34,4 +34,6 @@ public interface ProductMapper {
     int updateSelectiveByPrimaryKey(Product product);
 
     int updateStatusByPrimaryKey(List<Integer> ids, int status);
+
+    List<Product> selectSelective(Product product);
 }

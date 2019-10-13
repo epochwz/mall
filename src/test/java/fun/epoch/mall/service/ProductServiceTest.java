@@ -1,5 +1,6 @@
 package fun.epoch.mall.service;
 
+import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.dao.CategoryMapper;
 import fun.epoch.mall.dao.ProductMapper;
 import fun.epoch.mall.entity.Category;
@@ -14,6 +15,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
 import static fun.epoch.mall.common.Constant.CategoryStatus.DISABLE;
 import static fun.epoch.mall.common.Constant.CategoryStatus.ENABLE;
@@ -170,6 +173,24 @@ public class ProductServiceTest {
 
         ServerResponse<ProductVo> response = testIfCodeEqualsSuccess(service.detail(productId));
         assertObjectEquals(new ProductVo(product), response.getData());
+    }
+
+    /**
+     * 搜索商品
+     * <p>
+     * 200  搜索成功，返回商品列表
+     */
+    @Test
+    public void testListProduct_returnSuccess_withProductList() {
+        List<Product> products = Collections.singletonList(mock().build().to());
+        when(productMapper.selectSelective(any())).thenReturn(products);
+
+        ServerResponse<PageInfo<ProductVo>> response = testIfCodeEqualsSuccess(service.search(null, null, null, 1, 5));
+
+        assertEquals(1, response.getData().getSize());
+        for (int i = 0; i < response.getData().getSize(); i++) {
+            assertObjectEquals(products.get(i), response.getData().getList().get(i).to());
+        }
     }
 
     private Answer<Integer> answerForUpdate(Product product) {
