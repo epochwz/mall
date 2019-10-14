@@ -1,12 +1,12 @@
 package fun.epoch.mall.dao;
 
-import fun.epoch.mall.dao.langdriver.InsertAllLangDriver;
-import fun.epoch.mall.dao.langdriver.UpdateAllLangDriver;
-import fun.epoch.mall.dao.langdriver.UpdateSelectiveLangDriver;
+import fun.epoch.mall.dao.langdriver.*;
 import fun.epoch.mall.entity.Product;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+
+import static fun.epoch.mall.dao.langdriver.WhereSelectiveLangDriver.WHERE_SELECTIVE;
 
 public interface ProductMapper {
     String selectAll = "select id, category_id, name, subtitle, main_image, sub_images, detail, price, stock, status, create_time, update_time from product ";
@@ -33,9 +33,14 @@ public interface ProductMapper {
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(Product product);
 
-    int updateStatusByPrimaryKey(List<Integer> ids, int status);
+    @Update("update product set status=#{status} where id in <list>")
+    @Lang(ForeachLangDriver.class)
+    int updateStatusByPrimaryKey(@Param("list") List<Integer> ids, @Param("status") int status);
 
+    @Select(selectAll + WHERE_SELECTIVE)
+    @Lang(WhereSelectiveLangDriver.class)
     List<Product> selectSelective(Product product);
 
+    @Select(selectAll + "where id=#{id} and status=1")
     Product selectOnlyOnSaleByPrimaryKey(int id);
 }
