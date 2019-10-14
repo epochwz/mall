@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>Simditor</title>
+    <link href="favicon.ico" rel="icon"/>
+    <link href="css/simditor.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<textarea autofocus id="editor" placeholder="请填写详细的商品描述信息"></textarea>
+
+<script src="js/jquery.min.js" type="text/javascript"></script>
+<script src="js/module.js" type="text/javascript"></script>
+<script src="js/hotkeys.js" type="text/javascript"></script>
+<script src="js/uploader.js" type="text/javascript"></script>
+<script src="js/simditor.js" type="text/javascript"></script>
+<script>
+    const editor = new Simditor({
+        textarea: $('#editor'),
+        upload: {
+            url: '../manage/product/upload_by_simditor.do',
+            params: null,
+            fileKey: 'file',
+            connectionCount: 3,
+            leaveConfirm: 'Uploading is in progress, are you sure to leave this page?'
+        }
+    });
+</script>
+</body>
+</html>
