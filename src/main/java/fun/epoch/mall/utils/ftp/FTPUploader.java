@@ -28,10 +28,6 @@ public class FTPUploader extends FTPClientPlus {
         super(ip, username, password);
     }
 
-    public boolean upload(String fileName, File file) {
-        return upload(null, fileName, file);
-    }
-
     public boolean upload(String remotePath, String fileName, File file) {
         return upload(remotePath, Collections.singletonMap(fileName, file));
     }

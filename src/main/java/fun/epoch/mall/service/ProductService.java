@@ -25,11 +25,16 @@ import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
 
 @Service
 public class ProductService {
+    public static final String FILE_UPLOAD_REMOTE_PATH = "product";
+
     @Autowired
     CategoryMapper categoryMapper;
 
     @Autowired
     ProductMapper productMapper;
+
+    @Autowired
+    FTPService ftp;
 
     public ServerResponse<ProductVo> detailOnlyOnSale(int productId) {
         Product product = productMapper.selectOnlyOnSaleByPrimaryKey(productId);
@@ -109,7 +114,7 @@ public class ProductService {
     }
 
     public ServerResponse<String> upload(MultipartFile file) {
-        return null;
+        return ftp.upload(FILE_UPLOAD_REMOTE_PATH, file);
     }
 
     private ServerResponse checkCategory(int categoryId) {
