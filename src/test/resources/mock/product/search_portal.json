@@ -1,0 +1,84 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "pageNum": 1,
+    "pageSize": 4,
+    "size": 4,
+    "startRow": 0,
+    "endRow": 3,
+    "total": 4,
+    "pages": 1,
+    "list": [
+      {
+        "id": 1,
+        "categoryId": 111,
+        "name": "斗破苍穹",
+        "subtitle": "天蚕土豆",
+        "detail": "还不错的小说",
+        "price": 13.40,
+        "stock": 99,
+        "status": 1,
+        "mainImage": "doupo.jpg",
+        "subImages": [],
+        "imageHost": "http://file.epoch.fun/mall_dev/"
+      },
+      {
+        "id": 2,
+        "categoryId": 111,
+        "name": "武动乾坤",
+        "subtitle": "天蚕土豆",
+        "detail": "一般般的小说",
+        "price": 11.20,
+        "stock": 5,
+        "status": 1,
+        "mainImage": "wudong.jpg",
+        "subImages": [
+          "wudong.jpg",
+          "wudong2.jpg"
+        ],
+        "imageHost": "http://file.epoch.fun/mall_dev/"
+      },
+      {
+        "id": 3,
+        "categoryId": 111,
+        "name": "大主宰",
+        "subtitle": "天蚕土豆",
+        "detail": "不咋样的小说",
+        "price": 8.30,
+        "stock": 5,
+        "status": 1,
+        "mainImage": "",
+        "subImages": [],
+        "imageHost": "http://file.epoch.fun/mall_dev/"
+      },
+      {
+        "id": 4,
+        "categoryId": 111,
+        "name": "悲伤逆流成河",
+        "subtitle": "",
+        "detail": "",
+        "price": 5.10,
+        "stock": 100,
+        "status": 1,
+        "mainImage": "",
+        "subImages": [],
+        "imageHost": "http://file.epoch.fun/mall_dev/"
+      }
+    ],
+    "prePage": 0,
+    "nextPage": 0,
+    "isFirstPage": true,
+    "isLastPage": true,
+    "hasPreviousPage": false,
+    "hasNextPage": false,
+    "navigatePages": 8,
+    "navigatepageNums": [
+      1
+    ],
+    "navigateFirstPage": 1,
+    "navigateLastPage": 1,
+    "firstPage": 1,
+    "lastPage": 1
+  }
+}

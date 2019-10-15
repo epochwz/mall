@@ -179,6 +179,29 @@ public class ProductTest extends CustomMvcTest {
         perform(NOT_FOUND, post(Apis.portal.product.detail).param("id", productIdOffSale));
     }
 
+    /**
+     * 搜索商品
+     * 200  搜索商品，返回商品列表
+     */
+    @Test
+    public void testPortalSearch_200_withPageInfo() {
+        PageInfo<ProductVo> actual = productPageInfoFrom(perform(SUCCESS, post(Apis.portal.product.search)));
+        PageInfo<ProductVo> expected = productPageInfoFrom("mock/product/search_portal.json");
+        assertObjectEquals(expected, actual);
+    }
+
+    @Test
+    public void testPortalSearch() {
+        assertEqualsSearchedSize(4, post(Apis.portal.product.search));
+        assertEqualsSearchedSize(4, post(Apis.portal.product.search).param("productId", productId));
+        assertEqualsSearchedSize(4, post(Apis.portal.product.search).param("categoryId", categoryId));
+        assertEqualsSearchedSize(1, post(Apis.portal.product.search).param("keyword", keyword));
+        assertEqualsSearchedSize(1, post(Apis.portal.product.search)
+                .param("categoryId", categoryId)
+                .param("keyword", keyword)
+        );
+    }
+
     private ProductVo.ProductVoBuilder mock() {
         return ProductVo.builder().id(Integer.valueOf(productId)).categoryId(Integer.valueOf(categoryId)).name(productName).price(price);
     }
