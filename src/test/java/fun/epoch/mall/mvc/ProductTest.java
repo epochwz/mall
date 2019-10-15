@@ -9,11 +9,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
-import static fun.epoch.mall.mvc.common.Apis.manage.product.detail;
-import static fun.epoch.mall.mvc.common.Apis.manage.product.search;
+import static fun.epoch.mall.mvc.common.Apis.manage.product.*;
+import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.IdNotExist;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
-import static fun.epoch.mall.mvc.common.Keys.ProductKeys.productId;
+import static fun.epoch.mall.mvc.common.Keys.ProductKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.Tables.category;
 import static fun.epoch.mall.mvc.common.Keys.Tables.product;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
@@ -70,6 +70,28 @@ public class ProductTest extends CustomMvcTest {
                 .param("categoryId", categoryId)
                 .param("keyword", keyword)
         );
+    }
+
+    /**
+     * 添加商品
+     * <p>
+     * 200  添加成功，返回新增商品 id
+     * 404  商品类别不存在 / 已弃用
+     */
+    @Test
+    public void testAddProduct_200_withProductId() {
+        this.database().truncate(product).launch();
+
+        postJson(add, mock().build(), SUCCESS, productId);
+    }
+
+    @Test
+    public void testAddProduct_404_whenCategoryNotExist() {
+        postJson(add, mock().categoryId(IdNotExist).build(), NOT_FOUND);
+    }
+
+    private ProductVo.ProductVoBuilder mock() {
+        return ProductVo.builder().categoryId(Integer.valueOf(categoryId)).name(productName).price(price);
     }
 
     private void assertEqualsSearchedSize(int expectedSize, MockHttpServletRequestBuilder request) {

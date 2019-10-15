@@ -54,6 +54,8 @@ public class ProductService {
         if (checkCategory.isError()) return checkCategory;
 
         Product product = productVo.to();
+        if (product.getStatus() == null) product.setStatus(ON_SALE);
+        if (product.getStock() == null) product.setStock(0);
         if (productMapper.insert(product) == 1) {
             return ServerResponse.success(product.getId());
         }

@@ -1,5 +1,7 @@
 package fun.epoch.mall.mvc.common;
 
+import java.math.BigDecimal;
+
 import static fun.epoch.mall.common.Constant.FORGET_TOKEN_PREFIX;
 
 /**
@@ -29,6 +31,7 @@ public interface Keys {
     }
 
     interface ErrorKeys {
+        Integer IdNotExist = 999999;
         String idNotExist = "999999";
         String usernameNotExist = "xiaoming";
         String passwordNotExist = "xiaoming_pass";
@@ -75,5 +78,7 @@ public interface Keys {
 
     interface ProductKeys {
         String productId = "1";
+        String productName = "斗破苍穹";
+        BigDecimal price = new BigDecimal("13.4");
     }
 }

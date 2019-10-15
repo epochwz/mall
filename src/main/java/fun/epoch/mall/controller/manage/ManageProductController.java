@@ -49,6 +49,7 @@ public class ManageProductController {
     @RequestMapping(value = "add.do", method = POST)
     public ServerResponse<Integer> add(@RequestBody ProductVo productVo) {
         if (isNotBlank(productVo.getName())
+                && productVo.getCategoryId() != null
                 && productVo.getPrice() != null
                 && productVo.getPrice().compareTo(new BigDecimal("0")) > 0
                 && (productVo.getStock() == null || productVo.getStock() >= 0)
