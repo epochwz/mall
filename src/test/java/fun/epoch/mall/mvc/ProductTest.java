@@ -2,12 +2,18 @@ package fun.epoch.mall.mvc;
 
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
+import fun.epoch.mall.utils.response.ResponseCode;
 import fun.epoch.mall.vo.ProductVo;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.Arrays;
+
 import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
+import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
+import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
 import static fun.epoch.mall.mvc.common.Apis.manage.product.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.IdNotExist;
@@ -17,8 +23,7 @@ import static fun.epoch.mall.mvc.common.Keys.ProductKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.Tables.category;
 import static fun.epoch.mall.mvc.common.Keys.Tables.product;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
-import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
-import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
+import static fun.epoch.mall.utils.response.ResponseCode.*;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -122,12 +127,49 @@ public class ProductTest extends CustomMvcTest {
         postJson(update, mock().id(IdNotExist).build(), NOT_FOUND);
     }
 
+    /**
+     * 商品上下架
+     * <p>
+     * 200  商品上下架成功
+     * 500  商品上下架失败
+     */
+    @Test
+    public void testShelve_200() {
+        shelve(OFF_SALE, SUCCESS, productId, productId2);
+        assertProductStatus(OFF_SALE, productId, productId2);
+
+        shelve(ON_SALE, SUCCESS, productId);
+        assertProductStatus(ON_SALE, productId);
+        assertProductStatus(OFF_SALE, productId2);
+    }
+
+    @Test
+    public void testShelve_500() {
+        shelve(OFF_SALE, INTERNAL_SERVER_ERROR, productId, productId2, idNotExist);
+        assertProductStatus(ON_SALE, productId, productId2);
+    }
+
     private ProductVo.ProductVoBuilder mock() {
         return ProductVo.builder().id(Integer.valueOf(productId)).categoryId(Integer.valueOf(categoryId)).name(productName).price(price);
     }
 
     private void assertEqualsSearchedSize(int expectedSize, MockHttpServletRequestBuilder request) {
         assertEquals(expectedSize, productPageInfoFrom(perform(SUCCESS, request)).getSize());
+    }
+
+    private void shelve(int status, ResponseCode code, String... productIds) {
+        MockHttpServletRequestBuilder api_shelve = post(shelve)
+                .param("ids", productIds)
+                .param("status", String.valueOf(status));
+        perform(api_shelve, code);
+    }
+
+    private void assertProductStatus(int status, String... productIds) {
+        Arrays.stream(productIds).forEach(productId -> {
+            ResultActions resultActions = perform(post(detail).param("id", productId), SUCCESS);
+            int actualStatus = productVoFrom(resultActions).getStatus();
+            assertEquals(status, actualStatus);
+        });
     }
 
     private static final String categoryId = "111";

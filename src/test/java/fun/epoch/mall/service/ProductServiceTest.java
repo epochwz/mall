@@ -15,7 +15,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -141,7 +140,7 @@ public class ProductServiceTest {
      * 500  上下架失败
      * 200  上下架成功
      */
-    @Test
+    @Test(expected = org.springframework.transaction.NoTransactionException.class)
     public void testShelve_returnInternalServerError() {
         when(productMapper.updateStatusByPrimaryKey(any(), anyInt())).thenReturn(0);
         testIfCodeEquals(INTERNAL_SERVER_ERROR, service.shelve(ids, ENABLE));

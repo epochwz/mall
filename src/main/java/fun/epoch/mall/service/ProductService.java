@@ -11,6 +11,8 @@ import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.ProductVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
@@ -91,10 +93,12 @@ public class ProductService {
         return ServerResponse.success(productVo);
     }
 
+    @Transactional
     public ServerResponse shelve(int[] ids, int status) {
         if (ids != null && ids.length > 0) {
             int count = productMapper.updateStatusByPrimaryKey(Arrays.stream(ids).boxed().collect(Collectors.toList()), status);
             if (count != ids.length) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 String msg = String.format("更新商品销售状态失败：%s --> %s", Arrays.toString(ids), ON_SALE == status ? "上架" : "下架");
                 return ServerResponse.error(INTERNAL_SERVER_ERROR, msg);
             }
