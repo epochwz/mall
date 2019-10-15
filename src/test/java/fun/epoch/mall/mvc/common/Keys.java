@@ -72,4 +72,8 @@ public interface Keys {
 
         String newCategoryName = "食品";
     }
+
+    interface ProductKeys {
+        String productId = "1";
+    }
 }

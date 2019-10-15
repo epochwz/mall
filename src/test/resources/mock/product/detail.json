@@ -1,0 +1,17 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "id": 1,
+    "categoryId": 111,
+    "name": "斗破苍穹",
+    "subtitle": "天蚕土豆",
+    "detail": "还不错的小说",
+    "price": 13.40,
+    "stock": 99,
+    "status": 1,
+    "mainImage": "doupo.jpg",
+    "subImages": [],
+    "imageHost": "http://file.epoch.fun/mall_dev/"
+  }
+}

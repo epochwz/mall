@@ -6,6 +6,7 @@ import fun.epoch.mall.common.helper.ServerResponseHelper;
 import fun.epoch.mall.entity.Category;
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.utils.response.ServerResponse;
+import fun.epoch.mall.vo.ProductVo;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
@@ -37,5 +38,16 @@ public class CustomMvcTest extends MvcTestHelper {
 
     public Category categoryFrom(String resource) {
         return categoryHelper.dataFrom(resource);
+    }
+
+    public static final ServerResponseHelper<ProductVo> productHelper = new ServerResponseHelper(new TypeReference<ServerResponse<ProductVo>>() {
+    });
+
+    public ProductVo productVoFrom(ResultActions resultActions) {
+        return productHelper.dataOf(content(resultActions));
+    }
+
+    public ProductVo productVoFrom(String resource) {
+        return productHelper.dataFrom(resource);
     }
 }
