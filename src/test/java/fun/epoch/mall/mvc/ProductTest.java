@@ -1,6 +1,7 @@
 package fun.epoch.mall.mvc;
 
 import com.github.pagehelper.PageInfo;
+import fun.epoch.mall.mvc.common.Apis;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
 import fun.epoch.mall.utils.response.ResponseCode;
 import fun.epoch.mall.vo.ProductVo;
@@ -40,6 +41,7 @@ public class ProductTest extends CustomMvcTest {
      * 查看商品详情
      * <p>
      * 200  查看成功，返回商品信息
+     * 200  查看成功 (商品已下架)
      * 404  商品不存在
      */
     @Test
@@ -47,6 +49,11 @@ public class ProductTest extends CustomMvcTest {
         ProductVo actual = productVoFrom(perform(SUCCESS, post(detail).param("id", productId)));
         ProductVo expected = productVoFrom("mock/product/detail.json");
         assertObjectEquals(expected, actual);
+    }
+
+    @Test
+    public void testDetail_200_whenProductOffSale() {
+        perform(SUCCESS, post(detail).param("id", productIdOffSale));
     }
 
     @Test
@@ -147,6 +154,29 @@ public class ProductTest extends CustomMvcTest {
     public void testShelve_500() {
         shelve(OFF_SALE, INTERNAL_SERVER_ERROR, productId, productId2, idNotExist);
         assertProductStatus(ON_SALE, productId, productId2);
+    }
+
+    /**
+     * 查看商品详情 (前台)
+     * <p>
+     * 200  查看成功，返回商品信息
+     * 404  商品不存在 / 已下架
+     */
+    @Test
+    public void testPortalDetail_200_withProductVo() {
+        ProductVo actual = productVoFrom(perform(SUCCESS, post(Apis.portal.product.detail).param("id", productId)));
+        ProductVo expected = productVoFrom("mock/product/detail.json");
+        assertObjectEquals(expected, actual);
+    }
+
+    @Test
+    public void testPortalDetail_404_whenProductNotExist() {
+        perform(NOT_FOUND, post(Apis.portal.product.detail).param("id", idNotExist));
+    }
+
+    @Test
+    public void testPortalDetail_404_whenProductOffSale() {
+        perform(NOT_FOUND, post(Apis.portal.product.detail).param("id", productIdOffSale));
     }
 
     private ProductVo.ProductVoBuilder mock() {

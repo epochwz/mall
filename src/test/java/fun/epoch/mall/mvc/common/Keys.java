@@ -84,5 +84,7 @@ public interface Keys {
         String productId2 = "2";
 
         String newProductName = "武动乾坤";
+
+        String productIdOffSale = "5";
     }
 }
