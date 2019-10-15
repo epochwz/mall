@@ -82,7 +82,7 @@ public class ProductTest extends CustomMvcTest {
     public void testAddProduct_200_withProductId() {
         this.database().truncate(product).launch();
 
-        postJson(add, mock().build(), SUCCESS, productId);
+        postJson(add, mock().id(null).build(), SUCCESS, productId);
     }
 
     @Test
@@ -90,8 +90,40 @@ public class ProductTest extends CustomMvcTest {
         postJson(add, mock().categoryId(IdNotExist).build(), NOT_FOUND);
     }
 
+    @Test
+    public void testAddProduct_404_whenCategoryNotEnable() {
+        postJson(add, mock().categoryId(categoryIdNotEnable).build(), NOT_FOUND);
+    }
+
+    /**
+     * 更新商品
+     * <p>
+     * 200  更新成功，返回更新后的商品
+     * 404  商品类别不存在 / 已弃用
+     * 500  商品不存在
+     */
+    @Test
+    public void testUpdateProduct_200_withProduct() {
+        postJson(update, mock().name(newProductName).build(), SUCCESS, productId, categoryId, newProductName, price);
+    }
+
+    @Test
+    public void testUpdateProduct_404_whenCategoryNotExist() {
+        postJson(update, mock().categoryId(IdNotExist).build(), NOT_FOUND);
+    }
+
+    @Test
+    public void testUpdateProduct_404_whenCategoryNotEnable() {
+        postJson(update, mock().categoryId(categoryIdNotEnable).build(), NOT_FOUND);
+    }
+
+    @Test
+    public void testUpdateProduct_400_whenProductNotExist() {
+        postJson(update, mock().id(IdNotExist).build(), NOT_FOUND);
+    }
+
     private ProductVo.ProductVoBuilder mock() {
-        return ProductVo.builder().categoryId(Integer.valueOf(categoryId)).name(productName).price(price);
+        return ProductVo.builder().id(Integer.valueOf(productId)).categoryId(Integer.valueOf(categoryId)).name(productName).price(price);
     }
 
     private void assertEqualsSearchedSize(int expectedSize, MockHttpServletRequestBuilder request) {
@@ -100,4 +132,6 @@ public class ProductTest extends CustomMvcTest {
 
     private static final String categoryId = "111";
     private static final String keyword = "悲伤";
+
+    private static final Integer categoryIdNotEnable = 333;
 }

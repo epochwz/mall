@@ -80,5 +80,7 @@ public interface Keys {
         String productId = "1";
         String productName = "斗破苍穹";
         BigDecimal price = new BigDecimal("13.4");
+
+        String newProductName = "武动乾坤";
     }
 }
