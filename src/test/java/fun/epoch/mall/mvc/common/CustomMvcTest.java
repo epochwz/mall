@@ -1,6 +1,7 @@
 package fun.epoch.mall.mvc.common;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.common.enhanced.MvcTestHelper;
 import fun.epoch.mall.common.helper.ServerResponseHelper;
 import fun.epoch.mall.entity.Category;
@@ -49,5 +50,16 @@ public class CustomMvcTest extends MvcTestHelper {
 
     public ProductVo productVoFrom(String resource) {
         return productHelper.dataFrom(resource);
+    }
+
+    public ServerResponseHelper<PageInfo<ProductVo>> productPageInfoHelper = new ServerResponseHelper<>(new TypeReference<ServerResponse<PageInfo<ProductVo>>>() {
+    });
+
+    public PageInfo<ProductVo> productPageInfoFrom(ResultActions resultActions) {
+        return productPageInfoHelper.dataOf(content(resultActions));
+    }
+
+    public PageInfo<ProductVo> productPageInfoFrom(String resource) {
+        return productPageInfoHelper.dataFrom(resource);
     }
 }
