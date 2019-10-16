@@ -87,7 +87,8 @@ public class CartService {
     }
 
     public ServerResponse<CartVo> check(int userId, int productId, boolean checked) {
-        return null;
+        cartItemMapper.updateCheckStatusByUserIdAndProductId(userId, productId, checked);
+        return list(userId);
     }
 
     public ServerResponse<CartVo> checkAll(int userId, boolean checked) {

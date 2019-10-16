@@ -42,4 +42,6 @@ public interface CartItemMapper {
     int deleteByUserIdAndProductIds(int userId, List<Integer> productIds);
 
     int updateQuantityByUserIdAndProductId(int userId, int productId, int count);
+
+    int updateCheckStatusByUserIdAndProductId(int userId, int productId, boolean checked);
 }
