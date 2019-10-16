@@ -18,9 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
 import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
-import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
+import static fun.epoch.mall.common.Constant.SettingKeys.IMAGE_HOST;
+import static fun.epoch.mall.common.Constant.settings;
 
 @Service
 public class CartService {
@@ -29,9 +29,6 @@ public class CartService {
 
     @Autowired
     ProductMapper productMapper;
-
-    @Autowired
-    FTPService ftp;
 
     @Transactional
     public ServerResponse<CartVo> list(int userId) {
@@ -45,27 +42,20 @@ public class CartService {
     }
 
     public ServerResponse<CartVo> add(int userId, int productId, int count) {
-        if (count <= 0) {
-            return ServerResponse.error("数量必须大于零", list(userId).getData());
-        }
-
-        Product product = productMapper.selectByPrimaryKey(productId);
-        if (product == null || product.getStatus() == OFF_SALE) {
-            return ServerResponse.error(NOT_FOUND, "商品不存在 / 已下架", list(userId).getData());
-        }
-
-        CartItem item = cartItemMapper.selectByUserIdAndProductId(userId, productId);
-        if (item != null) {
-            item.setQuantity(item.getQuantity() + count);
-            cartItemMapper.updateSelectiveByPrimaryKey(item);
-        } else {
-            CartItem cartItem = CartItem.builder()
-                    .userId(userId)
-                    .productId(productId)
-                    .quantity(count)
-                    .checked(true)
-                    .build();
-            cartItemMapper.insert(cartItem);
+        if (count > 0) {
+            CartItem item = cartItemMapper.selectByUserIdAndProductId(userId, productId);
+            if (item != null) {
+                item.setQuantity(item.getQuantity() + count);
+                cartItemMapper.updateSelectiveByPrimaryKey(item);
+            } else {
+                CartItem cartItem = CartItem.builder()
+                        .userId(userId)
+                        .productId(productId)
+                        .quantity(count)
+                        .checked(true)
+                        .build();
+                cartItemMapper.insert(cartItem);
+            }
         }
         return list(userId);
     }
@@ -79,10 +69,9 @@ public class CartService {
     }
 
     public ServerResponse<CartVo> update(int userId, int productId, int count) {
-        if (count <= 0) {
-            return ServerResponse.error("数量必须大于零", list(userId).getData());
+        if (count > 0) {
+            cartItemMapper.updateQuantityByUserIdAndProductId(userId, productId, count);
         }
-        cartItemMapper.updateQuantityByUserIdAndProductId(userId, productId, count);
         return list(userId);
     }
 
@@ -116,7 +105,7 @@ public class CartService {
             }
         }
 
-        return CartVo.builder().imageHost(ftp.imageHost).allChecked(allChecked).cartTotalPrice(cartTotalPrice).cartItems(vos).build();
+        return CartVo.builder().imageHost(settings.get(IMAGE_HOST)).allChecked(allChecked).cartTotalPrice(cartTotalPrice).cartItems(vos).build();
     }
 
     private CartItemVo toCartItemVo(CartItem item, Product product) {
