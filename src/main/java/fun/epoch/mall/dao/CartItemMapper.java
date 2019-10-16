@@ -34,4 +34,6 @@ public interface CartItemMapper {
     int updateSelectiveByPrimaryKey(CartItem cartItem);
 
     List<CartItem> selectByUserId(int userId);
+
+    int selectCountByUserId(int userId);
 }

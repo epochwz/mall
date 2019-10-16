@@ -36,7 +36,8 @@ public class CartService {
     }
 
     public ServerResponse<Integer> count(int userId) {
-        return null;
+        int count = cartItemMapper.selectCountByUserId(userId);
+        return ServerResponse.success(count);
     }
 
     public ServerResponse<CartVo> add(int userId, int productId, int count) {
