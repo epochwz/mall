@@ -40,4 +40,6 @@ public interface CartItemMapper {
     CartItem selectByUserIdAndProductId(int userId, int productId);
 
     int deleteByUserIdAndProductIds(int userId, List<Integer> productIds);
+
+    int updateQuantityByUserIdAndProductId(int userId, int productId, int count);
 }

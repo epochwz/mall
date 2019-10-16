@@ -79,7 +79,11 @@ public class CartService {
     }
 
     public ServerResponse<CartVo> update(int userId, int productId, int count) {
-        return null;
+        if (count <= 0) {
+            return ServerResponse.error("数量必须大于零", list(userId).getData());
+        }
+        cartItemMapper.updateQuantityByUserIdAndProductId(userId, productId, count);
+        return list(userId);
     }
 
     public ServerResponse<CartVo> check(int userId, int productId, boolean checked) {
