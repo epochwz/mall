@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
 import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
@@ -69,7 +71,11 @@ public class CartService {
     }
 
     public ServerResponse<CartVo> delete(int userId, int[] productIds) {
-        return null;
+        if (productIds != null && productIds.length > 0) {
+            List<Integer> ids = Arrays.stream(productIds).boxed().collect(Collectors.toList());
+            cartItemMapper.deleteByUserIdAndProductIds(userId, ids);
+        }
+        return list(userId);
     }
 
     public ServerResponse<CartVo> update(int userId, int productId, int count) {

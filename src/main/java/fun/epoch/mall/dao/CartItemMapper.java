@@ -38,4 +38,6 @@ public interface CartItemMapper {
     int selectCountByUserId(int userId);
 
     CartItem selectByUserIdAndProductId(int userId, int productId);
+
+    int deleteByUserIdAndProductIds(int userId, List<Integer> productIds);
 }
