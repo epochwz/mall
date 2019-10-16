@@ -1,5 +1,6 @@
 package fun.epoch.mall.dao;
 
+import fun.epoch.mall.dao.langdriver.ForeachLangDriver;
 import fun.epoch.mall.dao.langdriver.InsertAllLangDriver;
 import fun.epoch.mall.dao.langdriver.UpdateAllLangDriver;
 import fun.epoch.mall.dao.langdriver.UpdateSelectiveLangDriver;
@@ -33,17 +34,25 @@ public interface CartItemMapper {
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(CartItem cartItem);
 
+    @Select(selectAll + "where user_id=#{userId}")
     List<CartItem> selectByUserId(int userId);
 
+    @Select("select IFNULL(sum(quantity), 0) from cart_item where user_id=#{userId}")
     int selectCountByUserId(int userId);
 
-    CartItem selectByUserIdAndProductId(int userId, int productId);
+    @Select(selectAll + "where user_id=#{userId} and product_id=#{productId}")
+    CartItem selectByUserIdAndProductId(@Param("userId") int userId, @Param("productId") int productId);
 
-    int deleteByUserIdAndProductIds(int userId, List<Integer> productIds);
+    @Delete("delete from cart_item where user_id=#{userId} and product_id in <list>")
+    @Lang(ForeachLangDriver.class)
+    int deleteByUserIdAndProductIds(@Param("userId") int userId, @Param("list") List<Integer> productIds);
 
-    int updateQuantityByUserIdAndProductId(int userId, int productId, int count);
+    @Update("update cart_item set quantity=#{quantity} where user_id=#{userId} and product_id=#{productId}")
+    int updateQuantityByUserIdAndProductId(@Param("userId") int userId, @Param("productId") int productId, @Param("quantity") int quantity);
 
-    int updateCheckStatusByUserIdAndProductId(int userId, int productId, boolean checked);
+    @Update("update cart_item set checked=#{checked} where user_id=#{userId} and product_id=#{productId}")
+    int updateCheckStatusByUserIdAndProductId(@Param("userId") int userId, @Param("productId") int productId, @Param("checked") boolean checked);
 
-    int updateCheckStatusByUserId(int userId, boolean checked);
+    @Update("update cart_item set checked=#{checked} where user_id=#{userId}")
+    int updateCheckStatusByUserId(@Param("userId") int userId, @Param("checked") boolean checked);
 }
