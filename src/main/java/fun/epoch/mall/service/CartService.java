@@ -1,13 +1,38 @@
 package fun.epoch.mall.service;
 
+import fun.epoch.mall.dao.CartItemMapper;
+import fun.epoch.mall.dao.ProductMapper;
+import fun.epoch.mall.entity.CartItem;
+import fun.epoch.mall.entity.Product;
 import fun.epoch.mall.utils.response.ServerResponse;
+import fun.epoch.mall.vo.CartItemVo;
 import fun.epoch.mall.vo.CartVo;
+import fun.epoch.mall.vo.ProductVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
 
 @Service
 public class CartService {
+    @Autowired
+    CartItemMapper cartItemMapper;
+
+    @Autowired
+    ProductMapper productMapper;
+
+    @Autowired
+    FTPService ftp;
+
+    @Transactional
     public ServerResponse<CartVo> list(int userId) {
-        return null;
+        List<CartItem> cartItems = cartItemMapper.selectByUserId(userId);
+        return ServerResponse.success(toCartVo(cartItems));
     }
 
     public ServerResponse<Integer> count(int userId) {
@@ -32,5 +57,67 @@ public class CartService {
 
     public ServerResponse<CartVo> checkAll(int userId, boolean checked) {
         return null;
+    }
+
+    private CartVo toCartVo(List<CartItem> items) {
+        List<CartItemVo> vos = new ArrayList<>();
+        BigDecimal cartTotalPrice = new BigDecimal("0");
+        boolean allChecked = true;
+
+        if (items != null && items.size() > 0) {
+            for (CartItem item : items) {
+                Product product = productMapper.selectByPrimaryKey(item.getProductId());
+                if (product != null && product.getStatus() == ON_SALE) {
+                    CartItemVo vo = toCartItemVo(item, product);
+
+                    vos.add(vo);
+                    if (allChecked && !vo.isChecked()) allChecked = false;
+                    if (vo.isChecked()) cartTotalPrice = cartTotalPrice.add(vo.getTotalPrice());
+                } else {
+                    cartItemMapper.deleteByPrimaryKey(item.getId());
+                }
+            }
+        }
+
+        return CartVo.builder().imageHost(ftp.imageHost).allChecked(allChecked).cartTotalPrice(cartTotalPrice).cartItems(vos).build();
+    }
+
+    private CartItemVo toCartItemVo(CartItem item, Product product) {
+        boolean isExceedLimit = redressQuantityLimit(item, product);
+        String productImage = ProductVo.extractMainImage(product);
+        BigDecimal totalPrice = calculateTotalPrice(product.getPrice(), item.getQuantity());
+        return CartItemVo.builder()
+                .productId(item.getProductId())
+                .productName(product.getName())
+                .productImage(productImage)
+                .unitPrice(product.getPrice())
+                .quantity(item.getQuantity())
+                .totalPrice(totalPrice)
+                .checked(item.getChecked())
+                .limit(isExceedLimit)
+                .build();
+    }
+
+    /**
+     * 检查购物车商品数量是否超出限制，并纠正购物车商品数量
+     *
+     * @param item    购物车商品条目
+     * @param product 购物车商品信息
+     * @return 购物车商品数量是否超出限制
+     */
+    private boolean redressQuantityLimit(CartItem item, Product product) {
+        boolean limit = item.getQuantity() > product.getStock();
+        if (limit) {
+            item.setQuantity(product.getStock());
+            cartItemMapper.updateByPrimaryKey(item);
+        }
+        return limit;
+    }
+
+    private BigDecimal calculateTotalPrice(BigDecimal unitPrice, int quantity) {
+        if (unitPrice != null) {
+            return unitPrice.multiply(new BigDecimal(quantity));
+        }
+        return new BigDecimal("0");
     }
 }

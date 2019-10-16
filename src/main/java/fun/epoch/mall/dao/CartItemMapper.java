@@ -32,4 +32,6 @@ public interface CartItemMapper {
     @Update("update cart_item <selective>")
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(CartItem cartItem);
+
+    List<CartItem> selectByUserId(int userId);
 }
