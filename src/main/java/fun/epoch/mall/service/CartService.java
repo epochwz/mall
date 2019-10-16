@@ -16,7 +16,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
 import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
+import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
 
 @Service
 public class CartService {
@@ -41,7 +43,29 @@ public class CartService {
     }
 
     public ServerResponse<CartVo> add(int userId, int productId, int count) {
-        return null;
+        if (count <= 0) {
+            return ServerResponse.error("数量必须大于零", list(userId).getData());
+        }
+
+        Product product = productMapper.selectByPrimaryKey(productId);
+        if (product == null || product.getStatus() == OFF_SALE) {
+            return ServerResponse.error(NOT_FOUND, "商品不存在 / 已下架", list(userId).getData());
+        }
+
+        CartItem item = cartItemMapper.selectByUserIdAndProductId(userId, productId);
+        if (item != null) {
+            item.setQuantity(item.getQuantity() + count);
+            cartItemMapper.updateSelectiveByPrimaryKey(item);
+        } else {
+            CartItem cartItem = CartItem.builder()
+                    .userId(userId)
+                    .productId(productId)
+                    .quantity(count)
+                    .checked(true)
+                    .build();
+            cartItemMapper.insert(cartItem);
+        }
+        return list(userId);
     }
 
     public ServerResponse<CartVo> delete(int userId, int[] productIds) {
