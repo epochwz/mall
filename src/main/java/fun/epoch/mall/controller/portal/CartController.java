@@ -1,5 +1,7 @@
 package fun.epoch.mall.controller.portal;
 
+import fun.epoch.mall.common.Constant;
+import fun.epoch.mall.entity.User;
 import fun.epoch.mall.service.CartService;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.CartVo;
@@ -22,42 +24,47 @@ public class CartController {
     @ResponseBody
     @RequestMapping(value = "list.do")
     private ServerResponse<CartVo> list(HttpSession session) {
-        return null;
+        return cartService.list(currentUserId(session));
     }
 
     @ResponseBody
     @RequestMapping(value = "count.do")
     private ServerResponse<Integer> count(HttpSession session) {
-        return null;
+        return cartService.count(currentUserId(session));
     }
 
     @ResponseBody
     @RequestMapping(value = "add.do", method = POST)
     private ServerResponse<CartVo> add(HttpSession session, @RequestParam int productId, @RequestParam(defaultValue = "1") int count) {
-        return null;
+        return cartService.add(currentUserId(session), productId, count);
     }
 
     @ResponseBody
     @RequestMapping(value = "delete.do", method = POST)
     private ServerResponse<CartVo> delete(HttpSession session, int[] productIds) {
-        return null;
+        return cartService.delete(currentUserId(session), productIds);
     }
 
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
     private ServerResponse<CartVo> update(HttpSession session, @RequestParam int productId, @RequestParam int count) {
-        return null;
+        return cartService.update(currentUserId(session), productId, count);
     }
 
     @ResponseBody
     @RequestMapping(value = "check.do", method = POST)
     private ServerResponse<CartVo> check(HttpSession session, @RequestParam int productId, @RequestParam boolean checked) {
-        return null;
+        return cartService.check(currentUserId(session), productId, checked);
     }
 
     @ResponseBody
     @RequestMapping(value = "check_all.do", method = POST)
     private ServerResponse<CartVo> checkAll(HttpSession session, @RequestParam boolean checked) {
-        return null;
+        return cartService.checkAll(currentUserId(session), checked);
+    }
+
+    private int currentUserId(HttpSession session) {
+        User user = (User) session.getAttribute(Constant.CURRENT_USER);
+        return user.getId();
     }
 }
