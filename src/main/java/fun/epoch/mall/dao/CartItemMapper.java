@@ -44,4 +44,6 @@ public interface CartItemMapper {
     int updateQuantityByUserIdAndProductId(int userId, int productId, int count);
 
     int updateCheckStatusByUserIdAndProductId(int userId, int productId, boolean checked);
+
+    int updateCheckStatusByUserId(int userId, boolean checked);
 }
