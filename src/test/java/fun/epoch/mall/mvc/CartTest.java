@@ -208,6 +208,27 @@ public class CartTest extends CustomMvcTest {
         assertFalse(cartVo.getCartItems().get(2).isChecked());
     }
 
+    /**
+     * 全选 / 全不选
+     * <p>
+     * 200  全选 / 全不选 成功
+     */
+    @Test
+    public void testCheckedAll_200_withCartDetail() {
+        assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_ALL_CHECKED, post(check_all)
+                .param("checked", "true")
+        );
+    }
+
+    @Test
+    public void testUnCheckedAll_200_withCartDetail() {
+        CartVo cartVo = cartVoFrom(post(check_all).param("checked", "false"));
+
+        assertFalse(cartVo.isAllChecked());
+        assertEquals(new BigDecimal("0"), cartVo.getCartTotalPrice());
+        assertTrue(cartVo.getCartItems().stream().noneMatch(CartItemVo::isChecked));
+    }
+
     private void assertEqualsDefaultJson(MockHttpServletRequestBuilder request) {
         assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_DETAIL, request);
     }
