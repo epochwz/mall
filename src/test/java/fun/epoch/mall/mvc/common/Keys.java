@@ -39,6 +39,7 @@ public interface Keys {
         String CASE_CART_ALL_CHECKED = "allChecked";
         String CASE_CART_PRODUCT_QUANTITY_LIMITED = "productQuantityLimited";
         String CASE_CART_PRODUCT_NOT_EXIST = "productNotExist";
+        String CASE_CART_ADD_PRODUCT_NOT_IN_CART_BEFORE = "addProductNotInCartBefore";
     }
 
     /**
@@ -48,6 +49,7 @@ public interface Keys {
         String EXPECTED_JSON_OF_CART_DETAIL = "mock/cart/detail.json";
         String EXPECTED_JSON_OF_CART_ALL_CHECKED = "mock/cart/detail_allChecked.json";
         String EXPECTED_JSON_OF_CART_PRODUCT_QUANTITY_LIMITED = "mock/cart/detail_productQuantityLimited.json";
+        String EXPECTED_JSON_OF_CART_AFTER_UPDATE = "mock/cart/detail_afterUpdate.json";
     }
 
     interface ErrorKeys {
@@ -102,6 +104,7 @@ public interface Keys {
         BigDecimal price = new BigDecimal("13.4");
 
         String productId2 = "2";
+        String productId3 = "3";
 
         String newProductName = "武动乾坤";
 

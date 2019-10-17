@@ -13,12 +13,14 @@ import java.util.Comparator;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
-import static fun.epoch.mall.mvc.common.Apis.portal.cart.count;
-import static fun.epoch.mall.mvc.common.Apis.portal.cart.list;
+import static fun.epoch.mall.mvc.common.Apis.portal.cart.*;
+import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockCases.*;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.*;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.CART_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
+import static fun.epoch.mall.mvc.common.Keys.ProductKeys.productId3;
+import static fun.epoch.mall.mvc.common.Keys.ProductKeys.productIdOffSale;
 import static fun.epoch.mall.mvc.common.Keys.Tables.cart_item;
 import static fun.epoch.mall.mvc.common.Keys.Tables.product;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
@@ -99,6 +101,41 @@ public class CartTest extends CustomMvcTest {
     public void testCount_200_withCartProductCount_whenNoProductInCart() {
         this.database().truncate(cart_item).launch();
         assertProductCountEquals(0);
+    }
+
+    /**
+     * 添加购物车商品
+     * <p>
+     * 200  商品不存在
+     * 200  商品已下架
+     * 200  添加成功：商品已在购物车中
+     * 200  添加成功：商品未在购物车中
+     */
+    @Test
+    public void testAdd_200_withCartDetail_whenProductNotExist() {
+        assertEqualsDefaultJson(post(add).param("productId", idNotExist));
+    }
+
+    @Test
+    public void testAdd_200_withCartDetail_whenProductOffSale() {
+        assertEqualsDefaultJson(post(add).param("productId", productIdOffSale));
+    }
+
+    @Test
+    public void testAdd_200_withCartDetail_whenProductAlreadyInCart() {
+        assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_AFTER_UPDATE, post(add)
+                .param("productId", productId3)
+        );
+    }
+
+    @Test
+    public void testAdd_200_withCartDetail_whenProductNotInCartBefore() {
+        this.database().launchCase(CASE_CART_ADD_PRODUCT_NOT_IN_CART_BEFORE, cart_item);
+
+        assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_AFTER_UPDATE, post(add)
+                .param("productId", productId3)
+                .param("count", "3")
+        );
     }
 
     private void assertEqualsDefaultJson(MockHttpServletRequestBuilder request) {
