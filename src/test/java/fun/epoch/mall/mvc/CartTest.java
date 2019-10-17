@@ -150,6 +150,27 @@ public class CartTest extends CustomMvcTest {
         );
     }
 
+    /**
+     * 修改购物车商品数量
+     * 200  修改成功 (商品不存在)
+     * 200  修改成功
+     */
+    @Test
+    public void testUpdate_200_withCartDetail_whenProductNotExist() {
+        assertEqualsDefaultJson(post(update)
+                .param("productId", idNotExist)
+                .param("count", "1")
+        );
+    }
+
+    @Test
+    public void testUpdate_200_withCartDetail() {
+        assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_AFTER_UPDATE, post(update)
+                .param("productId", productId3)
+                .param("count", "3")
+        );
+    }
+
     private void assertEqualsDefaultJson(MockHttpServletRequestBuilder request) {
         assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_DETAIL, request);
     }
