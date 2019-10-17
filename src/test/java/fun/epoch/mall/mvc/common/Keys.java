@@ -28,6 +28,8 @@ public interface Keys {
     interface MockSqls {
         int AUTO_INCREMENT = 1000000;
         String COMMON_SQLS = "mock/tables.sql";
+        String CART_SQLS = "mock/cart/cart.sql";
+        String PRODUCT_SQLS = "mock/product/product.sql";
     }
 
     interface ErrorKeys {

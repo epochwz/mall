@@ -20,6 +20,7 @@ import static fun.epoch.mall.mvc.common.Apis.manage.product.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.IdNotExist;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
+import static fun.epoch.mall.mvc.common.Keys.MockSqls.PRODUCT_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.ProductKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.Tables.category;
 import static fun.epoch.mall.mvc.common.Keys.Tables.product;
@@ -33,7 +34,7 @@ public class ProductTest extends CustomMvcTest {
     public void setup() {
         this.init()
                 .session(userId, MANAGER)
-                .database(COMMON_SQLS)
+                .database(COMMON_SQLS, PRODUCT_SQLS)
                 .launchTable(category, product);
     }
 
