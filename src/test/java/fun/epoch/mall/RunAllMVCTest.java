@@ -10,7 +10,8 @@ import org.junit.runners.Suite;
         ExceptionResolverTest.class,
         UserTest.class,
         CategoryTest.class,
-        ProductTest.class
+        ProductTest.class,
+        CartTest.class
 })
 public class RunAllMVCTest {
 }
