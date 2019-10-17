@@ -84,6 +84,23 @@ public class CartTest extends CustomMvcTest {
         assertProductCountEquals(11);
     }
 
+    /**
+     * 查询购物车商品数量
+     * <p>
+     * 200  查询成功
+     * 200  查询成功 (购物车中没有商品)
+     */
+    @Test
+    public void testCount_200_withCartProductCount() {
+        assertProductCountEquals(11);
+    }
+
+    @Test
+    public void testCount_200_withCartProductCount_whenNoProductInCart() {
+        this.database().truncate(cart_item).launch();
+        assertProductCountEquals(0);
+    }
+
     private void assertEqualsDefaultJson(MockHttpServletRequestBuilder request) {
         assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_DETAIL, request);
     }
