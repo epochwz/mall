@@ -7,6 +7,7 @@ import fun.epoch.mall.common.helper.ServerResponseHelper;
 import fun.epoch.mall.entity.Category;
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.utils.response.ServerResponse;
+import fun.epoch.mall.vo.CartVo;
 import fun.epoch.mall.vo.ProductVo;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -41,7 +42,7 @@ public class CustomMvcTest extends MvcTestHelper {
         return categoryHelper.dataFrom(resource);
     }
 
-    public static final ServerResponseHelper<ProductVo> productHelper = new ServerResponseHelper(new TypeReference<ServerResponse<ProductVo>>() {
+    public static final ServerResponseHelper<ProductVo> productHelper = new ServerResponseHelper<>(new TypeReference<ServerResponse<ProductVo>>() {
     });
 
     public ProductVo productVoFrom(ResultActions resultActions) {
@@ -61,5 +62,16 @@ public class CustomMvcTest extends MvcTestHelper {
 
     public PageInfo<ProductVo> productPageInfoFrom(String resource) {
         return productPageInfoHelper.dataFrom(resource);
+    }
+
+    public static final ServerResponseHelper<CartVo> cartVoHelper = new ServerResponseHelper<>(new TypeReference<ServerResponse<CartVo>>() {
+    });
+
+    public CartVo cartVoFrom(ResultActions resultActions) {
+        return cartVoHelper.dataOf(content(resultActions));
+    }
+
+    public CartVo cartVoFrom(String resource) {
+        return cartVoHelper.dataFrom(resource);
     }
 }

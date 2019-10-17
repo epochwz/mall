@@ -32,6 +32,24 @@ public interface Keys {
         String PRODUCT_SQLS = "mock/product/product.sql";
     }
 
+    /**
+     * 测试案例
+     */
+    interface MockCases {
+        String CASE_CART_ALL_CHECKED = "allChecked";
+        String CASE_CART_PRODUCT_QUANTITY_LIMITED = "productQuantityLimited";
+        String CASE_CART_PRODUCT_NOT_EXIST = "productNotExist";
+    }
+
+    /**
+     * 预期结果
+     */
+    interface MockJsons {
+        String EXPECTED_JSON_OF_CART_DETAIL = "mock/cart/detail.json";
+        String EXPECTED_JSON_OF_CART_ALL_CHECKED = "mock/cart/detail_allChecked.json";
+        String EXPECTED_JSON_OF_CART_PRODUCT_QUANTITY_LIMITED = "mock/cart/detail_productQuantityLimited.json";
+    }
+
     interface ErrorKeys {
         Integer IdNotExist = 999999;
         String idNotExist = "999999";

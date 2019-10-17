@@ -1,0 +1,51 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "imageHost": "http://file.epoch.fun/mall_dev/",
+    "cartTotalPrice": 112.80,
+    "allChecked": false,
+    "cartItems": [
+      {
+        "productId": 1,
+        "productName": "斗破苍穹",
+        "productImage": "doupo.jpg",
+        "unitPrice": 13.40,
+        "quantity": 3,
+        "totalPrice": 40.20,
+        "checked": true,
+        "limit": false
+      },
+      {
+        "productId": 2,
+        "productName": "武动乾坤",
+        "productImage": "wudong.jpg",
+        "unitPrice": 11.20,
+        "quantity": 5,
+        "totalPrice": 56.00,
+        "checked": true,
+        "limit": false
+      },
+      {
+        "productId": 3,
+        "productName": "大主宰",
+        "productImage": "",
+        "unitPrice": 8.30,
+        "quantity": 2,
+        "totalPrice": 16.60,
+        "checked": true,
+        "limit": false
+      },
+      {
+        "productId": 4,
+        "productName": "悲伤逆流成河",
+        "productImage": "",
+        "unitPrice": 5.10,
+        "quantity": 1,
+        "totalPrice": 5.10,
+        "checked": false,
+        "limit": false
+      }
+    ]
+  }
+}
