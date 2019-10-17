@@ -50,6 +50,7 @@ public interface Keys {
         String EXPECTED_JSON_OF_CART_ALL_CHECKED = "mock/cart/detail_allChecked.json";
         String EXPECTED_JSON_OF_CART_PRODUCT_QUANTITY_LIMITED = "mock/cart/detail_productQuantityLimited.json";
         String EXPECTED_JSON_OF_CART_AFTER_UPDATE = "mock/cart/detail_afterUpdate.json";
+        String EXPECTED_JSON_OF_CART_AFTER_DELETE = "mock/cart/detail_afterDelete.json";
     }
 
     interface ErrorKeys {

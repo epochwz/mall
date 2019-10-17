@@ -138,6 +138,18 @@ public class CartTest extends CustomMvcTest {
         );
     }
 
+    /**
+     * 删除购物车商品
+     * <p>
+     * 200  删除成功
+     */
+    @Test
+    public void testDelete_200_withCartDetail() {
+        assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_AFTER_DELETE,
+                post(delete).param("productIds", idNotExist, productId3)
+        );
+    }
+
     private void assertEqualsDefaultJson(MockHttpServletRequestBuilder request) {
         assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_DETAIL, request);
     }
