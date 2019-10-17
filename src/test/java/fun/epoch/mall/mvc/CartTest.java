@@ -19,14 +19,13 @@ import static fun.epoch.mall.mvc.common.Keys.MockCases.*;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.*;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.CART_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
-import static fun.epoch.mall.mvc.common.Keys.ProductKeys.productId3;
-import static fun.epoch.mall.mvc.common.Keys.ProductKeys.productIdOffSale;
+import static fun.epoch.mall.mvc.common.Keys.ProductKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.Tables.cart_item;
 import static fun.epoch.mall.mvc.common.Keys.Tables.product;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
 import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class CartTest extends CustomMvcTest {
@@ -169,6 +168,44 @@ public class CartTest extends CustomMvcTest {
                 .param("productId", productId3)
                 .param("count", "3")
         );
+    }
+
+    /**
+     * 勾选 / 取消勾选
+     * <p>
+     * 200  勾选 / 取消勾选 成功 (商品不存在)
+     * 200  勾选 / 取消勾选 成功
+     */
+    @Test
+    public void testChecked_200_withCartDetail_whenProductNotExist() {
+        assertEqualsDefaultJson(post(check)
+                .param("productId", idNotExist)
+                .param("checked", "true")
+        );
+
+        assertEqualsDefaultJson(post(check)
+                .param("productId", idNotExist)
+                .param("checked", "false")
+        );
+    }
+
+    @Test
+    public void testChecked_200_withCartDetail() {
+        assertEqualsExpectedJson(EXPECTED_JSON_OF_CART_ALL_CHECKED, post(check)
+                .param("productId", productId4)
+                .param("checked", "true")
+        );
+    }
+
+    @Test
+    public void testUnChecked_200_withCartDetail() {
+        CartVo cartVo = cartVoFrom(perform(SUCCESS, post(check)
+                .param("productId", productId3)
+                .param("checked", "false")));
+
+        assertFalse(cartVo.isAllChecked());
+        assertEquals(new BigDecimal("96.20"), cartVo.getCartTotalPrice());
+        assertFalse(cartVo.getCartItems().get(2).isChecked());
     }
 
     private void assertEqualsDefaultJson(MockHttpServletRequestBuilder request) {

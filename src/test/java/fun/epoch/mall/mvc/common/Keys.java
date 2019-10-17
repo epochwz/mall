@@ -106,6 +106,7 @@ public interface Keys {
 
         String productId2 = "2";
         String productId3 = "3";
+        String productId4 = "4";
 
         String newProductName = "武动乾坤";
 
