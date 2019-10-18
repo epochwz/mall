@@ -108,6 +108,17 @@ public class ShippingControllerTest {
         testIfCodeEqualsSuccess(controller.detail(session, shippingId));
     }
 
+    /**
+     * 查看收货地址列表
+     * <p>
+     * 200  查看成功，返回收货地址列表
+     */
+    @Test
+    public void testGetShippingList_returnSuccess_whenCallServiceSuccess() {
+        when(service.list(userId, 1, 5)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.list(session, 1, 5));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final Integer shippingId = 1000000;

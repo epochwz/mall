@@ -38,7 +38,7 @@ public class ShippingController {
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "5") int pageSize
     ) {
-        return null;
+        return shippingService.list(currentUserId(session), pageNum, pageSize);
     }
 
     @ResponseBody
