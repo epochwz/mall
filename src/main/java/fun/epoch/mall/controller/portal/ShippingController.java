@@ -28,7 +28,7 @@ public class ShippingController {
     @ResponseBody
     @RequestMapping(value = "detail.do")
     public ServerResponse<Shipping> detail(HttpSession session, @RequestParam("id") int shippingId) {
-        return null;
+        return shippingService.detail(currentUserId(session), shippingId);
     }
 
     @ResponseBody

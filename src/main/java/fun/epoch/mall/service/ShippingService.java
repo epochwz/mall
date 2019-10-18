@@ -17,4 +17,8 @@ public class ShippingService {
     public ServerResponse<Shipping> update(Shipping shipping) {
         return null;
     }
+
+    public ServerResponse<Shipping> detail(int userId, int shippingId) {
+        return null;
+    }
 }

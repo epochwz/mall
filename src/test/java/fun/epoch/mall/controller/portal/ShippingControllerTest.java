@@ -97,6 +97,17 @@ public class ShippingControllerTest {
         testIfCodeEqualsSuccess(controller.update(session, mock().userId(Integer.valueOf(idNotExist)).build()));
     }
 
+    /**
+     * 查看收货地址
+     * <p>
+     * 200  查看成功，返回收货地址
+     */
+    @Test
+    public void testGetShippingDetail_returnSuccess_whenCallServiceSuccess() {
+        when(service.detail(userId, shippingId)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.detail(session, shippingId));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final Integer shippingId = 1000000;
