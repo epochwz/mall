@@ -64,6 +64,17 @@ public class ShippingControllerTest {
         testIfCodeEqualsSuccess(controller.add(session, mock().build()));
     }
 
+    /**
+     * 删除收货地址
+     * <p>
+     * 200  删除成功
+     */
+    @Test
+    public void testDeleteShipping_returnSuccess_whenCallServiceSuccess() {
+        when(service.delete(userId, shippingId)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.delete(session, shippingId));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final Integer shippingId = 1000000;

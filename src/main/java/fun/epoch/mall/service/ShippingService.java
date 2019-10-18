@@ -9,4 +9,8 @@ public class ShippingService {
     public ServerResponse<Integer> add(Shipping shipping) {
         return null;
     }
+
+    public ServerResponse delete(int userId, int shippingId) {
+        return null;
+    }
 }

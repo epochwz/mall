@@ -66,7 +66,7 @@ public class ShippingController {
     @ResponseBody
     @RequestMapping(value = "delete.do", method = POST)
     public ServerResponse delete(HttpSession session, @RequestParam("id") int shippingId) {
-        return null;
+        return shippingService.delete(currentUserId(session), shippingId);
     }
 
     private int currentUserId(HttpSession session) {
