@@ -60,7 +60,14 @@ public class ShippingController {
     @ResponseBody
     @RequestMapping(value = "update.do", method = POST)
     public ServerResponse<Shipping> update(HttpSession session, @RequestBody Shipping shipping) {
-        return null;
+        if (shipping.getId() == null) {
+            return ServerResponse.error("收货地址 id 不能为空");
+        }
+        if (shipping.getMobile() != null && !checkMobile(shipping.getMobile())) {
+            return ServerResponse.error("手机号码格式不正确");
+        }
+        shipping.setUserId(currentUserId(session));
+        return shippingService.update(shipping);
     }
 
     @ResponseBody

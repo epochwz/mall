@@ -13,4 +13,8 @@ public class ShippingService {
     public ServerResponse delete(int userId, int shippingId) {
         return null;
     }
+
+    public ServerResponse<Shipping> update(Shipping shipping) {
+        return null;
+    }
 }

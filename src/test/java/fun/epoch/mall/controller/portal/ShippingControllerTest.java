@@ -16,6 +16,7 @@ import org.springframework.mock.web.MockHttpSession;
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsError;
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
+import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -73,6 +74,27 @@ public class ShippingControllerTest {
     public void testDeleteShipping_returnSuccess_whenCallServiceSuccess() {
         when(service.delete(userId, shippingId)).thenReturn(ServerResponse.success());
         testIfCodeEqualsSuccess(controller.delete(session, shippingId));
+    }
+
+    /**
+     * 修改收货地址
+     * <p>
+     * 400  非法参数：手机不符合统一校验规则
+     * 200  修改成功：返回修改后的收货地址
+     */
+    @Test
+    public void testUpdateShipping_returnError_whenOneOfParamIsInvalid() {
+        testIfCodeEqualsError(errorMobiles, errorMobile -> controller.update(session, mock().mobile(errorMobile).build()));
+    }
+
+    @Test
+    public void testUpdateShipping_returnSuccess_onlyWhenSetUserId_beforeCallService() {
+        when(service.update(any())).thenAnswer((Answer<ServerResponse>) invocation -> {
+            Shipping shipping = invocation.getArgument(0);
+            return userId.equals(shipping.getUserId()) ? ServerResponse.success() : ServerResponse.error();
+        });
+
+        testIfCodeEqualsSuccess(controller.update(session, mock().userId(Integer.valueOf(idNotExist)).build()));
     }
 
     // 合法值
