@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
+import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -40,6 +40,32 @@ public class ShippingServiceTest {
         assertEquals(shippingId, response.getData());
     }
 
+    /**
+     * 删除收货地址
+     * <p>
+     * 404  收货地址不存在
+     * 403  无权限 (收货地址不属于当前用户)
+     * 200  删除成功
+     */
+    @Test
+    public void testDeleteShipping_returnNotFound_whenShippingNotExist() {
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.delete(userId, shippingId));
+    }
+
+    @Test
+    public void testDeleteShipping_returnForbidden_whenShippingNotBelongCurrentUser() {
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(mock().userId(otherUserId).build());
+        testIfCodeEqualsForbidden(service.delete(userId, shippingId));
+    }
+
+    @Test
+    public void testDeleteShipping_returnSuccess() {
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(mock().build());
+        when(mapper.deleteByPrimaryKey(shippingId)).thenReturn(1);
+        testIfCodeEqualsSuccess(service.delete(userId, shippingId));
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final Integer shippingId = 1000000;
@@ -47,4 +73,7 @@ public class ShippingServiceTest {
     private Shipping.ShippingBuilder mock() {
         return Shipping.builder().userId(userId).name("小明").mobile("15623336666").province("广东省").city("广州市").district("小谷围街道").address("宇宙工业大学");
     }
+
+    // 错误值
+    private static final Integer otherUserId = 1000001;
 }
