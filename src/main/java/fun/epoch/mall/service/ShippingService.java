@@ -1,11 +1,14 @@
 package fun.epoch.mall.service;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.dao.ShippingMapper;
 import fun.epoch.mall.entity.Shipping;
 import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static fun.epoch.mall.utils.TextUtils.isBlank;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
@@ -60,6 +63,7 @@ public class ShippingService {
     }
 
     public ServerResponse<PageInfo<Shipping>> list(int userId, int pageSize, int pageNum) {
-        return null;
+        PageHelper.startPage(pageNum, pageSize);
+        return ServerResponse.success(new PageInfo<>(shippingMapper.selectByUserId(userId)));
     }
 }

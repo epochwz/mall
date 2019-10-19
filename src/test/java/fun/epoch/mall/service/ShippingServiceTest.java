@@ -1,5 +1,6 @@
 package fun.epoch.mall.service;
 
+import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.dao.ShippingMapper;
 import fun.epoch.mall.entity.Shipping;
 import fun.epoch.mall.utils.response.ServerResponse;
@@ -9,6 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import java.util.Collections;
+import java.util.List;
 
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static org.junit.Assert.assertEquals;
@@ -126,6 +130,20 @@ public class ShippingServiceTest {
 
         ServerResponse<Shipping> response = testIfCodeEqualsSuccess(service.detail(userId, shippingId));
         assertEquals(dbShipping, response.getData());
+    }
+
+    /**
+     * 查看收货地址列表
+     * <p>
+     * 200  查看成功，返回收货地址信息
+     */
+    @Test
+    public void testListShipping_returnSuccess_withShippingList() {
+        List<Shipping> shippings = Collections.singletonList(mock().build());
+        when(mapper.selectByUserId(userId)).thenReturn(shippings);
+
+        ServerResponse<PageInfo<Shipping>> response = testIfCodeEqualsSuccess(service.list(userId, 1, 5));
+        assertEquals(shippings, response.getData().getList());
     }
 
     // 合法值

@@ -32,4 +32,6 @@ public interface ShippingMapper {
     @Update("update shipping <selective>")
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(Shipping shipping);
+
+    List<Shipping> selectByUserId(int userId);
 }
