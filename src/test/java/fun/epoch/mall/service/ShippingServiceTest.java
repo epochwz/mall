@@ -100,6 +100,34 @@ public class ShippingServiceTest {
         assertObjectEquals(dbShipping, response.getData());
     }
 
+    /**
+     * 查看收货地址详情
+     * <p>
+     * 404  收货地址不存在
+     * 403  无权限 (收货地址不属于当前用户)
+     * 200  查看成功，返回收货地址信息
+     */
+    @Test
+    public void testDetailShipping_returnNotFound_whenShippingNotExist() {
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.detail(userId, shippingId));
+    }
+
+    @Test
+    public void testDetailShipping_returnForbidden_whenShippingNotBelongCurrentUser() {
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(mock().userId(otherUserId).build());
+        testIfCodeEqualsForbidden(service.detail(userId, shippingId));
+    }
+
+    @Test
+    public void testDetailShipping_returnSuccess_withShipping() {
+        Shipping dbShipping = mock().build();
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(dbShipping);
+
+        ServerResponse<Shipping> response = testIfCodeEqualsSuccess(service.detail(userId, shippingId));
+        assertEquals(dbShipping, response.getData());
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final Integer shippingId = 1000000;
