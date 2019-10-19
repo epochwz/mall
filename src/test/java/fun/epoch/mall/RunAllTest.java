@@ -4,9 +4,11 @@ import fun.epoch.mall.controller.manage.ManageCategoryControllerTest;
 import fun.epoch.mall.controller.manage.ManageProductControllerTest;
 import fun.epoch.mall.controller.manage.ManageUserControllerTest;
 import fun.epoch.mall.controller.portal.ProductControllerTest;
+import fun.epoch.mall.controller.portal.ShippingControllerTest;
 import fun.epoch.mall.controller.portal.UserControllerTest;
 import fun.epoch.mall.service.CategoryServiceTest;
 import fun.epoch.mall.service.ProductServiceTest;
+import fun.epoch.mall.service.ShippingServiceTest;
 import fun.epoch.mall.service.UserServiceTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -20,7 +22,9 @@ import org.junit.runners.Suite;
         CategoryServiceTest.class,
         ProductControllerTest.class,
         ManageProductControllerTest.class,
-        ProductServiceTest.class
+        ProductServiceTest.class,
+        ShippingControllerTest.class,
+        ShippingServiceTest.class
 })
 public class RunAllTest {
 }
