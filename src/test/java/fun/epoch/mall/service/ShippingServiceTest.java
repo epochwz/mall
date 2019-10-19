@@ -66,9 +66,45 @@ public class ShippingServiceTest {
         testIfCodeEqualsSuccess(service.delete(userId, shippingId));
     }
 
+    /**
+     * 修改收货地址
+     * <p>
+     * 404  收货地址不存在
+     * 403  无权限 (收货地址不属于当前用户)
+     * 200  修改成功，返回修改后的收货地址
+     */
+    @Test
+    public void testUpdateShipping_returnNotFound_whenShippingNotExist() {
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.update(mock().id(shippingId).build()));
+    }
+
+    @Test
+    public void testUpdateShipping_returnForbidden_whenShippingNotBelongCurrentUser() {
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(mock().userId(otherUserId).build());
+        testIfCodeEqualsForbidden(service.update(mock().id(shippingId).build()));
+    }
+
+    @Test
+    public void testUpdateShipping_returnSuccess_withNewShipping() {
+        Shipping dbShipping = mock().build();
+        when(mapper.selectByPrimaryKey(shippingId)).thenReturn(dbShipping);
+        when(mapper.updateSelectiveByPrimaryKey(any())).thenAnswer((Answer<Integer>) invocation -> {
+            Shipping shipping = invocation.getArgument(0);
+            dbShipping.setName(shipping.getName());
+            return 1;
+        });
+
+        Shipping updateShipping = mock().id(shippingId).name(newShippingName).build();
+        ServerResponse<Shipping> response = testIfCodeEqualsSuccess(service.update(updateShipping));
+        assertObjectEquals(dbShipping, response.getData());
+    }
+
     // 合法值
     private static final Integer userId = 1000000;
     private static final Integer shippingId = 1000000;
+
+    private static final String newShippingName = "epoch";
 
     private Shipping.ShippingBuilder mock() {
         return Shipping.builder().userId(userId).name("小明").mobile("15623336666").province("广东省").city("广州市").district("小谷围街道").address("宇宙工业大学");
