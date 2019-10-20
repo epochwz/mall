@@ -112,4 +112,12 @@ public interface Keys {
 
         String productIdOffSale = "5";
     }
+
+    interface ShippingKeys {
+        String shippingId = "1";
+        String shippingName = "epoch";
+        String shippingId2 = "2";
+        String shippingName2 = "epochwz";
+    }
+
 }
