@@ -1,16 +1,16 @@
 package fun.epoch.mall.mvc;
 
+import fun.epoch.mall.entity.Shipping;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
 import org.junit.Before;
 import org.junit.Test;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
-import static fun.epoch.mall.mvc.common.Apis.portal.shipping.detail;
-import static fun.epoch.mall.mvc.common.Apis.portal.shipping.list;
+import static fun.epoch.mall.mvc.common.Apis.portal.shipping.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
+import static fun.epoch.mall.mvc.common.Keys.MockSqls.AUTO_INCREMENT;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.ShippingKeys.*;
-import static fun.epoch.mall.mvc.common.Keys.ShippingKeys.shippingName2;
 import static fun.epoch.mall.mvc.common.Keys.Tables.shipping;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId2;
@@ -56,5 +56,21 @@ public class ShippingTest extends CustomMvcTest {
     @Test
     public void testList_200_withShippingList() {
         perform(post(list), SUCCESS, userId, shippingId, shippingName, shippingId2, shippingName2, "\"size\":2");
+    }
+
+    /**
+     * 添加收货地址
+     * <p>
+     * 200  添加成功，返回新增收货地址的 id
+     */
+    @Test
+    public void testAdd_200_withShippingId() {
+        this.database().reset(AUTO_INCREMENT, shipping).launch();
+
+        postJson(add, mock().build(), SUCCESS, shippingId);
+    }
+
+    private Shipping.ShippingBuilder mock() {
+        return Shipping.builder().name("小明").mobile("15623336666").province("广东省").city("广州市").district("小谷围街道").address("宇宙工业大学");
     }
 }
