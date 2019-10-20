@@ -70,6 +70,30 @@ public class ShippingTest extends CustomMvcTest {
         postJson(add, mock().build(), SUCCESS, shippingId);
     }
 
+    /**
+     * 删除收货地址
+     * <p>
+     * 200  删除成功
+     * 404  收货地址不存在
+     * 403  收货地址不属于当前用户
+     */
+    @Test
+    public void testDelete_200() {
+        perform(SUCCESS, post(detail).param("id", shippingId));
+        perform(SUCCESS, post(delete).param("id", shippingId));
+        perform(NOT_FOUND, post(detail).param("id", shippingId));
+    }
+
+    @Test
+    public void testDelete_404_whenShippingNotExist() {
+        perform(NOT_FOUND, post(delete).param("id", idNotExist));
+    }
+
+    @Test
+    public void testDelete_403_whenShippingNotBelongCurrentUser() {
+        this.session(userId2, CONSUMER).perform(FORBIDDEN, post(delete).param("id", shippingId));
+    }
+
     private Shipping.ShippingBuilder mock() {
         return Shipping.builder().name("小明").mobile("15623336666").province("广东省").city("广州市").district("小谷围街道").address("宇宙工业大学");
     }
