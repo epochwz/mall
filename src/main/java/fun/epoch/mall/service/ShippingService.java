@@ -8,8 +8,6 @@ import fun.epoch.mall.utils.response.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import static fun.epoch.mall.utils.TextUtils.isBlank;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
 
@@ -62,7 +60,7 @@ public class ShippingService {
         return ServerResponse.success(shipping);
     }
 
-    public ServerResponse<PageInfo<Shipping>> list(int userId, int pageSize, int pageNum) {
+    public ServerResponse<PageInfo<Shipping>> list(int userId, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         return ServerResponse.success(new PageInfo<>(shippingMapper.selectByUserId(userId)));
     }
