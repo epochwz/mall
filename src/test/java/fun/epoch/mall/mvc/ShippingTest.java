@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.mvc.common.Apis.portal.shipping.*;
+import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.IdNotExist;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.AUTO_INCREMENT;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
@@ -92,6 +93,28 @@ public class ShippingTest extends CustomMvcTest {
     @Test
     public void testDelete_403_whenShippingNotBelongCurrentUser() {
         this.session(userId2, CONSUMER).perform(FORBIDDEN, post(delete).param("id", shippingId));
+    }
+
+    /**
+     * 修改收货地址
+     * <p>
+     * 200  修改成功，返回修改后的收货地址
+     * 404  收货地址不存在
+     * 403  收货地址不属于当前用户
+     */
+    @Test
+    public void testUpdate_200_withShipping() {
+        postJson(update, mock().id(Integer.valueOf(shippingId)).name(shippingName2).build(), SUCCESS, userId, shippingId, shippingName2);
+    }
+
+    @Test
+    public void testUpdate_404_whenShippingNotExist() {
+        postJson(update, mock().id(IdNotExist).build(), NOT_FOUND);
+    }
+
+    @Test
+    public void testUpdate_403_whenShippingNotBelongCurrentUser() {
+        this.session(userId2, CONSUMER).postJson(update, mock().id(Integer.valueOf(shippingId)).name(shippingName2).build(), FORBIDDEN);
     }
 
     private Shipping.ShippingBuilder mock() {
