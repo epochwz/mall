@@ -35,7 +35,7 @@ public class ManageOrderController {
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "5") int pageSize
     ) {
-        return null;
+        return orderService.search(orderNo, userId, null, status, startTime, endTime, pageNum, pageSize);
     }
 
     @ResponseBody

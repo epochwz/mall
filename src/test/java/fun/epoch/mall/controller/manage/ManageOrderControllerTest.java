@@ -30,6 +30,22 @@ public class ManageOrderControllerTest {
         testIfCodeEqualsSuccess(controller.detail(orderNo));
     }
 
+    /**
+     * 搜索订单
+     * <p>
+     * 200  搜索成功：调用 service 成功
+     */
+    @Test
+    public void testSearch_returnSuccess_whenCallServiceSuccess() {
+        when(service.search(orderNo, userId, keyword, status, startTime, endTime, 1, 5)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.search(orderNo, userId, status, startTime, endTime, 1, 5));
+    }
+
     // 合法值
     private static final Long orderNo = 1521421465877L;
+    private static final Integer userId = 1000000;
+    private static final String keyword = null;
+    private static final Integer status = 10;
+    private static final Long startTime = 1521421465877L;
+    private static final Long endTime = 1521421465877L;
 }
