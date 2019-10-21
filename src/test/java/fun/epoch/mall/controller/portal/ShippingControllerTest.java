@@ -94,7 +94,7 @@ public class ShippingControllerTest {
             return userId.equals(shipping.getUserId()) ? ServerResponse.success() : ServerResponse.error();
         });
 
-        testIfCodeEqualsSuccess(controller.update(session, mock().userId(Integer.valueOf(idNotExist)).build()));
+        testIfCodeEqualsSuccess(controller.update(session, mock().id(shippingId).userId(Integer.valueOf(idNotExist)).build()));
     }
 
     /**

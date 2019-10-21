@@ -1,8 +1,10 @@
 package fun.epoch.mall;
 
 import fun.epoch.mall.controller.manage.ManageCategoryControllerTest;
+import fun.epoch.mall.controller.manage.ManageOrderControllerTest;
 import fun.epoch.mall.controller.manage.ManageProductControllerTest;
 import fun.epoch.mall.controller.manage.ManageUserControllerTest;
+import fun.epoch.mall.controller.portal.OrderControllerTest;
 import fun.epoch.mall.controller.portal.ProductControllerTest;
 import fun.epoch.mall.controller.portal.ShippingControllerTest;
 import fun.epoch.mall.controller.portal.UserControllerTest;
@@ -24,7 +26,9 @@ import org.junit.runners.Suite;
         ManageProductControllerTest.class,
         ProductServiceTest.class,
         ShippingControllerTest.class,
-        ShippingServiceTest.class
+        ShippingServiceTest.class,
+        ManageOrderControllerTest.class,
+        OrderControllerTest.class
 })
 public class RunAllTest {
 }
