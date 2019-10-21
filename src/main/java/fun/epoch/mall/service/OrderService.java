@@ -18,4 +18,8 @@ public class OrderService {
     public ServerResponse ship(long orderNo) {
         return null;
     }
+
+    public ServerResponse close(long orderNo) {
+        return null;
+    }
 }

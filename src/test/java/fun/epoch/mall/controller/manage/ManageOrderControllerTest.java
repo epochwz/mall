@@ -52,6 +52,17 @@ public class ManageOrderControllerTest {
         testIfCodeEqualsSuccess(controller.ship(orderNo));
     }
 
+    /**
+     * 关闭订单
+     * <p>
+     * 200  关闭成功：调用 service 成功
+     */
+    @Test
+    public void testClose_returnSuccess_whenCallServiceSuccess() {
+        when(service.close(orderNo)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.close(orderNo));
+    }
+
     // 合法值
     private static final Long orderNo = 1521421465877L;
     private static final Integer userId = 1000000;

@@ -47,6 +47,6 @@ public class ManageOrderController {
     @ResponseBody
     @RequestMapping(value = "close.do", method = POST)
     public ServerResponse close(@RequestParam long orderNo) {
-        return null;
+        return orderService.close(orderNo);
     }
 }
