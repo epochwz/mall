@@ -53,6 +53,28 @@ public class OrderControllerTest {
         testIfCodeEqualsSuccess(controller.search(session, orderNo, keyword, status, startTime, endTime, 1, 5));
     }
 
+    /**
+     * 预览订单
+     * <p>
+     * 200  预览成功：调用 service 成功
+     */
+    @Test
+    public void testPreview_returnSuccess_whenCallServiceSuccess() {
+        when(service.preview(userId)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.preview(session));
+    }
+
+    /**
+     * 创建订单
+     * <p>
+     * 200  创建成功：调用 service 成功
+     */
+    @Test
+    public void testCreate_returnSuccess_whenCallServiceSuccess() {
+        when(service.create(userId, shippingId)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.create(session, shippingId));
+    }
+
     // 合法值
     private static final Long orderNo = 1521421465877L;
     private static final String keyword = "瓜子";
@@ -60,4 +82,6 @@ public class OrderControllerTest {
     private static final Integer status = 10;
     private static final Long startTime = 1521421465877L;
     private static final Long endTime = 1521421465877L;
+
+    private static final Integer shippingId = 1;
 }

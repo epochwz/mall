@@ -47,13 +47,13 @@ public class OrderController {
     @ResponseBody
     @RequestMapping(value = "preview.do")
     public ServerResponse<OrderVo> preview(HttpSession session) {
-        return null;
+        return orderService.preview(currentUserId(session));
     }
 
     @ResponseBody
     @RequestMapping(value = "create.do", method = POST)
     public ServerResponse<OrderVo> create(HttpSession session, @RequestParam int shippingId) {
-        return null;
+        return orderService.create(currentUserId(session), shippingId);
     }
 
     @ResponseBody

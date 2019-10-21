@@ -26,4 +26,12 @@ public class OrderService {
     public ServerResponse close(long orderNo) {
         return null;
     }
+
+    public ServerResponse preview(int userId) {
+        return null;
+    }
+
+    public ServerResponse<OrderVo> create(int userId, int shippingId) {
+        return null;
+    }
 }
