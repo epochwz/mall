@@ -11,6 +11,10 @@ public class OrderService {
         return null;
     }
 
+    public ServerResponse<OrderVo> detail(int userId, long orderNo) {
+        return null;
+    }
+
     public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
         return null;
     }

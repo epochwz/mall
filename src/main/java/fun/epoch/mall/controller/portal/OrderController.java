@@ -1,6 +1,7 @@
 package fun.epoch.mall.controller.portal;
 
 import com.github.pagehelper.PageInfo;
+import fun.epoch.mall.entity.User;
 import fun.epoch.mall.service.OrderService;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 
+import static fun.epoch.mall.common.Constant.CURRENT_USER;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
@@ -24,7 +26,7 @@ public class OrderController {
     @ResponseBody
     @RequestMapping(value = "detail.do")
     public ServerResponse<OrderVo> detail(HttpSession session, @RequestParam long orderNo) {
-        return null;
+        return orderService.detail(currentUserId(session), orderNo);
     }
 
     @ResponseBody
@@ -39,7 +41,7 @@ public class OrderController {
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "5") int pageSize
     ) {
-        return null;
+        return orderService.search(orderNo, currentUserId(session), keyword, status, startTime, endTime, pageNum, pageSize);
     }
 
     @ResponseBody
@@ -75,5 +77,9 @@ public class OrderController {
     @RequestMapping(value = "payment_status.do")
     public ServerResponse<Boolean> queryPaymentStatus(HttpSession session, @RequestParam long orderNo) {
         return null;
+    }
+
+    private int currentUserId(HttpSession session) {
+        return ((User) session.getAttribute(CURRENT_USER)).getId();
     }
 }
