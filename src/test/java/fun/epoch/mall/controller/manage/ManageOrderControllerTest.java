@@ -41,6 +41,17 @@ public class ManageOrderControllerTest {
         testIfCodeEqualsSuccess(controller.search(orderNo, userId, status, startTime, endTime, 1, 5));
     }
 
+    /**
+     * 订单发货
+     * <p>
+     * 200  发货成功：调用 service 成功
+     */
+    @Test
+    public void testShip_returnSuccess_whenCallServiceSuccess() {
+        when(service.ship(orderNo)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.ship(orderNo));
+    }
+
     // 合法值
     private static final Long orderNo = 1521421465877L;
     private static final Integer userId = 1000000;

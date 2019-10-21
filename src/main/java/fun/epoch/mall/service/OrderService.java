@@ -14,4 +14,8 @@ public class OrderService {
     public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
         return null;
     }
+
+    public ServerResponse ship(long orderNo) {
+        return null;
+    }
 }

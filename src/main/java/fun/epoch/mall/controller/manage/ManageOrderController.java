@@ -41,7 +41,7 @@ public class ManageOrderController {
     @ResponseBody
     @RequestMapping(value = "ship.do", method = POST)
     public ServerResponse ship(@RequestParam long orderNo) {
-        return null;
+        return orderService.ship(orderNo);
     }
 
     @ResponseBody
