@@ -75,6 +75,17 @@ public class OrderControllerTest {
         testIfCodeEqualsSuccess(controller.create(session, shippingId));
     }
 
+    /**
+     * 取消订单
+     * <p>
+     * 200  取消成功：调用 service 成功
+     */
+    @Test
+    public void testCancel_returnSuccess_whenCallServiceSuccess() {
+        when(service.cancel(userId, orderNo)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.cancel(session, orderNo));
+    }
+
     // 合法值
     private static final Long orderNo = 1521421465877L;
     private static final String keyword = "瓜子";

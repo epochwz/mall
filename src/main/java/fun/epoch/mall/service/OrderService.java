@@ -34,4 +34,8 @@ public class OrderService {
     public ServerResponse<OrderVo> create(int userId, int shippingId) {
         return null;
     }
+
+    public ServerResponse cancel(int userId, long orderNo) {
+        return null;
+    }
 }

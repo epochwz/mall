@@ -59,7 +59,7 @@ public class OrderController {
     @ResponseBody
     @RequestMapping(value = "cancel.do", method = POST)
     public ServerResponse cancel(HttpSession session, @RequestParam long orderNo) {
-        return null;
+        return orderService.cancel(currentUserId(session), orderNo);
     }
 
     @ResponseBody
