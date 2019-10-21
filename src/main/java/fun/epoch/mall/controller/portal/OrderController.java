@@ -1,6 +1,7 @@
 package fun.epoch.mall.controller.portal;
 
 import com.github.pagehelper.PageInfo;
+import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.service.OrderService;
 import fun.epoch.mall.utils.response.ServerResponse;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpSession;
 
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
+import static fun.epoch.mall.common.Constant.PaymentType.ONLINE_PAY;
+import static fun.epoch.mall.utils.response.ResponseCode.NOT_IMPLEMENTED;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
@@ -70,7 +73,13 @@ public class OrderController {
             @RequestParam(defaultValue = "1") int paymentType,
             @RequestParam(defaultValue = "1") int paymentPlatform
     ) {
-        return null;
+        if (!Constant.PaymentType.contains(paymentType)) {
+            return ServerResponse.error(NOT_IMPLEMENTED, "暂不支持的支付类型");
+        }
+        if (paymentType == ONLINE_PAY.getCode() && !Constant.PaymentPlatform.contains(paymentPlatform)) {
+            return ServerResponse.error(NOT_IMPLEMENTED, "暂不支持的支付平台");
+        }
+        return orderService.pay(currentUserId(session), orderNo, paymentType, paymentPlatform);
     }
 
     @ResponseBody

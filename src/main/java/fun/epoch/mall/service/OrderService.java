@@ -3,6 +3,7 @@ package fun.epoch.mall.service;
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
+import fun.epoch.mall.vo.QrCodeVo;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,6 +37,10 @@ public class OrderService {
     }
 
     public ServerResponse cancel(int userId, long orderNo) {
+        return null;
+    }
+
+    public ServerResponse<QrCodeVo> pay(int userId, long orderNo, int paymentType, int paymentPlatform) {
         return null;
     }
 }

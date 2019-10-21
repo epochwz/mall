@@ -12,7 +12,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpSession;
 
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
+import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEquals;
 import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
+import static fun.epoch.mall.utils.response.ResponseCode.NOT_IMPLEMENTED;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -86,6 +88,29 @@ public class OrderControllerTest {
         testIfCodeEqualsSuccess(controller.cancel(session, orderNo));
     }
 
+    /**
+     * 支付订单
+     * <p>
+     * 501  非法参数：支付类型非空时不是系统支持的支付类型
+     * 501  非法参数：支付平台非空时不是系统支持的支付平台
+     * 200  支付成功：调用 service 成功
+     */
+    @Test
+    public void testPay_returnNotImplemented_whenPaymentTypeNotSupported() {
+        testIfCodeEquals(NOT_IMPLEMENTED, controller.pay(session, orderNo, paymentType, notSupported));
+    }
+
+    @Test
+    public void testPay_returnNotImplemented_whenPaymentPlatformNotSupported() {
+        testIfCodeEquals(NOT_IMPLEMENTED, controller.pay(session, orderNo, paymentType, notSupported));
+    }
+
+    @Test
+    public void testPay_returnSuccess_whenCallServiceSuccess() {
+        when(service.pay(userId, orderNo, paymentType, paymentPlatform)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.pay(session, orderNo, paymentType, paymentPlatform));
+    }
+
     // 合法值
     private static final Long orderNo = 1521421465877L;
     private static final String keyword = "瓜子";
@@ -95,4 +120,8 @@ public class OrderControllerTest {
     private static final Long endTime = 1521421465877L;
 
     private static final Integer shippingId = 1;
+
+    private static final int paymentType = 1;
+    private static final int paymentPlatform = 1;
+    private static final int notSupported = 999;
 }
