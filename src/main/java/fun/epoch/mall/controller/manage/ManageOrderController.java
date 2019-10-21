@@ -21,7 +21,7 @@ public class ManageOrderController {
     @ResponseBody
     @RequestMapping(value = "detail.do")
     public ServerResponse<OrderVo> detail(@RequestParam long orderNo) {
-        return null;
+        return orderService.detail(orderNo);
     }
 
     @ResponseBody
