@@ -43,4 +43,8 @@ public class OrderService {
     public ServerResponse<QrCodeVo> pay(int userId, long orderNo, int paymentType, int paymentPlatform) {
         return null;
     }
+
+    public ServerResponse<Boolean> queryPaymentStatus(int userId, long orderNo) {
+        return null;
+    }
 }

@@ -85,7 +85,7 @@ public class OrderController {
     @ResponseBody
     @RequestMapping(value = "payment_status.do")
     public ServerResponse<Boolean> queryPaymentStatus(HttpSession session, @RequestParam long orderNo) {
-        return null;
+        return orderService.queryPaymentStatus(currentUserId(session), orderNo);
     }
 
     private int currentUserId(HttpSession session) {

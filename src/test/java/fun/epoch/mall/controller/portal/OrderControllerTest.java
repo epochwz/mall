@@ -111,6 +111,17 @@ public class OrderControllerTest {
         testIfCodeEqualsSuccess(controller.pay(session, orderNo, paymentType, paymentPlatform));
     }
 
+    /**
+     * 查询订单支付状态
+     * <p>
+     * 200  查询成功：调用 service 成功
+     */
+    @Test
+    public void testQueryPaymentStatus_returnSuccess_whenCallServiceSuccess() {
+        when(service.queryPaymentStatus(userId, orderNo)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.queryPaymentStatus(session, orderNo));
+    }
+
     // 合法值
     private static final Long orderNo = 1521421465877L;
     private static final String keyword = "瓜子";
