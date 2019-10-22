@@ -91,41 +91,32 @@ public class OrderService {
     }
 
     public ServerResponse ship(long orderNo) {
-        Order order = orderMapper.selectByOrderNo(orderNo);
-        if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
-
-        if (order.getStatus() == CANCELED.getCode()
-                || order.getStatus() == UNPAID.getCode()
-                || order.getStatus() == SUCCESS.getCode()
-                || order.getStatus() == CLOSED.getCode()
-        ) {
-            return ServerResponse.error(String.format("订单状态不合适，当前订单状态是 [%s], 不允许发货!", OrderStatus.valueOf(order.getStatus())));
-        }
-
-        order.setStatus(SHIPPED.getCode());
-        if (orderMapper.updateSelectiveByPrimaryKey(order) > 0) {
-            return ServerResponse.success();
-        }
-        return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "订单发货失败");
+        return updateOrderStatus(orderNo, SHIPPED.getCode(), CANCELED, UNPAID, SUCCESS, CLOSED);
     }
 
     public ServerResponse close(long orderNo) {
+        return updateOrderStatus(orderNo, CLOSED.getCode(), CANCELED, PAID, SHIPPED, SUCCESS);
+    }
+
+    private ServerResponse updateOrderStatus(long orderNo, int expectedStatus, OrderStatus... unexpectedStatus) {
         Order order = orderMapper.selectByOrderNo(orderNo);
         if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
 
-        if (order.getStatus() == CANCELED.getCode()
-                || order.getStatus() == PAID.getCode()
-                || order.getStatus() == SHIPPED.getCode()
-                || order.getStatus() == SUCCESS.getCode()
-        ) {
-            return ServerResponse.error(String.format("订单状态不合适，当前订单状态是 [%s], 不允许关闭!", OrderStatus.valueOf(order.getStatus())));
+        if (unexpectedStatus != null && unexpectedStatus.length > 0) {
+            for (OrderStatus status : unexpectedStatus) {
+                if (status.getCode() == order.getStatus()) {
+                    String errorMsg = String.format("订单状态变更失败：[%s] --> [%s], 订单状态不合适", valueOf(order.getStatus()), valueOf(expectedStatus));
+                    return ServerResponse.error(errorMsg);
+                }
+            }
         }
 
-        order.setStatus(CLOSED.getCode());
-        if (orderMapper.updateSelectiveByPrimaryKey(order) > 0) {
-            return ServerResponse.success();
+        order.setStatus(expectedStatus);
+        if (orderMapper.updateSelectiveByPrimaryKey(order) == 0) {
+            String errorMsg = String.format("订单状态变更失败：[%s] --> [%s]", valueOf(order.getStatus()), valueOf(expectedStatus));
+            return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, errorMsg);
         }
-        return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "订单关闭失败");
+        return ServerResponse.success();
     }
 
     public ServerResponse preview(int userId) {
