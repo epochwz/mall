@@ -21,8 +21,7 @@ import java.util.Date;
 
 import static fun.epoch.mall.common.Constant.OrderStatus.PAID;
 import static fun.epoch.mall.common.Constant.PaymentType.ONLINE_PAY;
-import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsNotFound;
-import static fun.epoch.mall.common.enhanced.TestHelper.testIfCodeEqualsSuccess;
+import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -44,12 +43,19 @@ public class OrderServiceTest {
      * 查看订单详情
      * <p>
      * 404  订单不存在
+     * 403  订单不属于当前用户
      * 200  查看成功，返回订单详情
      */
     @Test
     public void testDetail_returnNotFound_whenOrderNoExist() {
         when(orderMapper.selectByOrderNo(orderNo)).thenReturn(null);
         testIfCodeEqualsNotFound(service.detail(orderNo));
+    }
+
+    @Test
+    public void testDetail_returnForbidden_whenOrderNoBelongCurrentUser() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(order);
+        testIfCodeEqualsForbidden(service.detail(otherUserId, orderNo));
     }
 
     @Test
@@ -76,6 +82,7 @@ public class OrderServiceTest {
         assertEquals(productName, orderItem.getProductName());
     }
 
+    // 合法值
     private static final long orderNo = 1521421465877L;
 
     private static final int userId = 1000000;
@@ -111,4 +118,7 @@ public class OrderServiceTest {
             .createTime(new Date())
             .shippingId(shipping.getId())
             .build();
+
+    // 错误值
+    private static final int otherUserId = 1000001;
 }
