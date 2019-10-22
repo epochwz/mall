@@ -157,6 +157,18 @@ public class OrderServiceTest {
         testIfCodeEqualsNotFound(service.close(orderNo));
     }
 
+    @Test
+    public void testClose_returnError_whenOrderStatusNotValid() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(CANCELED.getCode()).build());
+        testIfCodeEqualsError(service.close(orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(PAID.getCode()).build());
+        testIfCodeEqualsError(service.close(orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(SHIPPED.getCode()).build());
+        testIfCodeEqualsError(service.close(orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(SUCCESS.getCode()).build());
+        testIfCodeEqualsError(service.close(orderNo));
+    }
+
     // 合法值
     private static final long orderNo = 1521421465877L;
 

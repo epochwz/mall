@@ -113,6 +113,14 @@ public class OrderService {
         Order order = orderMapper.selectByOrderNo(orderNo);
         if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
 
+        if (order.getStatus() == CANCELED.getCode()
+                || order.getStatus() == PAID.getCode()
+                || order.getStatus() == SHIPPED.getCode()
+                || order.getStatus() == SUCCESS.getCode()
+        ) {
+            return ServerResponse.error(String.format("订单状态不合适，当前订单状态是 [%s], 不允许关闭!", OrderStatus.valueOf(order.getStatus())));
+        }
+
         return null;
     }
 
