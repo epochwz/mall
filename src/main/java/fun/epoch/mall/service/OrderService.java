@@ -106,7 +106,7 @@ public class OrderService {
         if (orderMapper.updateSelectiveByPrimaryKey(order) > 0) {
             return ServerResponse.success();
         }
-        return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "发货失败");
+        return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "订单发货失败");
     }
 
     public ServerResponse close(long orderNo) {
@@ -121,7 +121,11 @@ public class OrderService {
             return ServerResponse.error(String.format("订单状态不合适，当前订单状态是 [%s], 不允许关闭!", OrderStatus.valueOf(order.getStatus())));
         }
 
-        return null;
+        order.setStatus(CLOSED.getCode());
+        if (orderMapper.updateSelectiveByPrimaryKey(order) > 0) {
+            return ServerResponse.success();
+        }
+        return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "订单关闭失败");
     }
 
     public ServerResponse preview(int userId) {

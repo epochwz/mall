@@ -169,6 +169,20 @@ public class OrderServiceTest {
         testIfCodeEqualsError(service.close(orderNo));
     }
 
+    @Test
+    public void testClose_returnSuccess_onlyWhenOrderStatusIsValid_and_setStatusAsClosed_beforeCallMapper() {
+        when(orderMapper.updateSelectiveByPrimaryKey(any())).thenAnswer((Answer<Integer>) invocation -> {
+            Order order = invocation.getArgument(0);
+            return order.getStatus() == CLOSED.getCode() ? 1 : 0;
+        });
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(UNPAID.getCode()).build());
+        testIfCodeEqualsSuccess(service.close(orderNo));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(CLOSED.getCode()).build());
+        testIfCodeEqualsSuccess(service.close(orderNo));
+    }
+
     // 合法值
     private static final long orderNo = 1521421465877L;
 
