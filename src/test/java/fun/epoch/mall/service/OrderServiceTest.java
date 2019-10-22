@@ -106,6 +106,18 @@ public class OrderServiceTest {
         Mockito.verify(service, times(orders.size())).toOrderVo(any());
     }
 
+    /**
+     * 订单发货
+     * <p>
+     * 404  订单不存在
+     * 400  发货失败：已取消 / 未付款  / 已完成 / 已关闭
+     * 200  发货成功：已付款 / 已发货 (且调用 mapper 之前必须将订单状态设置成已发货)
+     */
+    @Test
+    public void testShip_returnNotFound_whenOrderNotExist() {
+        testIfCodeEqualsNotFound(service.ship(orderNo));
+    }
+
     // 合法值
     private static final long orderNo = 1521421465877L;
 

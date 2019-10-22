@@ -88,6 +88,8 @@ public class OrderService {
     }
 
     public ServerResponse ship(long orderNo) {
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
         return null;
     }
 
