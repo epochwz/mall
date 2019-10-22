@@ -13,21 +13,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static fun.epoch.mall.common.Constant.OrderStatus.PAID;
 import static fun.epoch.mall.common.Constant.PaymentType.ONLINE_PAY;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrderServiceTest {
     @InjectMocks
+    @Spy
     OrderService service;
 
     @Mock
@@ -80,6 +89,21 @@ public class OrderServiceTest {
 
         OrderItem orderItem = orderVo.getProducts().get(0);
         assertEquals(productName, orderItem.getProductName());
+    }
+
+    /**
+     * 搜索订单
+     * <p>
+     * 200  搜索成功，返回订单列表
+     */
+    @Test
+    public void testSearch_returnSuccess() {
+        int size = new Random().nextInt(10);
+        List<Order> orders = IntStream.range(0, size).mapToObj(i -> order).collect(Collectors.toList());
+
+        when(orderMapper.search(null, null, null, null, null, null)).thenReturn(orders);
+        testIfCodeEqualsSuccess(service.search(null, null, null, null, null, null, 1, 5));
+        Mockito.verify(service, times(orders.size())).toOrderVo(any());
     }
 
     // 合法值

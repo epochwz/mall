@@ -1,5 +1,6 @@
 package fun.epoch.mall.service;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.dao.OrderItemMapper;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
 import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
@@ -42,12 +44,14 @@ public class OrderService {
     private ServerResponse<OrderVo> detail(Order order, Integer userId) {
         if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
         if (userId != null && !userId.equals(order.getUserId())) return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
+        return ServerResponse.success(toOrderVo(order));
+    }
 
+    OrderVo toOrderVo(Order order) {
         Shipping shipping = shippingMapper.selectByPrimaryKey(order.getShippingId());
         List<OrderItem> products = orderItemMapper.selectByOrderNo(order.getOrderNo());
 
-        OrderVo orderVo = toOrderVo(order, shipping, products);
-        return ServerResponse.success(orderVo);
+        return toOrderVo(order, shipping, products);
     }
 
     private OrderVo toOrderVo(Order order, Shipping shipping, List<OrderItem> products) {
@@ -77,7 +81,10 @@ public class OrderService {
     }
 
     public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
-        return null;
+        PageHelper.startPage(pageNum, pageSize);
+        List<Order> list = orderMapper.search(orderNo, userId, keyword, status, startTime, endTime);
+        List<OrderVo> orderVos = list.stream().map(this::toOrderVo).collect(Collectors.toList());
+        return ServerResponse.success(new PageInfo<>(orderVos));
     }
 
     public ServerResponse ship(long orderNo) {

@@ -34,4 +34,6 @@ public interface OrderMapper {
     int updateSelectiveByPrimaryKey(Order order);
 
     Order selectByOrderNo(long orderNo);
+
+    List<Order> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime);
 }
