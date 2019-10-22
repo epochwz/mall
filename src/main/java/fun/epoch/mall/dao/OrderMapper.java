@@ -32,4 +32,6 @@ public interface OrderMapper {
     @Update("update `order` <selective>")
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(Order order);
+
+    Order selectByOrderNo(long orderNo);
 }
