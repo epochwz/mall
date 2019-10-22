@@ -145,6 +145,18 @@ public class OrderServiceTest {
         testIfCodeEqualsSuccess(service.ship(orderNo));
     }
 
+    /**
+     * 关闭订单
+     * <p>
+     * 404  订单不存在
+     * 400  关闭失败：已取消 / 已付款 / 已发货 / 已完成
+     * 200  关闭成功：未付款 / 已关闭 (且调用 mapper 之前必须将订单状态设置成已关闭)
+     */
+    @Test
+    public void testClose_returnNotFound_whenOrderNotExist() {
+        testIfCodeEqualsNotFound(service.close(orderNo));
+    }
+
     // 合法值
     private static final long orderNo = 1521421465877L;
 
