@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -128,6 +129,20 @@ public class OrderServiceTest {
         testIfCodeEqualsError(service.ship(orderNo));
         when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(CLOSED.getCode()).build());
         testIfCodeEqualsError(service.ship(orderNo));
+    }
+
+    @Test
+    public void testShip_returnSuccess_andThenSetStatusAsShipped_beforeCallMapper() {
+        when(orderMapper.updateSelectiveByPrimaryKey(any())).thenAnswer((Answer<Integer>) invocation -> {
+            Order order = invocation.getArgument(0);
+            return order.getStatus() == SHIPPED.getCode() ? 1 : 0;
+        });
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(PAID.getCode()).build());
+        testIfCodeEqualsSuccess(service.ship(orderNo));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(SHIPPED.getCode()).build());
+        testIfCodeEqualsSuccess(service.ship(orderNo));
     }
 
     // 合法值

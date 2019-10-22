@@ -11,6 +11,7 @@ import fun.epoch.mall.entity.Order;
 import fun.epoch.mall.entity.OrderItem;
 import fun.epoch.mall.entity.Shipping;
 import fun.epoch.mall.utils.DateTimeUtils;
+import fun.epoch.mall.utils.response.ResponseCode;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
 import fun.epoch.mall.vo.QrCodeVo;
@@ -100,7 +101,12 @@ public class OrderService {
         ) {
             return ServerResponse.error(String.format("订单状态不合适，当前订单状态是 [%s], 不允许发货!", OrderStatus.valueOf(order.getStatus())));
         }
-        return null;
+
+        order.setStatus(SHIPPED.getCode());
+        if (orderMapper.updateSelectiveByPrimaryKey(order) > 0) {
+            return ServerResponse.success();
+        }
+        return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "发货失败");
     }
 
     public ServerResponse close(long orderNo) {
