@@ -32,4 +32,8 @@ public class DateTimeUtils {
         }
         return null;
     }
+
+    public static String format(Date date) {
+        return date == null ? "" : formatter.format(date);
+    }
 }

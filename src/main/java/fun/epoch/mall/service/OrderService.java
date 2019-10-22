@@ -1,14 +1,23 @@
 package fun.epoch.mall.service;
 
 import com.github.pagehelper.PageInfo;
+import fun.epoch.mall.common.Constant;
+import fun.epoch.mall.dao.OrderItemMapper;
 import fun.epoch.mall.dao.OrderMapper;
+import fun.epoch.mall.dao.ShippingMapper;
 import fun.epoch.mall.entity.Order;
+import fun.epoch.mall.entity.OrderItem;
+import fun.epoch.mall.entity.Shipping;
+import fun.epoch.mall.utils.DateTimeUtils;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
 import fun.epoch.mall.vo.QrCodeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
 import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
 
 @Service
@@ -16,16 +25,55 @@ public class OrderService {
     @Autowired
     OrderMapper orderMapper;
 
+    @Autowired
+    ShippingMapper shippingMapper;
+
+    @Autowired
+    OrderItemMapper orderItemMapper;
+
     public ServerResponse<OrderVo> detail(long orderNo) {
-        Order order = orderMapper.selectByOrderNo(orderNo);
-        if (order == null) {
-            return ServerResponse.error(NOT_FOUND, "找不到订单");
-        }
-        return null;
+        return detail(orderMapper.selectByOrderNo(orderNo), null);
     }
 
     public ServerResponse<OrderVo> detail(int userId, long orderNo) {
-        return null;
+        return detail(orderMapper.selectByOrderNo(orderNo), userId);
+    }
+
+    private ServerResponse<OrderVo> detail(Order order, Integer userId) {
+        if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
+        if (userId != null && !userId.equals(order.getUserId())) return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
+
+        Shipping shipping = shippingMapper.selectByPrimaryKey(order.getShippingId());
+        List<OrderItem> products = orderItemMapper.selectByOrderNo(order.getOrderNo());
+
+        OrderVo orderVo = toOrderVo(order, shipping, products);
+        return ServerResponse.success(orderVo);
+    }
+
+    private OrderVo toOrderVo(Order order, Shipping shipping, List<OrderItem> products) {
+        return OrderVo.builder()
+                .orderNo(order.getOrderNo())
+                .userId(order.getUserId())
+
+                .shipping(shipping)
+                .products(products)
+
+                .payment(order.getPayment())
+                .postage(order.getPostage())
+
+                .paymentType(order.getPaymentType())
+                .paymentTypeDesc(Constant.PaymentType.valueOf(order.getPaymentType()))
+
+                .status(order.getStatus())
+                .statusDesc(Constant.OrderStatus.valueOf(order.getStatus()))
+
+                .createTime(DateTimeUtils.format(order.getCreateTime()))
+                .paymentTime(DateTimeUtils.format(order.getPaymentTime()))
+                .shipTime(DateTimeUtils.format(order.getSendTime()))
+                .endTime(DateTimeUtils.format(order.getEndTime()))
+                .closeTime(DateTimeUtils.format(order.getCloseTime()))
+
+                .build();
     }
 
     public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
