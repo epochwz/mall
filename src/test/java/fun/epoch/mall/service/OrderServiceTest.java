@@ -25,7 +25,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static fun.epoch.mall.common.Constant.OrderStatus.PAID;
+import static fun.epoch.mall.common.Constant.OrderStatus.*;
 import static fun.epoch.mall.common.Constant.PaymentType.ONLINE_PAY;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static org.junit.Assert.assertEquals;
@@ -116,6 +116,18 @@ public class OrderServiceTest {
     @Test
     public void testShip_returnNotFound_whenOrderNotExist() {
         testIfCodeEqualsNotFound(service.ship(orderNo));
+    }
+
+    @Test
+    public void testShip_returnError_whenOrderStatusNotValid() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(CANCELED.getCode()).build());
+        testIfCodeEqualsError(service.ship(orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(UNPAID.getCode()).build());
+        testIfCodeEqualsError(service.ship(orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(SUCCESS.getCode()).build());
+        testIfCodeEqualsError(service.ship(orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(CLOSED.getCode()).build());
+        testIfCodeEqualsError(service.ship(orderNo));
     }
 
     // 合法值

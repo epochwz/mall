@@ -3,6 +3,7 @@ package fun.epoch.mall.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.common.Constant;
+import fun.epoch.mall.common.Constant.OrderStatus;
 import fun.epoch.mall.dao.OrderItemMapper;
 import fun.epoch.mall.dao.OrderMapper;
 import fun.epoch.mall.dao.ShippingMapper;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static fun.epoch.mall.common.Constant.OrderStatus.*;
 import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
 import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
 
@@ -69,7 +71,7 @@ public class OrderService {
                 .paymentTypeDesc(Constant.PaymentType.valueOf(order.getPaymentType()))
 
                 .status(order.getStatus())
-                .statusDesc(Constant.OrderStatus.valueOf(order.getStatus()))
+                .statusDesc(OrderStatus.valueOf(order.getStatus()))
 
                 .createTime(DateTimeUtils.format(order.getCreateTime()))
                 .paymentTime(DateTimeUtils.format(order.getPaymentTime()))
@@ -90,6 +92,14 @@ public class OrderService {
     public ServerResponse ship(long orderNo) {
         Order order = orderMapper.selectByOrderNo(orderNo);
         if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
+
+        if (order.getStatus() == CANCELED.getCode()
+                || order.getStatus() == UNPAID.getCode()
+                || order.getStatus() == SUCCESS.getCode()
+                || order.getStatus() == CLOSED.getCode()
+        ) {
+            return ServerResponse.error(String.format("订单状态不合适，当前订单状态是 [%s], 不允许发货!", OrderStatus.valueOf(order.getStatus())));
+        }
         return null;
     }
 
