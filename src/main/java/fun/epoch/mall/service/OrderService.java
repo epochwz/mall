@@ -4,9 +4,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.common.Constant.OrderStatus;
+import fun.epoch.mall.dao.CartItemMapper;
 import fun.epoch.mall.dao.OrderItemMapper;
 import fun.epoch.mall.dao.OrderMapper;
 import fun.epoch.mall.dao.ShippingMapper;
+import fun.epoch.mall.entity.CartItem;
 import fun.epoch.mall.entity.Order;
 import fun.epoch.mall.entity.OrderItem;
 import fun.epoch.mall.entity.Shipping;
@@ -35,6 +37,9 @@ public class OrderService {
 
     @Autowired
     OrderItemMapper orderItemMapper;
+
+    @Autowired
+    CartItemMapper cartItemMapper;
 
     public ServerResponse<OrderVo> detail(long orderNo) {
         return detail(orderMapper.selectByOrderNo(orderNo), null);
@@ -120,6 +125,10 @@ public class OrderService {
     }
 
     public ServerResponse preview(int userId) {
+        List<CartItem> cartItems = cartItemMapper.selectCheckedItemsByUserId(userId);
+        if (cartItems == null || cartItems.size() == 0) {
+            return ServerResponse.error("购物车中没有选中的商品");
+        }
         return null;
     }
 

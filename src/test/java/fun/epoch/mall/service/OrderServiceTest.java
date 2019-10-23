@@ -1,5 +1,6 @@
 package fun.epoch.mall.service;
 
+import fun.epoch.mall.dao.CartItemMapper;
 import fun.epoch.mall.dao.OrderItemMapper;
 import fun.epoch.mall.dao.OrderMapper;
 import fun.epoch.mall.dao.ShippingMapper;
@@ -48,6 +49,9 @@ public class OrderServiceTest {
 
     @Mock
     OrderItemMapper orderItemMapper;
+
+    @Mock
+    CartItemMapper cartItemMapper;
 
     /**
      * 查看订单详情
@@ -181,6 +185,18 @@ public class OrderServiceTest {
 
         when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(CLOSED.getCode()).build());
         testIfCodeEqualsSuccess(service.close(orderNo));
+    }
+
+    /**
+     * 预览订单
+     * <p>
+     * 400  购物车中没有选中的商品
+     * 200  预览成功：返回订单预览信息
+     */
+    @Test
+    public void testPreview_returnError_whenNoProductChecked() {
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.emptyList());
+        testIfCodeEqualsError(service.preview(userId));
     }
 
     // 合法值
