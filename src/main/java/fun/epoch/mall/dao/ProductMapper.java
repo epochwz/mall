@@ -43,4 +43,6 @@ public interface ProductMapper {
 
     @Select(selectAll + "where id=#{id} and status=1")
     Product selectOnlyOnSaleByPrimaryKey(int id);
+
+    List<Product> selectByPrimaryKeys(List<Integer> ids);
 }

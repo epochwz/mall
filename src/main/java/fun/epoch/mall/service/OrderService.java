@@ -14,8 +14,11 @@ import fun.epoch.mall.vo.QrCodeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static fun.epoch.mall.common.Constant.OrderStatus.*;
 import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
@@ -23,6 +26,8 @@ import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
 
 @Service
 public class OrderService {
+    String imageHost = Constant.settings.get(Constant.SettingKeys.IMAGE_HOST);
+
     @Autowired
     OrderMapper orderMapper;
 
@@ -121,20 +126,52 @@ public class OrderService {
         return ServerResponse.success();
     }
 
-    public ServerResponse preview(int userId) {
+    public ServerResponse<OrderVo> preview(int userId) {
         List<CartItem> cartItems = cartItemMapper.selectCheckedItemsByUserId(userId);
         if (cartItems == null || cartItems.size() == 0) {
             return ServerResponse.error("购物车中没有选中的商品");
         }
 
-        boolean productNotExist = cartItems.stream().anyMatch(cartItem -> {
-            Product product = productMapper.selectByPrimaryKey(cartItem.getProductId());
-            return product == null || product.getStatus() == Constant.SaleStatus.OFF_SALE;
-        });
-        if (productNotExist) {
-            return ServerResponse.error("某商品不存在 / 已下架");
+        List<Integer> productIds = cartItems.stream().map(CartItem::getProductId).collect(Collectors.toList());
+        List<Product> products = productMapper.selectByPrimaryKeys(productIds);
+
+        if (products.size() != cartItems.size()) {
+            return ServerResponse.error("某商品不存在");
         }
-        return null;
+
+        boolean productNotExist = products.stream().anyMatch(product -> product.getStatus() == Constant.SaleStatus.OFF_SALE);
+        if (productNotExist) {
+            return ServerResponse.error("某商品已下架");
+        }
+
+        cartItems.sort(Comparator.comparingInt(CartItem::getProductId));
+        products.sort(Comparator.comparingInt(Product::getId));
+
+        List<OrderItem> items = IntStream.range(0, products.size()).mapToObj(i -> toOrderItem(products.get(i), cartItems.get(i).getQuantity())).collect(Collectors.toList());
+
+        BigDecimal payment = new BigDecimal("0");
+        for (OrderItem item : items) {
+            payment = payment.add(item.getTotalPrice());
+        }
+
+        OrderVo orderVo = OrderVo.builder()
+                .payment(payment)
+                .postage(new BigDecimal("0"))
+                .products(items)
+                .build();
+        return ServerResponse.success(orderVo);
+    }
+
+    private OrderItem toOrderItem(Product product, int quantity) {
+        BigDecimal totalPrice = product.getPrice().multiply(new BigDecimal(quantity));
+        return OrderItem.builder()
+                .productId(product.getId())
+                .productName(product.getName())
+                .unitPrice(product.getPrice())
+                .totalPrice(totalPrice)
+                .quantity(quantity)
+                .productImage(imageHost + product.getMainImage())
+                .build();
     }
 
     public ServerResponse<OrderVo> create(int userId, int shippingId) {

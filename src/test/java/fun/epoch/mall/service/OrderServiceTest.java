@@ -1,5 +1,6 @@
 package fun.epoch.mall.service;
 
+import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.dao.*;
 import fun.epoch.mall.entity.*;
 import fun.epoch.mall.utils.DateTimeUtils;
@@ -204,16 +205,33 @@ public class OrderServiceTest {
     @Test
     public void testPreview_returnError_whenProductNotExist() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKey(productId)).thenReturn(null);
         testIfCodeEqualsError(service.preview(userId));
     }
 
     @Test
     public void testPreview_returnError_whenProductOffSale() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKey(productId)).thenReturn(mockProduct.status(OFF_SALE).build());
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.status(OFF_SALE).build()));
         testIfCodeEqualsError(service.preview(userId));
     }
+
+    @Test
+    public void testPreview_returnSuccess_withPreviewOrder() {
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.build()));
+
+        ServerResponse<OrderVo> response = testIfCodeEqualsSuccess(service.preview(userId));
+
+        OrderVo orderVo = response.getData();
+        BigDecimal totalPrice = mockProduct.build().getPrice().multiply(new BigDecimal(cartItem.getQuantity()));
+        assertEquals(totalPrice, orderVo.getPayment());
+        assertEquals(new BigDecimal("0"), orderVo.getPostage());
+
+        OrderItem productItem = orderVo.getProducts().get(0);
+        assertEquals(IMAGE_HOST + mainImage, productItem.getProductImage());
+        assertEquals(totalPrice, productItem.getTotalPrice());
+    }
+
 
     // 合法值
     private static final long orderNo = 1521421465877L;
@@ -227,6 +245,8 @@ public class OrderServiceTest {
     private static final String productName = "斗破苍穹";
     private static final String mainImage = "image.jpg";
     private static final BigDecimal price = new BigDecimal("10.2");
+
+    private static final String IMAGE_HOST = Constant.settings.get(Constant.SettingKeys.IMAGE_HOST);
 
     private static final Shipping shipping = Shipping.builder()
             .id(shippingId)
