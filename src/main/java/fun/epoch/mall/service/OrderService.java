@@ -136,16 +136,21 @@ public class OrderService {
         List<Product> products = productMapper.selectByPrimaryKeys(productIds);
 
         if (products.size() != cartItems.size()) {
-            return ServerResponse.error("某商品不存在");
+            return ServerResponse.error(NOT_FOUND, "某商品不存在");
         }
 
         boolean productNotExist = products.stream().anyMatch(product -> product.getStatus() == Constant.SaleStatus.OFF_SALE);
         if (productNotExist) {
-            return ServerResponse.error("某商品已下架");
+            return ServerResponse.error(NOT_FOUND, "某商品已下架");
         }
 
         cartItems.sort(Comparator.comparingInt(CartItem::getProductId));
         products.sort(Comparator.comparingInt(Product::getId));
+
+        boolean productLimited = IntStream.range(0, products.size()).anyMatch(i -> products.get(i).getStock() < cartItems.get(i).getQuantity());
+        if (productLimited) {
+            return ServerResponse.error("某商品数量超过限制");
+        }
 
         List<OrderItem> items = IntStream.range(0, products.size()).mapToObj(i -> toOrderItem(products.get(i), cartItems.get(i).getQuantity())).collect(Collectors.toList());
 

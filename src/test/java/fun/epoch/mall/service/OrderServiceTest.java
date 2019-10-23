@@ -205,20 +205,28 @@ public class OrderServiceTest {
     @Test
     public void testPreview_returnError_whenProductNotExist() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        testIfCodeEqualsError(service.preview(userId));
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.emptyList());
+        testIfCodeEqualsNotFound(service.preview(userId));
     }
 
     @Test
     public void testPreview_returnError_whenProductOffSale() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
         when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.status(OFF_SALE).build()));
+        testIfCodeEqualsNotFound(service.preview(userId));
+    }
+
+    @Test
+    public void testPreview_returnError_whenProductQuantityLimited() {
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.build()));
         testIfCodeEqualsError(service.preview(userId));
     }
 
     @Test
     public void testPreview_returnSuccess_withPreviewOrder() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.build()));
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.stock(cartItem.getQuantity()).build()));
 
         ServerResponse<OrderVo> response = testIfCodeEqualsSuccess(service.preview(userId));
 
