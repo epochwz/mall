@@ -1,12 +1,7 @@
 package fun.epoch.mall.service;
 
-import fun.epoch.mall.dao.CartItemMapper;
-import fun.epoch.mall.dao.OrderItemMapper;
-import fun.epoch.mall.dao.OrderMapper;
-import fun.epoch.mall.dao.ShippingMapper;
-import fun.epoch.mall.entity.Order;
-import fun.epoch.mall.entity.OrderItem;
-import fun.epoch.mall.entity.Shipping;
+import fun.epoch.mall.dao.*;
+import fun.epoch.mall.entity.*;
 import fun.epoch.mall.utils.DateTimeUtils;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
@@ -29,6 +24,8 @@ import java.util.stream.IntStream;
 
 import static fun.epoch.mall.common.Constant.OrderStatus.*;
 import static fun.epoch.mall.common.Constant.PaymentType.ONLINE_PAY;
+import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
+import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,6 +49,9 @@ public class OrderServiceTest {
 
     @Mock
     CartItemMapper cartItemMapper;
+
+    @Mock
+    ProductMapper productMapper;
 
     /**
      * 查看订单详情
@@ -191,11 +191,27 @@ public class OrderServiceTest {
      * 预览订单
      * <p>
      * 400  购物车中没有选中的商品
+     * 404  某商品不存在 / 已下架
+     * 400  某商品数量超过限制
      * 200  预览成功：返回订单预览信息
      */
     @Test
     public void testPreview_returnError_whenNoProductChecked() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.emptyList());
+        testIfCodeEqualsError(service.preview(userId));
+    }
+
+    @Test
+    public void testPreview_returnError_whenProductNotExist() {
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
+        when(productMapper.selectByPrimaryKey(productId)).thenReturn(null);
+        testIfCodeEqualsError(service.preview(userId));
+    }
+
+    @Test
+    public void testPreview_returnError_whenProductOffSale() {
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
+        when(productMapper.selectByPrimaryKey(productId)).thenReturn(mockProduct.status(OFF_SALE).build());
         testIfCodeEqualsError(service.preview(userId));
     }
 
@@ -209,6 +225,8 @@ public class OrderServiceTest {
 
     private static final int productId = 1000000;
     private static final String productName = "斗破苍穹";
+    private static final String mainImage = "image.jpg";
+    private static final BigDecimal price = new BigDecimal("10.2");
 
     private static final Shipping shipping = Shipping.builder()
             .id(shippingId)
@@ -235,6 +253,19 @@ public class OrderServiceTest {
             .createTime(new Date())
             .shippingId(shipping.getId())
             .build();
+
+    private static final CartItem cartItem = CartItem.builder()
+            .productId(productId)
+            .quantity(2)
+            .build();
+
+    private Product.ProductBuilder mockProduct = Product.builder()
+            .id(productId)
+            .name(productName)
+            .price(price)
+            .mainImage(mainImage)
+            .status(ON_SALE)
+            .stock(1);
 
     // 错误值
     private static final int otherUserId = 1000001;
