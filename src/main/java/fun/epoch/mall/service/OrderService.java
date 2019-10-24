@@ -109,7 +109,14 @@ public class OrderService {
     }
 
     public ServerResponse cancel(int userId, long orderNo) {
-        return null;
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) {
+            return ServerResponse.error(NOT_FOUND, "找不到订单");
+        }
+        if (order.getUserId() != userId) {
+            return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
+        }
+        return updateOrderStatus(orderNo, CANCELED.getCode(), SHIPPED, OrderStatus.SUCCESS, CLOSED);
     }
 
     public ServerResponse<QrCodeVo> pay(int userId, long orderNo, int paymentType, int paymentPlatform) {

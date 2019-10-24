@@ -292,7 +292,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void testCreate_returnSuccess_andThenUpdateProductStock() {
+    public void testCreate_returnSuccess() {
         // stub shipping
         when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
 
@@ -346,6 +346,53 @@ public class OrderServiceTest {
 
         // verify return order detail
         verify(service).detail(anyLong());
+    }
+
+    /**
+     * 取消订单
+     * <p>
+     * 404  订单不存在
+     * 403  该订单不属于当前用户
+     * 400  取消失败：已发货 / 已完成 / 已关闭
+     * 200  取消成功
+     */
+    @Test
+    public void testCancel_returnNotFound_whenOrderNotExist() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.cancel(userId, orderNo));
+    }
+
+    @Test
+    public void testCancel_returnForbidden_whenOrderNotBelongCurrentUser() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(order);
+        testIfCodeEqualsForbidden(service.cancel(otherUserId, orderNo));
+    }
+
+    @Test
+    public void testCancel_returnError_whenOrderStatusNotValid() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(SHIPPED.getCode()).build());
+        testIfCodeEqualsError(service.cancel(userId, orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(SUCCESS.getCode()).build());
+        testIfCodeEqualsError(service.cancel(userId, orderNo));
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(CLOSED.getCode()).build());
+        testIfCodeEqualsError(service.cancel(userId, orderNo));
+    }
+
+    @Test
+    public void testCancel_returnSuccess_andThenSetStatusAsCancel_beforeCallMapper() {
+        when(orderMapper.updateSelectiveByPrimaryKey(any())).thenAnswer((Answer<Integer>) invocation -> {
+            Order order = invocation.getArgument(0);
+            return order.getStatus() == CANCELED.getCode() ? 1 : 0;
+        });
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(CANCELED.getCode()).build());
+        testIfCodeEqualsSuccess(service.cancel(userId, orderNo));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(UNPAID.getCode()).build());
+        testIfCodeEqualsSuccess(service.cancel(userId, orderNo));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(PAID.getCode()).build());
+        testIfCodeEqualsSuccess(service.cancel(userId, orderNo));
     }
 
     // 合法值
