@@ -33,7 +33,19 @@ public interface OrderMapper {
     @Lang(UpdateSelectiveLangDriver.class)
     int updateSelectiveByPrimaryKey(Order order);
 
+    @Select(selectAll + "where order_no=#{orderNo}")
     Order selectByOrderNo(long orderNo);
 
-    List<Order> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime);
+    @Select({"<script>" +
+            selectAll +
+            "<where>" +
+            "<if test=\"orderNo != null \"> AND order_no like CONCAT('%',#{orderNo},'%')</if>" +
+            "<if test=\"userId != null \"> AND user_id=#{userId}</if>" +
+            "<if test=\"status != null \"> AND status=#{status}</if>" +
+            "<if test=\"startTime != null \"> AND unix_timestamp(create_time) >= #{startTime}/1000</if>" +
+            "<if test=\"endTime != null \"> AND unix_timestamp(create_time) &lt;= #{endTime}/1000</if>" +
+            "<if test=\"keyword != null \"> AND order_no in (select order_no from order_item where product_name like CONCAT('%',#{keyword},'%'))</if>" +
+            "</where>" +
+            "</script>"})
+    List<Order> search(@Param("orderNo") Long orderNo, @Param("userId") Integer userId, @Param("keyword") String keyword, @Param("status") Integer status, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 }

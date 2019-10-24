@@ -56,7 +56,9 @@ public interface CartItemMapper {
     @Update("update cart_item set checked=#{checked} where user_id=#{userId}")
     int updateCheckStatusByUserId(@Param("userId") int userId, @Param("checked") boolean checked);
 
+    @Select(selectAll + "where user_id=#{userId} and checked=true")
     List<CartItem> selectCheckedItemsByUserId(int userId);
 
+    @Delete("delete from cart_item where user_id=#{userId} and checked=true")
     int deleteCheckedByUserId(int userId);
 }
