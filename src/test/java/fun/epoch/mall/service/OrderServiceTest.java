@@ -25,7 +25,7 @@ import static fun.epoch.mall.common.Constant.PaymentType.ONLINE_PAY;
 import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
 import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -431,6 +431,39 @@ public class OrderServiceTest {
 
         when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(CLOSED.getCode()).build());
         testIfCodeEqualsError(service.pay(userId, orderNo, 1, 1));
+    }
+
+    /**
+     * 查询订单支付状态
+     * <p>
+     * 404  订单不存在
+     * 403  无权限，订单不属于当前用户
+     * 200  查询成功，返回订单支付状态
+     */
+    @Test
+    public void testQueryPaymentStatus_returnNotFound_whenOrderNotExist() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.queryPaymentStatus(userId, orderNo));
+    }
+
+    @Test
+    public void testQueryPaymentStatus_returnForbidden_whenOrderNotBelongCurrentUser() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(order);
+        testIfCodeEqualsForbidden(service.queryPaymentStatus(otherUserId, orderNo));
+    }
+
+    @Test
+    public void testQueryPaymentStatus_returnSuccess_whenOrderPaid() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(order);
+        ServerResponse<Boolean> response = testIfCodeEqualsSuccess(service.queryPaymentStatus(userId, orderNo));
+        assertTrue(response.getData());
+    }
+
+    @Test
+    public void testQueryPaymentStatus_returnSuccess_whenOrderUnPaid() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(UNPAID.getCode()).build());
+        ServerResponse<Boolean> response = testIfCodeEqualsSuccess(service.queryPaymentStatus(userId, orderNo));
+        assertFalse(response.getData());
     }
 
     // 合法值

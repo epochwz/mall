@@ -148,7 +148,14 @@ public class OrderService {
     }
 
     public ServerResponse<Boolean> queryPaymentStatus(int userId, long orderNo) {
-        return null;
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) {
+            return ServerResponse.error(NOT_FOUND, "找不到订单");
+        }
+        if (order.getUserId() != userId) {
+            return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
+        }
+        return ServerResponse.success(order.getStatus() == PAID.getCode());
     }
 
     /* ****************************** 查询订单 开始  ****************************** */
