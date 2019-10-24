@@ -7,6 +7,7 @@ import fun.epoch.mall.common.Constant.OrderStatus;
 import fun.epoch.mall.dao.*;
 import fun.epoch.mall.entity.*;
 import fun.epoch.mall.exception.OrderCreateException;
+import fun.epoch.mall.service.pay.AlipayService;
 import fun.epoch.mall.utils.DateTimeUtils;
 import fun.epoch.mall.utils.TextUtils;
 import fun.epoch.mall.utils.response.ServerResponse;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 
 import static fun.epoch.mall.common.Constant.OrderStatus.valueOf;
 import static fun.epoch.mall.common.Constant.OrderStatus.*;
+import static fun.epoch.mall.common.Constant.PaymentPlatform.ALIPAY;
+import static fun.epoch.mall.common.Constant.PaymentType.ONLINE_PAY;
 import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
 
@@ -47,6 +50,9 @@ public class OrderService {
 
     @Autowired
     ProductMapper productMapper;
+
+    @Autowired
+    AlipayService alipayService;
 
     public ServerResponse<OrderVo> detail(long orderNo) {
         return detail(orderMapper.selectByOrderNo(orderNo), null);
@@ -120,7 +126,25 @@ public class OrderService {
     }
 
     public ServerResponse<QrCodeVo> pay(int userId, long orderNo, int paymentType, int paymentPlatform) {
-        return null;
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) {
+            return ServerResponse.error(NOT_FOUND, "找不到订单");
+        }
+        if (order.getUserId() != userId) {
+            return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
+        }
+        if (order.getStatus() != UNPAID.getCode()) {
+            return ServerResponse.error("订单已支付");
+        }
+        PaymentService paymentService = choosePaymentService(paymentType, paymentPlatform);
+        return paymentService.preOrder(order);
+    }
+
+    private PaymentService choosePaymentService(int paymentType, int paymentPlatform) {
+        if (paymentType == ONLINE_PAY.getCode() && paymentPlatform == ALIPAY.getCode()) {
+            return alipayService;
+        }
+        return alipayService;
     }
 
     public ServerResponse<Boolean> queryPaymentStatus(int userId, long orderNo) {

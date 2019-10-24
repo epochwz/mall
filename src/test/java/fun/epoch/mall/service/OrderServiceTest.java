@@ -395,6 +395,44 @@ public class OrderServiceTest {
         testIfCodeEqualsSuccess(service.cancel(userId, orderNo));
     }
 
+    /**
+     * 预支付订单
+     * <p>
+     * 404  订单不存在
+     * 403  无权限，订单不属于当前用户
+     * 400  订单已支付 (除了未支付状态，其余订单状态均视为已支付)
+     * 200  预支付成功，返回订单支付二维码
+     */
+    @Test
+    public void testPay_returnNotFound_whenOrderNotExist() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.pay(userId, orderNo, 1, 1));
+    }
+
+    @Test
+    public void testPay_returnForbidden_whenOrderNotBelongCurrentUser() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(order);
+        testIfCodeEqualsForbidden(service.pay(otherUserId, orderNo, 1, 1));
+    }
+
+    @Test
+    public void testPay_returnError_whenOrderAlreadyPaid() {
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(CANCELED.getCode()).build());
+        testIfCodeEqualsError(service.pay(userId, orderNo, 1, 1));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(PAID.getCode()).build());
+        testIfCodeEqualsError(service.pay(userId, orderNo, 1, 1));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(SHIPPED.getCode()).build());
+        testIfCodeEqualsError(service.pay(userId, orderNo, 1, 1));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(SUCCESS.getCode()).build());
+        testIfCodeEqualsError(service.pay(userId, orderNo, 1, 1));
+
+        when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(CLOSED.getCode()).build());
+        testIfCodeEqualsError(service.pay(userId, orderNo, 1, 1));
+    }
+
     // 合法值
     private static final long orderNo = 1521421465877L;
 

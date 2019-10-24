@@ -1,7 +1,9 @@
 package fun.epoch.mall.service;
 
-import org.springframework.stereotype.Service;
+import fun.epoch.mall.entity.Order;
+import fun.epoch.mall.utils.response.ServerResponse;
+import fun.epoch.mall.vo.QrCodeVo;
 
-@Service
-public class PaymentService {
+public interface PaymentService {
+    ServerResponse<QrCodeVo> preOrder(Order order);
 }
