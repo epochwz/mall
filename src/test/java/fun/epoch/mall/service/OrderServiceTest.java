@@ -319,6 +319,12 @@ public class OrderServiceTest {
         // stub product update
         when(productMapper.updateSelectiveByPrimaryKey(any())).thenReturn(1);
 
+        // stub orderItem insert
+        when(orderItemMapper.insert(any())).thenReturn(1);
+        
+        // stub empty cart
+        when(cartItemMapper.deleteCheckedByUserId(userId)).thenReturn(cartItems.size());
+
         // execution
         testIfCodeEqualsSuccess(service.create(userId, shippingId));
 
@@ -327,6 +333,12 @@ public class OrderServiceTest {
         assertEquals(5, product2.getStock().intValue());
         assertEquals(1, product3.getStock().intValue());
         verify(productMapper, times(products.size())).updateSelectiveByPrimaryKey(any());
+
+        // verify orderItem insert
+        verify(orderItemMapper, times(products.size())).insert(any());
+
+        // verify empty cart
+        verify(cartItemMapper).deleteCheckedByUserId(userId);
     }
 
     // 合法值

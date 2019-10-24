@@ -57,4 +57,6 @@ public interface CartItemMapper {
     int updateCheckStatusByUserId(@Param("userId") int userId, @Param("checked") boolean checked);
 
     List<CartItem> selectCheckedItemsByUserId(int userId);
+
+    int deleteCheckedByUserId(int userId);
 }

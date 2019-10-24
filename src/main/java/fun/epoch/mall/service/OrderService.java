@@ -19,6 +19,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -217,7 +218,24 @@ public class OrderService {
             }
         }
 
+        long orderNo = newOrderNo();
+        items.forEach(orderItem -> {
+            orderItem.setOrderNo(orderNo);
+            if (orderItemMapper.insert(orderItem) != 1) {
+                throw new RuntimeException("生成订单明细失败");
+            }
+        });
+
+        if (cartItemMapper.deleteCheckedByUserId(userId) != items.size()) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "清空购物车商品失败");
+        }
+
         return ServerResponse.success();
+    }
+
+    private long newOrderNo() {
+        return System.currentTimeMillis() + new Random().nextInt(100) % 10;
     }
 
     public ServerResponse cancel(int userId, long orderNo) {
