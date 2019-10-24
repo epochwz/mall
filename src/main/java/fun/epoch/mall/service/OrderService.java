@@ -6,10 +6,12 @@ import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.common.Constant.OrderStatus;
 import fun.epoch.mall.dao.*;
 import fun.epoch.mall.entity.*;
+import fun.epoch.mall.exception.OrderCreateException;
 import fun.epoch.mall.utils.DateTimeUtils;
-import fun.epoch.mall.utils.response.ResponseCode;
+import fun.epoch.mall.utils.TextUtils;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
+import fun.epoch.mall.vo.ProductVo;
 import fun.epoch.mall.vo.QrCodeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,15 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
+import static fun.epoch.mall.common.Constant.OrderStatus.valueOf;
 import static fun.epoch.mall.common.Constant.OrderStatus.*;
-import static fun.epoch.mall.utils.response.ResponseCode.FORBIDDEN;
-import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
+import static fun.epoch.mall.common.Constant.SaleStatus.OFF_SALE;
+import static fun.epoch.mall.utils.response.ResponseCode.*;
 
 @Service
 public class OrderService {
@@ -54,6 +56,71 @@ public class OrderService {
         return detail(orderMapper.selectByOrderNo(orderNo), userId);
     }
 
+    public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Order> orders = orderMapper.search(orderNo, userId, keyword, status, startTime, endTime);
+        List<OrderVo> orderVos = orders.stream().map(this::toOrderVo).collect(Collectors.toList());
+        return ServerResponse.success(new PageInfo<>(orderVos));
+    }
+
+    public ServerResponse ship(long orderNo) {
+        return updateOrderStatus(orderNo, SHIPPED.getCode(), CANCELED, UNPAID, OrderStatus.SUCCESS, CLOSED);
+    }
+
+    public ServerResponse close(long orderNo) {
+        return updateOrderStatus(orderNo, CLOSED.getCode(), CANCELED, PAID, SHIPPED, OrderStatus.SUCCESS);
+    }
+
+    public ServerResponse<OrderVo> preview(int userId) {
+        ServerResponse<List<OrderItem>> generateOrderItems = generateOrderItems(userId, null);
+        if (generateOrderItems.isError()) return ServerResponse.response(generateOrderItems);
+
+        List<OrderItem> orderItems = generateOrderItems.getData();
+
+        OrderVo orderVo = OrderVo.builder()
+                .payment(countPayment(orderItems))
+                .postage(new BigDecimal("0"))
+                .products(orderItems)
+                .build();
+        return ServerResponse.success(orderVo);
+    }
+
+    public ServerResponse<OrderVo> create(int userId, int shippingId) {
+        ServerResponse<OrderVo> checkShipping = checkShipping(userId, shippingId);
+        if (checkShipping.isError()) return checkShipping;
+
+        long orderNo = newOrderNo();
+
+        ServerResponse<List<OrderItem>> generateOrderItems = generateOrderItems(userId, orderNo);
+        if (generateOrderItems.isError()) return ServerResponse.response(generateOrderItems);
+
+        List<OrderItem> orderItems = generateOrderItems.getData();
+
+        Order order = Order.builder()
+                .userId(userId)
+                .shippingId(shippingId)
+                .orderNo(orderNo)
+                .payment(countPayment(orderItems))
+                .postage(new BigDecimal("0"))
+                .status(UNPAID.getCode())
+                .build();
+
+        return createOrder(order, orderItems);
+    }
+
+    public ServerResponse cancel(int userId, long orderNo) {
+        return null;
+    }
+
+    public ServerResponse<QrCodeVo> pay(int userId, long orderNo, int paymentType, int paymentPlatform) {
+        return null;
+    }
+
+    public ServerResponse<Boolean> queryPaymentStatus(int userId, long orderNo) {
+        return null;
+    }
+
+    /* ****************************** 查询订单 开始  ****************************** */
     private ServerResponse<OrderVo> detail(Order order, Integer userId) {
         if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
         if (userId != null && !userId.equals(order.getUserId())) return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
@@ -93,21 +160,7 @@ public class OrderService {
                 .build();
     }
 
-    public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<Order> list = orderMapper.search(orderNo, userId, keyword, status, startTime, endTime);
-        List<OrderVo> orderVos = list.stream().map(this::toOrderVo).collect(Collectors.toList());
-        return ServerResponse.success(new PageInfo<>(orderVos));
-    }
-
-    public ServerResponse ship(long orderNo) {
-        return updateOrderStatus(orderNo, SHIPPED.getCode(), CANCELED, UNPAID, SUCCESS, CLOSED);
-    }
-
-    public ServerResponse close(long orderNo) {
-        return updateOrderStatus(orderNo, CLOSED.getCode(), CANCELED, PAID, SHIPPED, SUCCESS);
-    }
-
+    /* ****************************** 更新订单 开始  ****************************** */
     private ServerResponse updateOrderStatus(long orderNo, int expectedStatus, OrderStatus... unexpectedStatus) {
         Order order = orderMapper.selectByOrderNo(orderNo);
         if (order == null) return ServerResponse.error(NOT_FOUND, "找不到订单");
@@ -124,77 +177,59 @@ public class OrderService {
         order.setStatus(expectedStatus);
         if (orderMapper.updateSelectiveByPrimaryKey(order) == 0) {
             String errorMsg = String.format("订单状态变更失败：[%s] --> [%s]", valueOf(order.getStatus()), valueOf(expectedStatus));
-            return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, errorMsg);
+            return ServerResponse.error(INTERNAL_SERVER_ERROR, errorMsg);
         }
         return ServerResponse.success();
     }
 
-    public ServerResponse<OrderVo> preview(int userId) {
-        ServerResponse<List<OrderItem>> toOrderItems = toOrderItems(userId);
-        if (toOrderItems.isError()) {
-            return ServerResponse.response(toOrderItems.getCode(), toOrderItems.getMsg());
-        }
-
-        List<OrderItem> items = toOrderItems.getData();
-
-        BigDecimal payment = new BigDecimal("0");
-        for (OrderItem item : items) {
-            payment = payment.add(item.getTotalPrice());
-        }
-
-        OrderVo orderVo = OrderVo.builder()
-                .payment(payment)
-                .postage(new BigDecimal("0"))
-                .products(items)
-                .build();
-        return ServerResponse.success(orderVo);
-    }
-
-    private ServerResponse<List<OrderItem>> toOrderItems(int userId) {
+    /* ****************************** 预览订单 开始  ****************************** */
+    private ServerResponse<List<OrderItem>> generateOrderItems(int userId, Long orderNo) {
         List<CartItem> cartItems = cartItemMapper.selectCheckedItemsByUserId(userId);
         if (cartItems == null || cartItems.size() == 0) {
             return ServerResponse.error("购物车中没有选中的商品");
         }
 
-        List<Integer> productIds = cartItems.stream().map(CartItem::getProductId).collect(Collectors.toList());
-        List<Product> products = productMapper.selectByPrimaryKeys(productIds);
-
-        if (products.size() != cartItems.size()) {
-            return ServerResponse.error(NOT_FOUND, "某商品不存在");
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (CartItem cartItem : cartItems) {
+            Product product = productMapper.selectByPrimaryKey(cartItem.getProductId());
+            ServerResponse<List<OrderItem>> checkProduct = checkProduct(cartItem, product);
+            if (checkProduct.isError()) return checkProduct;
+            orderItems.add(toOrderItem(orderNo, product, cartItem.getQuantity()));
         }
 
-        boolean productNotExist = products.stream().anyMatch(product -> product.getStatus() == Constant.SaleStatus.OFF_SALE);
-        if (productNotExist) {
-            return ServerResponse.error(NOT_FOUND, "某商品已下架");
-        }
-
-        cartItems.sort(Comparator.comparingInt(CartItem::getProductId));
-        products.sort(Comparator.comparingInt(Product::getId));
-
-        boolean productLimited = IntStream.range(0, products.size()).anyMatch(i -> products.get(i).getStock() < cartItems.get(i).getQuantity());
-        if (productLimited) {
-            return ServerResponse.error("某商品数量超过限制");
-        }
-
-        List<OrderItem> items = IntStream.range(0, products.size()).mapToObj(i -> toOrderItem(products.get(i), cartItems.get(i).getQuantity())).collect(Collectors.toList());
-
-        return ServerResponse.success(items);
+        return ServerResponse.success(orderItems);
     }
 
-    private OrderItem toOrderItem(Product product, int quantity) {
+    private ServerResponse<List<OrderItem>> checkProduct(CartItem cartItem, Product product) {
+        if (product == null) {
+            return ServerResponse.error(NOT_FOUND, String.format("商品 [%s] 不存在", cartItem.getProductId()));
+        }
+        if (product.getStatus() == OFF_SALE) {
+            return ServerResponse.error(NOT_FOUND, String.format("商品 [%s] 已下架", product.getId()));
+        }
+        if (product.getStock() < cartItem.getQuantity()) {
+            return ServerResponse.error(String.format("商品 [%s] 数量超过限制：库存不足", product.getId()));
+        }
+        return ServerResponse.success();
+    }
+
+    private OrderItem toOrderItem(Long orderNo, Product product, int quantity) {
         BigDecimal totalPrice = product.getPrice().multiply(new BigDecimal(quantity));
+        String mainImage = ProductVo.extractMainImage(product);
+        String productImage = TextUtils.isNotBlank(mainImage) ? imageHost + mainImage : "";
         return OrderItem.builder()
+                .orderNo(orderNo)
                 .productId(product.getId())
                 .productName(product.getName())
                 .unitPrice(product.getPrice())
                 .totalPrice(totalPrice)
                 .quantity(quantity)
-                .productImage(imageHost + product.getMainImage())
+                .productImage(productImage)
                 .build();
     }
 
-    @Transactional
-    public ServerResponse<OrderVo> create(int userId, int shippingId) {
+    /* ****************************** 创建订单 开始  ****************************** */
+    private ServerResponse<OrderVo> checkShipping(int userId, int shippingId) {
         Shipping shipping = shippingMapper.selectByPrimaryKey(shippingId);
         if (shipping == null) {
             return ServerResponse.error(NOT_FOUND, "收货地址不存在");
@@ -202,70 +237,63 @@ public class OrderService {
         if (shipping.getUserId() != userId) {
             return ServerResponse.error(FORBIDDEN, "无权限，收货地址不属于当前用户");
         }
+        return ServerResponse.success();
+    }
 
-        ServerResponse<List<OrderItem>> toOrderItems = toOrderItems(userId);
-        if (toOrderItems.isError()) {
-            return ServerResponse.response(toOrderItems.getCode(), toOrderItems.getMsg());
-        }
-
-        List<OrderItem> items = toOrderItems.getData();
-        for (OrderItem item : items) {
-            Product product = productMapper.selectByPrimaryKey(item.getProductId());
-            product.setStock(product.getStock() - item.getQuantity());
-            if (productMapper.updateSelectiveByPrimaryKey(product) == 0) {
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "更新商品库存失败");
-            }
-        }
-
-        long orderNo = newOrderNo();
-        items.forEach(orderItem -> {
-            orderItem.setOrderNo(orderNo);
-            if (orderItemMapper.insert(orderItem) != 1) {
-                throw new RuntimeException("生成订单明细失败");
-            }
-        });
-
-        if (cartItemMapper.deleteCheckedByUserId(userId) != items.size()) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "清空购物车商品失败");
-        }
-
-        BigDecimal payment = new BigDecimal("0");
-        for (OrderItem item : items) {
-            payment = payment.add(item.getTotalPrice());
-        }
-
-        Order order = Order.builder()
-                .userId(userId)
-                .orderNo(orderNo)
-                .payment(payment)
-                .postage(new BigDecimal("0"))
-                .status(UNPAID.getCode())
-                .shippingId(shippingId)
-                .build();
-
-        if (orderMapper.insert(order) != 1) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "生成订单失败");
-        }
-
-        return detail(orderNo);
+    private BigDecimal countPayment(List<OrderItem> orderItems) {
+        return orderItems.stream().map(OrderItem::getTotalPrice).reduce(BigDecimal::add).orElse(new BigDecimal("0"));
     }
 
     private long newOrderNo() {
         return System.currentTimeMillis() + new Random().nextInt(100) % 10;
     }
 
-    public ServerResponse cancel(int userId, long orderNo) {
-        return null;
+    @Transactional
+    ServerResponse<OrderVo> createOrder(Order order, List<OrderItem> orderItems) {
+        try {
+            this
+                    .insertOrder(order)
+                    .insertOrderItem(orderItems)
+                    .updateProductStock(orderItems)
+                    .cleanCart(order, orderItems);
+            return detail(order.getOrderNo());
+        } catch (OrderCreateException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ServerResponse.error(INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
-    public ServerResponse<QrCodeVo> pay(int userId, long orderNo, int paymentType, int paymentPlatform) {
-        return null;
+    private OrderService insertOrder(Order order) {
+        if (orderMapper.insert(order) != 1) {
+            throw new OrderCreateException("创建订单失败：生成订单失败");
+        }
+        return this;
     }
 
-    public ServerResponse<Boolean> queryPaymentStatus(int userId, long orderNo) {
-        return null;
+    private OrderService insertOrderItem(List<OrderItem> orderItems) {
+        orderItems.forEach(orderItem -> {
+            if (orderItemMapper.insert(orderItem) != 1) {
+                throw new OrderCreateException("创建订单失败：生成订单明细失败");
+            }
+        });
+        return this;
+    }
+
+    private OrderService updateProductStock(List<OrderItem> orderItems) {
+        for (OrderItem item : orderItems) {
+            Product product = productMapper.selectByPrimaryKey(item.getProductId());
+            product.setStock(product.getStock() - item.getQuantity());
+            if (productMapper.updateSelectiveByPrimaryKey(product) != 1) {
+                throw new OrderCreateException("创建订单失败：更新商品库存失败");
+            }
+        }
+        return this;
+    }
+
+    private OrderService cleanCart(Order order, List<OrderItem> orderItems) {
+        if (cartItemMapper.deleteCheckedByUserId(order.getUserId()) != orderItems.size()) {
+            throw new OrderCreateException("创建订单失败：清空购物车商品失败");
+        }
+        return this;
     }
 }

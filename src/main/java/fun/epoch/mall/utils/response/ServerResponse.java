@@ -75,6 +75,10 @@ public class ServerResponse<T> {
         return new ServerResponse<>(code, msg);
     }
 
+    public static <T> ServerResponse<T> response(ServerResponse response) {
+        return ServerResponse.response(response.getCode(), response.getMsg());
+    }
+
     public int getCode() {
         return code;
     }

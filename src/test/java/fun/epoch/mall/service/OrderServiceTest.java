@@ -201,28 +201,28 @@ public class OrderServiceTest {
     @Test
     public void testPreview_returnError_whenProductNotExist() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.emptyList());
+        when(productMapper.selectByPrimaryKey(anyInt())).thenReturn(null);
         testIfCodeEqualsNotFound(service.preview(userId));
     }
 
     @Test
     public void testPreview_returnError_whenProductOffSale() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.status(OFF_SALE).build()));
+        when(productMapper.selectByPrimaryKey(anyInt())).thenReturn(mockProduct.status(OFF_SALE).build());
         testIfCodeEqualsNotFound(service.preview(userId));
     }
 
     @Test
     public void testPreview_returnError_whenProductQuantityLimited() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.build()));
+        when(productMapper.selectByPrimaryKey(anyInt())).thenReturn(mockProduct.build());
         testIfCodeEqualsError(service.preview(userId));
     }
 
     @Test
     public void testPreview_returnSuccess_withPreviewOrder() {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.stock(cartItem.getQuantity()).build()));
+        when(productMapper.selectByPrimaryKey(anyInt())).thenReturn(mockProduct.stock(cartItem.getQuantity()).build());
 
         ServerResponse<OrderVo> response = testIfCodeEqualsSuccess(service.preview(userId));
 
@@ -272,7 +272,6 @@ public class OrderServiceTest {
     public void testCreate_returnError_whenProductNotExist() {
         when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.emptyList());
         testIfCodeEqualsNotFound(service.create(userId, shippingId));
     }
 
@@ -280,7 +279,7 @@ public class OrderServiceTest {
     public void testCreate_returnError_whenProductOffSale() {
         when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.status(OFF_SALE).build()));
+        when(productMapper.selectByPrimaryKey(anyInt())).thenReturn(mockProduct.status(OFF_SALE).build());
         testIfCodeEqualsNotFound(service.create(userId, shippingId));
     }
 
@@ -288,7 +287,7 @@ public class OrderServiceTest {
     public void testCreate_returnError_whenProductQuantityLimited() {
         when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.build()));
+        when(productMapper.selectByPrimaryKey(anyInt())).thenReturn(mockProduct.build());
         testIfCodeEqualsError(service.create(userId, shippingId));
     }
 
@@ -311,7 +310,6 @@ public class OrderServiceTest {
         Product product3 = Product.builder().id(333).stock(6).price(price).status(ON_SALE).build();
         List<Product> products = Arrays.asList(product1, product2, product3);
 
-        when(productMapper.selectByPrimaryKeys(any())).thenReturn(products);
         when(productMapper.selectByPrimaryKey(product1.getId())).thenReturn(product1);
         when(productMapper.selectByPrimaryKey(product2.getId())).thenReturn(product2);
         when(productMapper.selectByPrimaryKey(product3.getId())).thenReturn(product3);
