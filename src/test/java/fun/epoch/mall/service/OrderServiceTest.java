@@ -265,6 +265,37 @@ public class OrderServiceTest {
         testIfCodeEqualsForbidden(service.create(userId, shippingId));
     }
 
+    @Test
+    public void testCreate_returnError_whenNoProductChecked() {
+        when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.emptyList());
+        testIfCodeEqualsError(service.create(userId, shippingId));
+    }
+
+    @Test
+    public void testCreate_returnError_whenProductNotExist() {
+        when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.emptyList());
+        testIfCodeEqualsNotFound(service.create(userId, shippingId));
+    }
+
+    @Test
+    public void testCreate_returnError_whenProductOffSale() {
+        when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.status(OFF_SALE).build()));
+        testIfCodeEqualsNotFound(service.create(userId, shippingId));
+    }
+
+    @Test
+    public void testCreate_returnError_whenProductQuantityLimited() {
+        when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.build()));
+        testIfCodeEqualsError(service.create(userId, shippingId));
+    }
+
     // 合法值
     private static final long orderNo = 1521421465877L;
 
@@ -283,6 +314,7 @@ public class OrderServiceTest {
     private static final Shipping shipping = Shipping.builder()
             .id(shippingId)
             .name(shippingName)
+            .userId(userId)
             .build();
 
     private static final OrderItem orderItem = OrderItem.builder()

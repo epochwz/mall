@@ -127,6 +127,27 @@ public class OrderService {
     }
 
     public ServerResponse<OrderVo> preview(int userId) {
+        ServerResponse<List<OrderItem>> toOrderItems = toOrderItems(userId);
+        if (toOrderItems.isError()) {
+            return ServerResponse.response(toOrderItems.getCode(), toOrderItems.getMsg());
+        }
+
+        List<OrderItem> items = toOrderItems.getData();
+
+        BigDecimal payment = new BigDecimal("0");
+        for (OrderItem item : items) {
+            payment = payment.add(item.getTotalPrice());
+        }
+
+        OrderVo orderVo = OrderVo.builder()
+                .payment(payment)
+                .postage(new BigDecimal("0"))
+                .products(items)
+                .build();
+        return ServerResponse.success(orderVo);
+    }
+
+    private ServerResponse<List<OrderItem>> toOrderItems(int userId) {
         List<CartItem> cartItems = cartItemMapper.selectCheckedItemsByUserId(userId);
         if (cartItems == null || cartItems.size() == 0) {
             return ServerResponse.error("购物车中没有选中的商品");
@@ -154,17 +175,7 @@ public class OrderService {
 
         List<OrderItem> items = IntStream.range(0, products.size()).mapToObj(i -> toOrderItem(products.get(i), cartItems.get(i).getQuantity())).collect(Collectors.toList());
 
-        BigDecimal payment = new BigDecimal("0");
-        for (OrderItem item : items) {
-            payment = payment.add(item.getTotalPrice());
-        }
-
-        OrderVo orderVo = OrderVo.builder()
-                .payment(payment)
-                .postage(new BigDecimal("0"))
-                .products(items)
-                .build();
-        return ServerResponse.success(orderVo);
+        return ServerResponse.success(items);
     }
 
     private OrderItem toOrderItem(Product product, int quantity) {
@@ -187,6 +198,12 @@ public class OrderService {
         if (shipping.getUserId() != userId) {
             return ServerResponse.error(FORBIDDEN, "无权限，收货地址不属于当前用户");
         }
+
+        ServerResponse<List<OrderItem>> toOrderItems = toOrderItems(userId);
+        if (toOrderItems.isError()) {
+            return ServerResponse.response(toOrderItems.getCode(), toOrderItems.getMsg());
+        }
+
         return null;
     }
 
