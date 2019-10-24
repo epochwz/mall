@@ -180,6 +180,13 @@ public class OrderService {
     }
 
     public ServerResponse<OrderVo> create(int userId, int shippingId) {
+        Shipping shipping = shippingMapper.selectByPrimaryKey(shippingId);
+        if (shipping == null) {
+            return ServerResponse.error(NOT_FOUND, "收货地址不存在");
+        }
+        if (shipping.getUserId() != userId) {
+            return ServerResponse.error(FORBIDDEN, "无权限，收货地址不属于当前用户");
+        }
         return null;
     }
 

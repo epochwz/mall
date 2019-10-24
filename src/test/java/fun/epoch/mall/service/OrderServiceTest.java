@@ -240,6 +240,30 @@ public class OrderServiceTest {
         assertEquals(totalPrice, productItem.getTotalPrice());
     }
 
+    /**
+     * 创建订单
+     * <p>
+     * 404  收货地址不存在
+     * 403  该收货地址不属于当前用户
+     * 400  购物车中没有选中的商品
+     * 400  某商品不存在 / 已下架
+     * 400  某商品数量超过限制
+     * 200  创建成功：更新商品库存
+     * 200  创建成功：创建订单，生成商品明细
+     * 200  创建成功：清空购物车
+     * 200  创建成功：返回订单信息
+     */
+    @Test
+    public void testCreate_returnNotFound_whenShippingNotExist() {
+        when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(null);
+        testIfCodeEqualsNotFound(service.create(userId, shippingId));
+    }
+
+    @Test
+    public void testCreate_returnForbidden_whenShippingNotBelongCurrentUser() {
+        when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(Shipping.builder().userId(otherUserId).build());
+        testIfCodeEqualsForbidden(service.create(userId, shippingId));
+    }
 
     // 合法值
     private static final long orderNo = 1521421465877L;
