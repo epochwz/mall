@@ -13,6 +13,8 @@ import fun.epoch.mall.vo.OrderVo;
 import fun.epoch.mall.vo.QrCodeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -190,6 +192,7 @@ public class OrderService {
                 .build();
     }
 
+    @Transactional
     public ServerResponse<OrderVo> create(int userId, int shippingId) {
         Shipping shipping = shippingMapper.selectByPrimaryKey(shippingId);
         if (shipping == null) {
@@ -204,7 +207,17 @@ public class OrderService {
             return ServerResponse.response(toOrderItems.getCode(), toOrderItems.getMsg());
         }
 
-        return null;
+        List<OrderItem> items = toOrderItems.getData();
+        for (OrderItem item : items) {
+            Product product = productMapper.selectByPrimaryKey(item.getProductId());
+            product.setStock(product.getStock() - item.getQuantity());
+            if (productMapper.updateSelectiveByPrimaryKey(product) == 0) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "更新商品库存失败");
+            }
+        }
+
+        return ServerResponse.success();
     }
 
     public ServerResponse cancel(int userId, long orderNo) {

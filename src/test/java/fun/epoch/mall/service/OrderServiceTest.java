@@ -16,10 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -30,8 +27,7 @@ import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
 import static fun.epoch.mall.common.enhanced.TestHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrderServiceTest {
@@ -294,6 +290,43 @@ public class OrderServiceTest {
         when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(Collections.singletonList(cartItem));
         when(productMapper.selectByPrimaryKeys(any())).thenReturn(Collections.singletonList(mockProduct.build()));
         testIfCodeEqualsError(service.create(userId, shippingId));
+    }
+
+    @Test
+    public void testCreate_returnSuccess_andThenUpdateProductStock() {
+        // stub shipping
+        when(shippingMapper.selectByPrimaryKey(shippingId)).thenReturn(shipping);
+
+        // stub cartItem
+        List<CartItem> cartItems = Arrays.asList(
+                CartItem.builder().productId(111).quantity(1).build(),
+                CartItem.builder().productId(333).quantity(5).build(),
+                CartItem.builder().productId(222).quantity(3).build()
+        );
+        when(cartItemMapper.selectCheckedItemsByUserId(userId)).thenReturn(cartItems);
+
+        // stub product
+        Product product1 = Product.builder().id(111).stock(10).price(price).status(ON_SALE).build();
+        Product product2 = Product.builder().id(222).stock(8).price(price).status(ON_SALE).build();
+        Product product3 = Product.builder().id(333).stock(6).price(price).status(ON_SALE).build();
+        List<Product> products = Arrays.asList(product1, product2, product3);
+
+        when(productMapper.selectByPrimaryKeys(any())).thenReturn(products);
+        when(productMapper.selectByPrimaryKey(product1.getId())).thenReturn(product1);
+        when(productMapper.selectByPrimaryKey(product2.getId())).thenReturn(product2);
+        when(productMapper.selectByPrimaryKey(product3.getId())).thenReturn(product3);
+
+        // stub product update
+        when(productMapper.updateSelectiveByPrimaryKey(any())).thenReturn(1);
+
+        // execution
+        testIfCodeEqualsSuccess(service.create(userId, shippingId));
+
+        // verify product update
+        assertEquals(9, product1.getStock().intValue());
+        assertEquals(5, product2.getStock().intValue());
+        assertEquals(1, product3.getStock().intValue());
+        verify(productMapper, times(products.size())).updateSelectiveByPrimaryKey(any());
     }
 
     // 合法值
