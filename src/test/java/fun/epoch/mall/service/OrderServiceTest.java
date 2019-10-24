@@ -321,12 +321,15 @@ public class OrderServiceTest {
 
         // stub orderItem insert
         when(orderItemMapper.insert(any())).thenReturn(1);
-        
+
         // stub empty cart
         when(cartItemMapper.deleteCheckedByUserId(userId)).thenReturn(cartItems.size());
 
+        // stub insert order
+        when(orderMapper.insert(any())).thenReturn(1);
+
         // execution
-        testIfCodeEqualsSuccess(service.create(userId, shippingId));
+        service.create(userId, shippingId);
 
         // verify product update
         assertEquals(9, product1.getStock().intValue());
@@ -339,6 +342,12 @@ public class OrderServiceTest {
 
         // verify empty cart
         verify(cartItemMapper).deleteCheckedByUserId(userId);
+
+        // verify order insert
+        verify(orderMapper).insert(any());
+
+        // verify return order detail
+        verify(service).detail(anyLong());
     }
 
     // 合法值

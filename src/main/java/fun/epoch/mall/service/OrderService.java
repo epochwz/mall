@@ -231,7 +231,26 @@ public class OrderService {
             return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "清空购物车商品失败");
         }
 
-        return ServerResponse.success();
+        BigDecimal payment = new BigDecimal("0");
+        for (OrderItem item : items) {
+            payment = payment.add(item.getTotalPrice());
+        }
+
+        Order order = Order.builder()
+                .userId(userId)
+                .orderNo(orderNo)
+                .payment(payment)
+                .postage(new BigDecimal("0"))
+                .status(UNPAID.getCode())
+                .shippingId(shippingId)
+                .build();
+
+        if (orderMapper.insert(order) != 1) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ServerResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "生成订单失败");
+        }
+
+        return detail(orderNo);
     }
 
     private long newOrderNo() {
