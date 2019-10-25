@@ -233,7 +233,7 @@ public class OrderService {
         return ServerResponse.success();
     }
 
-    private void restoreProductStock(long orderNo) {
+    void restoreProductStock(long orderNo) {
         OrderVo orderVo = detail(orderNo).getData();
         orderVo.getProducts().forEach(item -> {
             Product product = productMapper.selectByPrimaryKey(item.getProductId());

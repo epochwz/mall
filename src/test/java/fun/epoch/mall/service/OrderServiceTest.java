@@ -177,6 +177,8 @@ public class OrderServiceTest {
             return order.getStatus() == CLOSED.getCode() ? 1 : 0;
         });
 
+        doNothing().when(service).restoreProductStock(anyLong());
+
         when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().status(UNPAID.getCode()).build());
         testIfCodeEqualsSuccess(service.close(orderNo));
 
