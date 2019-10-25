@@ -1,0 +1,148 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "pageNum": 1,
+    "pageSize": 5,
+    "size": 5,
+    "startRow": 1,
+    "endRow": 5,
+    "total": 13,
+    "pages": 3,
+    "list": [
+      {
+        "userId": 1000000,
+        "orderNo": 1565625618510,
+        "payment": 82.80,
+        "postage": 0.00,
+        "status": 30,
+        "statusDesc": "待发货",
+        "paymentType": 1,
+        "paymentTypeDesc": "在线支付",
+        "paymentTime": "2019-09-09 09:09:09",
+        "shipTime": "",
+        "endTime": "",
+        "closeTime": "",
+        "shipping": {
+          "id": 1,
+          "userId": 1000000,
+          "name": "epoch",
+          "mobile": "15623333333",
+          "province": "广东省",
+          "city": "广州市",
+          "district": "小谷围街道",
+          "address": "广东工业大学",
+          "zip": "516000"
+        },
+        "products": [
+          {
+            "id": 1,
+            "orderNo": 1565625618510,
+            "productId": 1,
+            "productName": "斗破苍穹",
+            "productImage": "doupo.jpg",
+            "unitPrice": 13.40,
+            "quantity": 2,
+            "totalPrice": 26.80
+          },
+          {
+            "id": 2,
+            "orderNo": 1565625618510,
+            "productId": 2,
+            "productName": "武动乾坤",
+            "productImage": "wudong.jpg",
+            "unitPrice": 11.20,
+            "quantity": 2,
+            "totalPrice": 22.40
+          },
+          {
+            "id": 3,
+            "orderNo": 1565625618510,
+            "productId": 3,
+            "productName": "百褶裙",
+            "productImage": "baizhequn.jpg",
+            "unitPrice": 11.20,
+            "quantity": 3,
+            "totalPrice": 33.60
+          }
+        ]
+      },
+      {
+        "userId": 1000000,
+        "orderNo": 9565625618500,
+        "payment": 0.00,
+        "postage": 0.00,
+        "status": 0,
+        "statusDesc": "已取消",
+        "paymentType": 1,
+        "paymentTypeDesc": "在线支付",
+        "paymentTime": "",
+        "shipTime": "",
+        "endTime": "",
+        "closeTime": "",
+        "products": []
+      },
+      {
+        "userId": 1000000,
+        "orderNo": 9565625618511,
+        "payment": 0.00,
+        "postage": 0.00,
+        "status": 10,
+        "statusDesc": "待付款",
+        "paymentType": 1,
+        "paymentTypeDesc": "在线支付",
+        "paymentTime": "",
+        "shipTime": "",
+        "endTime": "",
+        "closeTime": "",
+        "products": []
+      },
+      {
+        "userId": 1000000,
+        "orderNo": 9565625618533,
+        "payment": 0.00,
+        "postage": 0.00,
+        "status": 30,
+        "statusDesc": "待发货",
+        "paymentType": 1,
+        "paymentTypeDesc": "在线支付",
+        "paymentTime": "",
+        "shipTime": "",
+        "endTime": "",
+        "closeTime": "",
+        "products": []
+      },
+      {
+        "userId": 1000000,
+        "orderNo": 9565625618555,
+        "payment": 0.00,
+        "postage": 0.00,
+        "status": 50,
+        "statusDesc": "待签收",
+        "paymentType": 1,
+        "paymentTypeDesc": "在线支付",
+        "paymentTime": "",
+        "shipTime": "",
+        "endTime": "",
+        "closeTime": "",
+        "products": []
+      }
+    ],
+    "prePage": 0,
+    "nextPage": 2,
+    "isFirstPage": true,
+    "isLastPage": false,
+    "hasPreviousPage": false,
+    "hasNextPage": true,
+    "navigatePages": 8,
+    "navigatepageNums": [
+      1,
+      2,
+      3
+    ],
+    "navigateFirstPage": 1,
+    "navigateLastPage": 3,
+    "firstPage": 1,
+    "lastPage": 3
+  }
+}

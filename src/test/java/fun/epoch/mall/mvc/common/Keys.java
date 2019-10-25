@@ -53,6 +53,7 @@ public interface Keys {
         String EXPECTED_JSON_OF_CART_AFTER_DELETE = "mock/cart/detail_afterDelete.json";
 
         String EXPECTED_JSON_OF_ORDER_DETAIL = "mock/order/detail.json";
+        String EXPECTED_JSON_OF_ORDER_SEARCH = "mock/order/search.json";
     }
 
     interface ErrorKeys {
@@ -124,5 +125,8 @@ public interface Keys {
 
     interface OrderKeys {
         String orderNo = "1565625618510";
+
+        String searchPrefix = "95656256185";
+        String searchPrefixForTime = "8565625618";
     }
 }

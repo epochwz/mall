@@ -1,5 +1,6 @@
 package fun.epoch.mall.mvc;
 
+import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
 import fun.epoch.mall.vo.OrderVo;
 import org.junit.Before;
@@ -7,14 +8,18 @@ import org.junit.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
+import static fun.epoch.mall.common.Constant.OrderStatus.PAID;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
 import static fun.epoch.mall.mvc.common.Apis.manage.order.detail;
+import static fun.epoch.mall.mvc.common.Apis.manage.order.search;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_DETAIL;
+import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_SEARCH;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
-import static fun.epoch.mall.mvc.common.Keys.OrderKeys.orderNo;
+import static fun.epoch.mall.mvc.common.Keys.OrderKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.Tables.*;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
+import static fun.epoch.mall.utils.DateTimeUtils.timeStrFrom;
 import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
 import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -46,5 +51,52 @@ public class ManageOrderTest extends CustomMvcTest {
     @Test
     public void testDetail_404_whenOrderNotExist() {
         perform(NOT_FOUND, post(detail).param("orderNo", idNotExist));
+    }
+
+    /**
+     * 搜索订单
+     * 200  搜索成功，返回订单列表
+     * 200  搜索成功 (动态筛选)
+     */
+    @Test
+    public void testSearch_200_withPageInfo() {
+        PageInfo<OrderVo> actual = orderVoPageInfoFromAndClean(perform(SUCCESS, post(search)));
+        PageInfo<OrderVo> expected = orderVoPageInfoFrom(EXPECTED_JSON_OF_ORDER_SEARCH);
+
+        assertObjectEquals(expected, actual);
+    }
+
+    @Test
+    public void testSearch_selective() {
+        assertSearchedSize(13, post(search));
+        assertSearchedSize(0, post(search).param("orderNo", idNotExist));
+        assertSearchedSize(1, post(search).param("orderNo", orderNo));
+        assertSearchedSize(8, post(search).param("orderNo", searchPrefix));
+        assertSearchedSize(9, post(search).param("userId", userId));
+        assertSearchedSize(3, post(search).param("status", String.valueOf(PAID.getCode())));
+        assertSearchedSize(1, post(search)
+                .param("orderNo", searchPrefix)
+                .param("userId", userId)
+                .param("status", String.valueOf(PAID.getCode()))
+        );
+        assertSearchedSize(3, post(search)
+                .param("orderNo", searchPrefixForTime)
+                .param("startTime", timeStrFrom("2019-09-17 09:26:35"))
+        );
+        assertSearchedSize(3, post(search)
+                .param("orderNo", searchPrefixForTime)
+                .param("endTime", timeStrFrom("2019-09-18 09:26:35"))
+        );
+        assertSearchedSize(2, post(search)
+                .param("orderNo", searchPrefixForTime)
+                .param("startTime", timeStrFrom("2019-09-18 09:26:35"))
+                .param("endTime", timeStrFrom("2019-09-20 09:26:35"))
+        );
+        assertSearchedSize(1, post(search)
+                .param("orderNo", searchPrefixForTime)
+                .param("startTime", timeStrFrom("2019-09-18 09:26:35"))
+                .param("endTime", timeStrFrom("2019-09-20 09:26:35"))
+                .param("userId", userId)
+        );
     }
 }

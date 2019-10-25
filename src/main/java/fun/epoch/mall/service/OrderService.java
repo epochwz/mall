@@ -66,7 +66,9 @@ public class OrderService {
         PageHelper.startPage(pageNum, pageSize);
         List<Order> orders = orderMapper.search(orderNo, userId, keyword, status, startTime, endTime);
         List<OrderVo> orderVos = orders.stream().map(this::toOrderVo).collect(Collectors.toList());
-        return ServerResponse.success(new PageInfo<>(orderVos));
+        PageInfo page = new PageInfo<>(orders);
+        page.setList(orderVos);
+        return ServerResponse.success(page);
     }
 
     public ServerResponse ship(long orderNo) {

@@ -16,6 +16,11 @@ public class DateTimeUtils {
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private static final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT_PATTERN);
 
+    public static String timeStrFrom(String date) {
+        Long time = timeFrom(date);
+        return time == null ? "" : time.toString();
+    }
+
     public static Long timeFrom(String date) {
         Date theDate = from(date);
         if (theDate != null) {

@@ -13,10 +13,13 @@ import fun.epoch.mall.vo.CartVo;
 import fun.epoch.mall.vo.OrderVo;
 import fun.epoch.mall.vo.ProductVo;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.List;
 
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
+import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
 
 public class CustomMvcTest extends MvcTestHelper {
     @Override
@@ -58,7 +61,7 @@ public class CustomMvcTest extends MvcTestHelper {
         return productHelper.dataFrom(resource);
     }
 
-    public ServerResponseHelper<PageInfo<ProductVo>> productPageInfoHelper = new ServerResponseHelper<>(new TypeReference<ServerResponse<PageInfo<ProductVo>>>() {
+    public static final ServerResponseHelper<PageInfo<ProductVo>> productPageInfoHelper = new ServerResponseHelper<>(new TypeReference<ServerResponse<PageInfo<ProductVo>>>() {
     });
 
     public PageInfo<ProductVo> productPageInfoFrom(ResultActions resultActions) {
@@ -91,10 +94,28 @@ public class CustomMvcTest extends MvcTestHelper {
         return orderVoHelper.dataFrom(resource);
     }
 
+    public static final ServerResponseHelper<PageInfo<OrderVo>> pageInfoHelper = new ServerResponseHelper<>(new TypeReference<ServerResponse<PageInfo<OrderVo>>>() {
+    });
+
+    public PageInfo<OrderVo> orderVoPageInfoFrom(ResultActions resultActions) {
+        return pageInfoHelper.dataOf(content(resultActions));
+    }
+
+    public PageInfo<OrderVo> orderVoPageInfoFrom(String resource) {
+        return pageInfoHelper.dataFrom(resource);
+    }
+
+
     /* ******************** 订单 ******************** */
     public OrderVo orderVoFromAndClean(ResultActions resultActions, boolean cleanOrderNo) {
         OrderVo orderVo = orderVoFrom(resultActions);
         return cleanUnnecessaryFields(orderVo, cleanOrderNo);
+    }
+
+    public PageInfo<OrderVo> orderVoPageInfoFromAndClean(ResultActions resultActions) {
+        PageInfo<OrderVo> page = orderVoPageInfoFrom(resultActions);
+        page.getList().forEach(orderVo -> cleanUnnecessaryFields(orderVo, false));
+        return page;
     }
 
     public OrderVo cleanUnnecessaryFields(OrderVo orderVo, boolean cleanOrderNo) {
@@ -116,5 +137,11 @@ public class CustomMvcTest extends MvcTestHelper {
             });
         }
         return orderVo;
+    }
+
+    public void assertSearchedSize(int expectedSize, MockHttpServletRequestBuilder searchRequest) {
+        ResultActions resultActions = perform(SUCCESS, searchRequest);
+        PageInfo<OrderVo> page = orderVoPageInfoFrom(resultActions);
+        assertEquals(expectedSize, page.getTotal());
     }
 }
