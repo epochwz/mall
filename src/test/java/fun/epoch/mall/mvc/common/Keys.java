@@ -30,6 +30,7 @@ public interface Keys {
         String COMMON_SQLS = "mock/tables.sql";
         String CART_SQLS = "mock/cart/cart.sql";
         String PRODUCT_SQLS = "mock/product/product.sql";
+        String ORDER_SQLS = "mock/order/order.sql";
     }
 
     /**
@@ -40,6 +41,8 @@ public interface Keys {
         String CASE_CART_PRODUCT_QUANTITY_LIMITED = "productQuantityLimited";
         String CASE_CART_PRODUCT_NOT_EXIST = "productNotExist";
         String CASE_CART_ADD_PRODUCT_NOT_IN_CART_BEFORE = "addProductNotInCartBefore";
+
+        String CASE_ORDER_CLOSE_ORDER = "closeOrder";
     }
 
     /**

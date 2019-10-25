@@ -7,6 +7,7 @@ import fun.epoch.mall.common.Constant.OrderStatus;
 import fun.epoch.mall.dao.*;
 import fun.epoch.mall.entity.*;
 import fun.epoch.mall.exception.OrderCreateException;
+import fun.epoch.mall.exception.OrderUpdateException;
 import fun.epoch.mall.service.pay.AlipayService;
 import fun.epoch.mall.utils.DateTimeUtils;
 import fun.epoch.mall.utils.TextUtils;
@@ -75,8 +76,18 @@ public class OrderService {
         return updateOrderStatus(orderNo, SHIPPED.getCode(), CANCELED, UNPAID, OrderStatus.SUCCESS, CLOSED);
     }
 
+    @Transactional
     public ServerResponse close(long orderNo) {
-        return updateOrderStatus(orderNo, CLOSED.getCode(), CANCELED, PAID, SHIPPED, OrderStatus.SUCCESS);
+        ServerResponse updateOrderStatus = updateOrderStatus(orderNo, CLOSED.getCode(), CANCELED, PAID, SHIPPED, OrderStatus.SUCCESS);
+        if (updateOrderStatus.isSuccess()) {
+            try {
+                restoreProductStock(orderNo);
+            } catch (OrderUpdateException e) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return ServerResponse.error(INTERNAL_SERVER_ERROR, e.getMessage());
+            }
+        }
+        return updateOrderStatus;
     }
 
     public ServerResponse<OrderVo> preview(int userId) {
@@ -220,6 +231,19 @@ public class OrderService {
             return ServerResponse.error(INTERNAL_SERVER_ERROR, errorMsg);
         }
         return ServerResponse.success();
+    }
+
+    private void restoreProductStock(long orderNo) {
+        OrderVo orderVo = detail(orderNo).getData();
+        orderVo.getProducts().forEach(item -> {
+            Product product = productMapper.selectByPrimaryKey(item.getProductId());
+            if (product != null) {
+                product.setStock(product.getStock() + item.getQuantity());
+                if (productMapper.updateSelectiveByPrimaryKey(product) != 1) {
+                    throw new OrderUpdateException(String.format("恢复商品[%s]库存失败", product.getId()));
+                }
+            }
+        });
     }
 
     /* ****************************** 预览订单 开始  ****************************** */

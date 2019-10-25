@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.util.List;
 
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
-import static fun.epoch.mall.mvc.common.Apis.manage.order.detail;
 import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -154,7 +153,9 @@ public class CustomMvcTest extends MvcTestHelper {
         assertEquals(expectedStatus.getCode(), orderVo.getStatus().intValue());
     }
 
-    public void assertOrderStatus(Constant.OrderStatus expectedStatus, String orderNo) {
-        assertOrderStatus(expectedStatus, detail, orderNo);
+    public void assertProductStock(int expectedStock, String api, String productId) {
+        ResultActions resultActions = perform(SUCCESS, post(api).param("id", productId));
+        ProductVo productVo = productVoFrom(resultActions);
+        assertEquals(expectedStock, productVo.getStock().intValue());
     }
 }

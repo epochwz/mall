@@ -1,25 +1,30 @@
 package fun.epoch.mall.mvc;
 
 import com.github.pagehelper.PageInfo;
+import fun.epoch.mall.common.Constant;
+import fun.epoch.mall.mvc.common.Apis;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
+import fun.epoch.mall.mvc.common.Keys;
 import fun.epoch.mall.vo.OrderVo;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
-import static fun.epoch.mall.common.Constant.OrderStatus.PAID;
-import static fun.epoch.mall.common.Constant.OrderStatus.SHIPPED;
+import static fun.epoch.mall.common.Constant.OrderStatus.*;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
 import static fun.epoch.mall.mvc.common.Apis.manage.order.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_DETAIL;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_SEARCH;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
+import static fun.epoch.mall.mvc.common.Keys.MockSqls.ORDER_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.OrderKeys.*;
+import static fun.epoch.mall.mvc.common.Keys.ProductKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.Tables.*;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
 import static fun.epoch.mall.utils.DateTimeUtils.timeStrFrom;
+import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -28,7 +33,7 @@ public class ManageOrderTest extends CustomMvcTest {
     public void setup() {
         this.init()
                 .session(userId, MANAGER)
-                .database(COMMON_SQLS)
+                .database(COMMON_SQLS, ORDER_SQLS)
                 .launchTable(order, order_item, shipping, product);
     }
 
@@ -40,7 +45,7 @@ public class ManageOrderTest extends CustomMvcTest {
      */
     @Test
     public void testDetail_200_withOrderDetail() {
-        ResultActions result = perform(SUCCESS, post(detail).param("orderNo", orderNo));
+        ResultActions result = perform(SUCCESS, post(Apis.manage.order.detail).param("orderNo", orderNo));
 
         OrderVo actual = orderVoFromAndClean(result, false);
         OrderVo expected = orderVoFrom(EXPECTED_JSON_OF_ORDER_DETAIL);
@@ -49,7 +54,7 @@ public class ManageOrderTest extends CustomMvcTest {
 
     @Test
     public void testDetail_404_whenOrderNotExist() {
-        perform(NOT_FOUND, post(detail).param("orderNo", idNotExist));
+        perform(NOT_FOUND, post(Apis.manage.order.detail).param("orderNo", idNotExist));
     }
 
     /**
@@ -129,5 +134,55 @@ public class ManageOrderTest extends CustomMvcTest {
     public void testShip_200_whileOrderStatusUpdated() {
         perform(SUCCESS, post(ship).param("orderNo", orderPaid));
         assertOrderStatus(SHIPPED, orderPaid);
+    }
+
+    /**
+     * 关闭订单
+     * 404  找不到该订单
+     * 400  关闭失败：已取消 / 已付款 / 已发货 / 已完成
+     * 200  关闭成功 (可关闭的订单状态：未付款 / 已关闭)
+     * 200  关闭成功，更新订单状态
+     * 200  关闭成功，恢复商品库存
+     */
+    @Test
+    public void testClose_404_whenOrderNotExist() {
+        perform(NOT_FOUND, post(close).param("orderNo", idNotExist));
+    }
+
+    @Test
+    public void testClose_400_whenOrderStatusNotCorrect() {
+        perform(ERROR, post(close).param("orderNo", orderCanceled));
+        perform(ERROR, post(close).param("orderNo", orderPaid));
+        perform(ERROR, post(close).param("orderNo", orderShipped));
+        perform(ERROR, post(close).param("orderNo", orderFinished));
+    }
+
+    @Test
+    public void testClose_200_whenOrderStatusCorrect() {
+        perform(SUCCESS, post(close).param("orderNo", orderUnPaid));
+        perform(SUCCESS, post(close).param("orderNo", orderClosed));
+    }
+
+    @Test
+    public void testClose_200_whileOrderStatusUpdated() {
+        perform(SUCCESS, post(close).param("orderNo", orderUnPaid));
+        assertOrderStatus(CLOSED, orderUnPaid);
+    }
+
+    @Test
+    public void testClose_200_whileProductStockRestored() {
+        this.database().launchCase(Keys.MockCases.CASE_ORDER_CLOSE_ORDER);
+        perform(SUCCESS, post(close).param("orderNo", orderNo));
+        assertProductStock(101, productId);
+        assertProductStock(7, productId2);
+        assertProductStock(8, productId3);
+    }
+
+    private void assertOrderStatus(Constant.OrderStatus expectedStatus, String orderNo) {
+        assertOrderStatus(expectedStatus, Apis.manage.order.detail, orderNo);
+    }
+
+    private void assertProductStock(int expectedStock, String productId) {
+        assertProductStock(expectedStock, Apis.manage.product.detail, productId);
     }
 }
