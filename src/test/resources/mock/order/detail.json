@@ -1,0 +1,61 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "userId": 1000000,
+    "orderNo": 1565625618510,
+    "payment": 82.80,
+    "postage": 0.00,
+    "status": 30,
+    "statusDesc": "待发货",
+    "paymentType": 1,
+    "paymentTypeDesc": "在线支付",
+    "paymentTime": "2019-09-09 09:09:09",
+    "shipTime": "",
+    "endTime": "",
+    "closeTime": "",
+    "shipping": {
+      "id": 1,
+      "userId": 1000000,
+      "name": "epoch",
+      "mobile": "15623333333",
+      "province": "广东省",
+      "city": "广州市",
+      "district": "小谷围街道",
+      "address": "广东工业大学",
+      "zip": "516000"
+    },
+    "products": [
+      {
+        "id": 1,
+        "orderNo": 1565625618510,
+        "productId": 1,
+        "productName": "斗破苍穹",
+        "productImage": "doupo.jpg",
+        "unitPrice": 13.40,
+        "quantity": 2,
+        "totalPrice": 26.80
+      },
+      {
+        "id": 2,
+        "orderNo": 1565625618510,
+        "productId": 2,
+        "productName": "武动乾坤",
+        "productImage": "wudong.jpg",
+        "unitPrice": 11.20,
+        "quantity": 2,
+        "totalPrice": 22.40
+      },
+      {
+        "id": 3,
+        "orderNo": 1565625618510,
+        "productId": 3,
+        "productName": "百褶裙",
+        "productImage": "baizhequn.jpg",
+        "unitPrice": 11.20,
+        "quantity": 3,
+        "totalPrice": 33.60
+      }
+    ]
+  }
+}

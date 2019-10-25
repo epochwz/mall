@@ -5,11 +5,16 @@ import com.github.pagehelper.PageInfo;
 import fun.epoch.mall.common.enhanced.MvcTestHelper;
 import fun.epoch.mall.common.helper.ServerResponseHelper;
 import fun.epoch.mall.entity.Category;
+import fun.epoch.mall.entity.OrderItem;
+import fun.epoch.mall.entity.Shipping;
 import fun.epoch.mall.entity.User;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.CartVo;
+import fun.epoch.mall.vo.OrderVo;
 import fun.epoch.mall.vo.ProductVo;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.List;
 
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
 
@@ -73,5 +78,43 @@ public class CustomMvcTest extends MvcTestHelper {
 
     public CartVo cartVoFrom(String resource) {
         return cartVoHelper.dataFrom(resource);
+    }
+
+    public static final ServerResponseHelper<OrderVo> orderVoHelper = new ServerResponseHelper(new TypeReference<ServerResponse<OrderVo>>() {
+    });
+
+    public OrderVo orderVoFrom(ResultActions resultActions) {
+        return orderVoHelper.dataOf(content(resultActions));
+    }
+
+    public OrderVo orderVoFrom(String resource) {
+        return orderVoHelper.dataFrom(resource);
+    }
+
+    /* ******************** 订单 ******************** */
+    public OrderVo orderVoFromAndClean(ResultActions resultActions, boolean cleanOrderNo) {
+        OrderVo orderVo = orderVoFrom(resultActions);
+        return cleanUnnecessaryFields(orderVo, cleanOrderNo);
+    }
+
+    public OrderVo cleanUnnecessaryFields(OrderVo orderVo, boolean cleanOrderNo) {
+        orderVo.setCreateTime(null);
+        if (cleanOrderNo) orderVo.setOrderNo(null);
+
+        Shipping shipping = orderVo.getShipping();
+        if (shipping != null) {
+            shipping.setUpdateTime(null);
+            shipping.setCreateTime(null);
+        }
+
+        List<OrderItem> products = orderVo.getProducts();
+        if (products != null) {
+            products.forEach(product -> {
+                if (cleanOrderNo) product.setOrderNo(null);
+                product.setCreateTime(null);
+                product.setUpdateTime(null);
+            });
+        }
+        return orderVo;
     }
 }
