@@ -9,9 +9,9 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
 import static fun.epoch.mall.common.Constant.OrderStatus.PAID;
+import static fun.epoch.mall.common.Constant.OrderStatus.SHIPPED;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
-import static fun.epoch.mall.mvc.common.Apis.manage.order.detail;
-import static fun.epoch.mall.mvc.common.Apis.manage.order.search;
+import static fun.epoch.mall.mvc.common.Apis.manage.order.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_DETAIL;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_SEARCH;
@@ -20,8 +20,7 @@ import static fun.epoch.mall.mvc.common.Keys.OrderKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.Tables.*;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
 import static fun.epoch.mall.utils.DateTimeUtils.timeStrFrom;
-import static fun.epoch.mall.utils.response.ResponseCode.NOT_FOUND;
-import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
+import static fun.epoch.mall.utils.response.ResponseCode.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class ManageOrderTest extends CustomMvcTest {
@@ -98,5 +97,37 @@ public class ManageOrderTest extends CustomMvcTest {
                 .param("endTime", timeStrFrom("2019-09-20 09:26:35"))
                 .param("userId", userId)
         );
+    }
+
+    /**
+     * 订单发货
+     * 404  找不到该订单
+     * 400  发货失败：已取消 / 未付款 / 已完成 / 已关闭
+     * 200  发货成功 (可发货的订单状态：已付款 / 已发货)
+     * 200  发货成功，更新订单状态
+     */
+    @Test
+    public void testShip_404_whenOrderNotExist() {
+        perform(NOT_FOUND, post(ship).param("orderNo", idNotExist));
+    }
+
+    @Test
+    public void testShip_400_whenOrderStatusNotCorrect() {
+        perform(ERROR, post(ship).param("orderNo", orderCanceled));
+        perform(ERROR, post(ship).param("orderNo", orderUnPaid));
+        perform(ERROR, post(ship).param("orderNo", orderFinished));
+        perform(ERROR, post(ship).param("orderNo", orderClosed));
+    }
+
+    @Test
+    public void testShip_200_whenOrderStatusCorrect() {
+        perform(SUCCESS, post(ship).param("orderNo", orderPaid));
+        perform(SUCCESS, post(ship).param("orderNo", orderShipped));
+    }
+
+    @Test
+    public void testShip_200_whileOrderStatusUpdated() {
+        perform(SUCCESS, post(ship).param("orderNo", orderPaid));
+        assertOrderStatus(SHIPPED, orderPaid);
     }
 }

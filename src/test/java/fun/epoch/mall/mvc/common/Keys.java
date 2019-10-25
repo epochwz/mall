@@ -125,6 +125,12 @@ public interface Keys {
 
     interface OrderKeys {
         String orderNo = "1565625618510";
+        String orderCanceled = "9565625618500";
+        String orderUnPaid = "9565625618511";
+        String orderPaid = "9565625618533";
+        String orderShipped = "9565625618555";
+        String orderFinished = "9565625618577";
+        String orderClosed = "9565625618599";
 
         String searchPrefix = "95656256185";
         String searchPrefixForTime = "8565625618";

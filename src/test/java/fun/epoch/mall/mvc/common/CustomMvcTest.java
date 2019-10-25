@@ -2,6 +2,7 @@ package fun.epoch.mall.mvc.common;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageInfo;
+import fun.epoch.mall.common.Constant;
 import fun.epoch.mall.common.enhanced.MvcTestHelper;
 import fun.epoch.mall.common.helper.ServerResponseHelper;
 import fun.epoch.mall.entity.Category;
@@ -18,8 +19,10 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.util.List;
 
 import static fun.epoch.mall.common.Constant.CURRENT_USER;
+import static fun.epoch.mall.mvc.common.Apis.manage.order.detail;
 import static fun.epoch.mall.utils.response.ResponseCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class CustomMvcTest extends MvcTestHelper {
     @Override
@@ -143,5 +146,15 @@ public class CustomMvcTest extends MvcTestHelper {
         ResultActions resultActions = perform(SUCCESS, searchRequest);
         PageInfo<OrderVo> page = orderVoPageInfoFrom(resultActions);
         assertEquals(expectedSize, page.getTotal());
+    }
+
+    public void assertOrderStatus(Constant.OrderStatus expectedStatus, String api, String orderNo) {
+        ResultActions resultActions = perform(SUCCESS, post(api).param("orderNo", orderNo));
+        OrderVo orderVo = orderVoFrom(resultActions);
+        assertEquals(expectedStatus.getCode(), orderVo.getStatus().intValue());
+    }
+
+    public void assertOrderStatus(Constant.OrderStatus expectedStatus, String orderNo) {
+        assertOrderStatus(expectedStatus, detail, orderNo);
     }
 }
