@@ -1,0 +1,34 @@
+{
+  "code": 200,
+  "msg": "OK",
+  "data": {
+    "payment": 112.80,
+    "postage": 0,
+    "products": [
+      {
+        "productId": 1,
+        "productName": "斗破苍穹",
+        "productImage": "http://file.epoch.fun/mall_dev/doupo.jpg",
+        "unitPrice": 13.40,
+        "quantity": 3,
+        "totalPrice": 40.20
+      },
+      {
+        "productId": 2,
+        "productName": "武动乾坤",
+        "productImage": "http://file.epoch.fun/mall_dev/wudong.jpg",
+        "unitPrice": 11.20,
+        "quantity": 5,
+        "totalPrice": 56.00
+      },
+      {
+        "productId": 3,
+        "productName": "大主宰",
+        "productImage": "",
+        "unitPrice": 8.30,
+        "quantity": 2,
+        "totalPrice": 16.60
+      }
+    ]
+  }
+}

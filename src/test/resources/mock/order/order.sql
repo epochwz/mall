@@ -17,3 +17,28 @@ INSERT INTO `order` (order_no, user_id, shipping_id, payment, status)
 VALUES (1565625618510, 1000000, 0, 0, 10),
        (9565625618511, 1000000, 0, 0, 10),
        (9565625618544, 1000001, 0, 0, 10);
+
+# noCheckedProduct
+INSERT INTO cart_item(id, user_id, product_id, quantity, checked)
+VALUES (1, 1000000, 1, 3, false),
+       (2, 1000000, 2, 5, false);
+
+# productNotExist
+INSERT INTO cart_item(id, user_id, product_id, quantity, checked)
+VALUES (1, 1000000, 1, 3, true);
+
+# productOffSale
+INSERT INTO cart_item(id, user_id, product_id, quantity, checked)
+VALUES (1, 1000000, 1, 3, true);
+
+# productOffSale
+INSERT INTO product(id, category_id, name, price, stock, status)
+VALUES (1, 111, '斗破苍穹', 13.4, 99, 0);
+
+# productStockNotEnough
+INSERT INTO cart_item(id, user_id, product_id, quantity, checked)
+VALUES (1, 1000000, 1, 100, true);
+
+# productStockNotEnough
+INSERT INTO product(id, category_id, name, price, stock, status)
+VALUES (1, 111, '斗破苍穹', 13.4, 99, 1);

@@ -8,14 +8,15 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
-import static fun.epoch.mall.mvc.common.Apis.portal.order.detail;
-import static fun.epoch.mall.mvc.common.Apis.portal.order.search;
+import static fun.epoch.mall.mvc.common.Apis.portal.order.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
-import static fun.epoch.mall.mvc.common.Keys.MockCases.CASE_SEARCH_ORDER_BY_KEYWORD;
+import static fun.epoch.mall.mvc.common.Keys.MockCases.*;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_DETAIL;
+import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_PREVIEW;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.ORDER_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.OrderKeys.orderNo;
+import static fun.epoch.mall.mvc.common.Keys.ShippingKeys.shippingId;
 import static fun.epoch.mall.mvc.common.Keys.Tables.*;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId2;
@@ -70,5 +71,54 @@ public class OrderTest extends CustomMvcTest {
                 .param("keyword", "裙")
                 .param("orderNo", orderNo)
         );
+    }
+
+    /**
+     * 预览订单
+     * <p>
+     * 400  购物车中没有选中的商品
+     * 400  某商品不存在
+     * 400  某商品已下架
+     * 400  某商品库存不足
+     * 200  预览成功，返回订单预览信息
+     */
+    @Test
+    public void testPreview_400_whenCartHasNoProduct() {
+        this.database().truncate(cart_item).launch();
+        perform(post(preview).param("shippingId", shippingId), ERROR, "购物车中没有选中的商品");
+    }
+
+    @Test
+    public void testPreview_400_whenCartHasNoCheckedProduct() {
+        this.database().launchCase(CASE_CART_HAS_NO_CHECKED_PRODUCT, cart_item);
+        perform(post(preview).param("shippingId", shippingId), ERROR, "购物车中没有选中的商品");
+    }
+
+    @Test
+    public void testPreview_400_whenProductNotExist() {
+        this.database().launchCase(CASE_PRODUCT_NOT_EXIST, cart_item, product);
+        perform(post(preview).param("shippingId", shippingId), NOT_FOUND, "不存在");
+    }
+
+    @Test
+    public void testPreview_400_whenProductOffSale() {
+        this.database().launchCase(CASE_PRODUCT_IS_OFF_SALE, cart_item, product);
+        perform(post(preview).param("shippingId", shippingId), NOT_FOUND, "已下架");
+    }
+
+    @Test
+    public void testPreview_400_whenProductStockNotEnough() {
+        this.database().launchCase(CASE_PRODUCT_STOCK_NOT_ENOUGH, cart_item, product);
+        perform(post(preview).param("shippingId", shippingId), ERROR, "库存不足");
+    }
+
+    @Test
+    public void testPreview_200_andReturnOrderPreview() {
+        ResultActions resultActions = perform(SUCCESS, post(preview));
+
+        OrderVo actual = orderVoFrom(resultActions);
+        OrderVo expected = orderVoFrom(EXPECTED_JSON_OF_ORDER_PREVIEW);
+
+        assertObjectEquals(expected, actual);
     }
 }

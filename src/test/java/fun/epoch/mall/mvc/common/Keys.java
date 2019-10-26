@@ -44,6 +44,10 @@ public interface Keys {
 
         String CASE_ORDER_CLOSE_ORDER = "closeOrder";
         String CASE_SEARCH_ORDER_BY_KEYWORD = "search";
+        String CASE_CART_HAS_NO_CHECKED_PRODUCT = "noCheckedProduct";
+        String CASE_PRODUCT_NOT_EXIST = "productNotExist";
+        String CASE_PRODUCT_IS_OFF_SALE = "productOffSale";
+        String CASE_PRODUCT_STOCK_NOT_ENOUGH = "productStockNotEnough";
     }
 
     /**
@@ -58,6 +62,7 @@ public interface Keys {
 
         String EXPECTED_JSON_OF_ORDER_DETAIL = "mock/order/detail.json";
         String EXPECTED_JSON_OF_ORDER_SEARCH = "mock/order/search.json";
+        String EXPECTED_JSON_OF_ORDER_PREVIEW = "mock/order/preview.json";
     }
 
     interface ErrorKeys {
