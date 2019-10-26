@@ -122,6 +122,7 @@ public class OrderService {
                 .payment(countPayment(orderItems))
                 .postage(new BigDecimal("0"))
                 .status(UNPAID.getCode())
+                .paymentType(ONLINE_PAY.getCode())
                 .build();
 
         return createOrder(order, orderItems);

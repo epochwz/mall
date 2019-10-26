@@ -63,6 +63,7 @@ public interface Keys {
         String EXPECTED_JSON_OF_ORDER_DETAIL = "mock/order/detail.json";
         String EXPECTED_JSON_OF_ORDER_SEARCH = "mock/order/search.json";
         String EXPECTED_JSON_OF_ORDER_PREVIEW = "mock/order/preview.json";
+        String EXPECTED_JSON_OF_ORDER_CREATE = "mock/order/create.json";
     }
 
     interface ErrorKeys {

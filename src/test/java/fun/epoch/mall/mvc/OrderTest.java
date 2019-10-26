@@ -1,5 +1,6 @@
 package fun.epoch.mall.mvc;
 
+import fun.epoch.mall.mvc.common.Apis;
 import fun.epoch.mall.mvc.common.CustomMvcTest;
 import fun.epoch.mall.vo.OrderVo;
 import org.junit.Before;
@@ -11,16 +12,17 @@ import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
 import static fun.epoch.mall.mvc.common.Apis.portal.order.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
 import static fun.epoch.mall.mvc.common.Keys.MockCases.*;
-import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_DETAIL;
-import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_PREVIEW;
+import static fun.epoch.mall.mvc.common.Keys.MockJsons.*;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.ORDER_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.OrderKeys.orderNo;
+import static fun.epoch.mall.mvc.common.Keys.ProductKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.ShippingKeys.shippingId;
 import static fun.epoch.mall.mvc.common.Keys.Tables.*;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId2;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class OrderTest extends CustomMvcTest {
@@ -120,5 +122,104 @@ public class OrderTest extends CustomMvcTest {
         OrderVo expected = orderVoFrom(EXPECTED_JSON_OF_ORDER_PREVIEW);
 
         assertObjectEquals(expected, actual);
+    }
+
+    /**
+     * 创建订单
+     * 404  收货地址不存在 (该收货地址不属于当前用户)
+     * 400  购物车中没有选中的商品
+     * 400  某商品不存在
+     * 400  某商品已下架
+     * 400  某商品库存不足
+     * 200  创建成功，返回订单详细信息
+     * 200  创建成功，清除购物车
+     * 200  创建成功，减少商品库存
+     */
+    @Test
+    public void testCreate_404_whenShippingNotExist() {
+        perform(NOT_FOUND, post(create).param("shippingId", idNotExist));
+    }
+
+    @Test
+    public void testCreate_404_whenShippingNotBelongCurrentUser() {
+        this.session(userId2, CONSUMER).perform(FORBIDDEN, post(create).param("shippingId", shippingId));
+    }
+
+    @Test
+    public void testCreate_400_whenCartHasNoProduct() {
+        this.database().truncate(cart_item).launch();
+        perform(post(create).param("shippingId", shippingId), ERROR, "购物车中没有选中的商品");
+    }
+
+    @Test
+    public void testCreate_400_whenCartHasNoCheckedProduct() {
+        this.database().launchCase("noCheckedProduct", cart_item);
+        perform(post(create).param("shippingId", shippingId), ERROR, "购物车中没有选中的商品");
+    }
+
+    @Test
+    public void testCreate_400_whenProductNotExist() {
+        this.database().launchCase("productNotExist", cart_item, product);
+        perform(post(create).param("shippingId", shippingId), NOT_FOUND, "不存在");
+    }
+
+    @Test
+    public void testCreate_400_whenProductOffSale() {
+        this.database().launchCase("productOffSale", cart_item, product);
+        perform(post(create).param("shippingId", shippingId), NOT_FOUND, "已下架");
+    }
+
+    @Test
+    public void testCreate_400_whenProductStockNotEnough() {
+        this.database().launchCase("productStockNotEnough", cart_item, product);
+        perform(post(create).param("shippingId", shippingId), ERROR, "库存不足");
+    }
+
+    @Test
+    public void testCreate_200_andReturnOrderDetail() {
+        this.database().truncate(order_item).launch();
+
+        ResultActions createResult = perform(SUCCESS, post(create).param("shippingId", shippingId));
+
+        assertEqualsOrderDetail(createResult);
+
+        OrderVo actual = orderVoFromAndClean(createResult, true);
+        OrderVo expected = orderVoFrom(EXPECTED_JSON_OF_ORDER_CREATE);
+        assertObjectEquals(expected, actual);
+    }
+
+    @Test
+    public void testCreate_200_whileCleanCart() {
+        assertCartItemCount(11);
+        perform(SUCCESS, post(create).param("shippingId", shippingId));
+        assertCartItemCount(1);
+    }
+
+    @Test
+    public void testCreate_200_whileProductStockUpdated() {
+        perform(SUCCESS, post(create).param("shippingId", shippingId));
+
+        assertProductStock(96, productId);
+        assertProductStock(0, productId2);
+        assertProductStock(3, productId3);
+    }
+
+    private void assertCartItemCount(int expectedCount) {
+        ResultActions resultActions = perform(SUCCESS, post(Apis.portal.cart.count));
+        Integer actualCount = dataFrom(resultActions);
+        assertEquals(expectedCount, actualCount.intValue());
+    }
+
+    private void assertEqualsOrderDetail(ResultActions createResult) {
+        OrderVo orderVo = orderVoFrom(createResult);
+        String orderNo = String.valueOf(orderVo.getOrderNo());
+
+        ResultActions detailResult = perform(post(detail).param("orderNo", orderNo), SUCCESS);
+
+        assertObjectEquals(content(createResult), content(detailResult));
+    }
+
+    private void assertProductStock(int expectedStock, String productId) {
+        assertProductStock(expectedStock, Apis.portal.product.detail, productId);
     }
 }
