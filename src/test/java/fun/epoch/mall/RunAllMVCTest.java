@@ -12,7 +12,8 @@ import org.junit.runners.Suite;
         CategoryTest.class,
         ProductTest.class,
         CartTest.class,
-        ShippingTest.class
+        ShippingTest.class,
+        OrderTest.class
 })
 public class RunAllMVCTest {
 }
