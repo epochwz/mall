@@ -179,7 +179,7 @@ public class OrderService {
         if (order.getUserId() != userId) {
             return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
         }
-        return ServerResponse.success(order.getStatus() == PAID.getCode());
+        return ServerResponse.success(order.getStatus() != UNPAID.getCode());
     }
 
     /* ****************************** 查询订单 开始  ****************************** */

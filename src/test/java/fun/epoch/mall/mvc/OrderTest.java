@@ -23,7 +23,7 @@ import static fun.epoch.mall.mvc.common.Keys.Tables.*;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId;
 import static fun.epoch.mall.mvc.common.Keys.UserKeys.userId2;
 import static fun.epoch.mall.utils.response.ResponseCode.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 public class OrderTest extends CustomMvcTest {
@@ -276,6 +276,37 @@ public class OrderTest extends CustomMvcTest {
         perform(ERROR, post(pay).param("orderNo", orderShipped));
         perform(ERROR, post(pay).param("orderNo", orderFinished));
         perform(ERROR, post(pay).param("orderNo", orderClosed));
+    }
+
+    /**
+     * 查询订单支付状态
+     * 404  找不到该订单
+     * 403  无权限，该订单不属于当前用户
+     * 200  查询成功，返回订单支付状态
+     */
+    @Test
+    public void testPaymentStatus_404_whenOrderNotExist() {
+        perform(NOT_FOUND, post(payment_status).param("orderNo", idNotExist));
+    }
+
+    @Test
+    public void testPaymentStatus_403_whenOrderNotBelongCurrentUser() {
+        this.session(userId2, CONSUMER).perform(FORBIDDEN, post(payment_status).param("orderNo", orderNo));
+    }
+
+    @Test
+    public void testPaymentStatus_200_withPaymentStatus() {
+        assertTrue(wasPaid(perform(SUCCESS, post(payment_status).param("orderNo", orderCanceled))));
+        assertTrue(wasPaid(perform(SUCCESS, post(payment_status).param("orderNo", orderPaid))));
+        assertTrue(wasPaid(perform(SUCCESS, post(payment_status).param("orderNo", orderShipped))));
+        assertTrue(wasPaid(perform(SUCCESS, post(payment_status).param("orderNo", orderFinished))));
+        assertTrue(wasPaid(perform(SUCCESS, post(payment_status).param("orderNo", orderClosed))));
+
+        assertFalse(wasPaid(perform(SUCCESS, post(payment_status).param("orderNo", orderUnPaid))));
+    }
+
+    private boolean wasPaid(ResultActions resultActions) {
+        return dataFrom(resultActions);
     }
 
     private void assertCartItemCount(int expectedCount) {
