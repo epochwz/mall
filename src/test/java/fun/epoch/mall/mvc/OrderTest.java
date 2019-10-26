@@ -9,7 +9,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
 import static fun.epoch.mall.mvc.common.Apis.portal.order.detail;
+import static fun.epoch.mall.mvc.common.Apis.portal.order.search;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
+import static fun.epoch.mall.mvc.common.Keys.MockCases.CASE_SEARCH_ORDER_BY_KEYWORD;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.EXPECTED_JSON_OF_ORDER_DETAIL;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.ORDER_SQLS;
@@ -52,5 +54,21 @@ public class OrderTest extends CustomMvcTest {
         OrderVo actual = orderVoFromAndClean(result, false);
         OrderVo expected = orderVoFrom(EXPECTED_JSON_OF_ORDER_DETAIL);
         assertObjectEquals(expected, actual);
+    }
+
+    /**
+     * 搜索订单
+     * <p>
+     * 200  搜索成功 (商品关键字筛选)
+     */
+    @Test
+    public void testSearch_selective() {
+        this.database().launchCase(CASE_SEARCH_ORDER_BY_KEYWORD, order, order_item);
+
+        assertSearchedSize(2, post(search).param("keyword", "裙"));
+        assertSearchedSize(1, post(search)
+                .param("keyword", "裙")
+                .param("orderNo", orderNo)
+        );
     }
 }

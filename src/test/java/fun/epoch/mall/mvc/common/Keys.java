@@ -43,6 +43,7 @@ public interface Keys {
         String CASE_CART_ADD_PRODUCT_NOT_IN_CART_BEFORE = "addProductNotInCartBefore";
 
         String CASE_ORDER_CLOSE_ORDER = "closeOrder";
+        String CASE_SEARCH_ORDER_BY_KEYWORD = "search";
     }
 
     /**
