@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
+import static fun.epoch.mall.common.Constant.OrderStatus.CANCELED;
 import static fun.epoch.mall.common.enhanced.TestHelper.assertObjectEquals;
 import static fun.epoch.mall.mvc.common.Apis.portal.order.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.idNotExist;
@@ -15,7 +16,7 @@ import static fun.epoch.mall.mvc.common.Keys.MockCases.*;
 import static fun.epoch.mall.mvc.common.Keys.MockJsons.*;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.COMMON_SQLS;
 import static fun.epoch.mall.mvc.common.Keys.MockSqls.ORDER_SQLS;
-import static fun.epoch.mall.mvc.common.Keys.OrderKeys.orderNo;
+import static fun.epoch.mall.mvc.common.Keys.OrderKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.ProductKeys.*;
 import static fun.epoch.mall.mvc.common.Keys.ShippingKeys.shippingId;
 import static fun.epoch.mall.mvc.common.Keys.Tables.*;
@@ -202,6 +203,53 @@ public class OrderTest extends CustomMvcTest {
         assertProductStock(96, productId);
         assertProductStock(0, productId2);
         assertProductStock(3, productId3);
+    }
+
+    /**
+     * 取消订单
+     * 404  找不到该订单 (该订单不属于当前用户)
+     * 400  取消失败：已发货 / 已完成 / 已关闭
+     * 200  取消成功 (可取消的订单状态：已取消 / 未付款 / 已付款)
+     * 200  取消成功，更新订单状态
+     * 200  取消成功，恢复商品库存
+     */
+    @Test
+    public void testCancel_404_whenOrderNotExist() {
+        perform(NOT_FOUND, post(cancel).param("orderNo", idNotExist));
+    }
+
+    @Test
+    public void testCancel_404_whenOrderNotBelongCurrentUser() {
+        this.session(userId2, CONSUMER).perform(FORBIDDEN, post(cancel).param("orderNo", orderNo));
+    }
+
+    @Test
+    public void testCancel_400_whenOrderStatusNotCorrect() {
+        perform(ERROR, post(cancel).param("orderNo", orderShipped));
+        perform(ERROR, post(cancel).param("orderNo", orderFinished));
+        perform(ERROR, post(cancel).param("orderNo", orderClosed));
+    }
+
+    @Test
+    public void testCancel_200_whenOrderStatusCorrect() {
+        perform(SUCCESS, post(cancel).param("orderNo", orderCanceled));
+        perform(SUCCESS, post(cancel).param("orderNo", orderUnPaid));
+        perform(SUCCESS, post(cancel).param("orderNo", orderPaid));
+    }
+
+    @Test
+    public void testCancel_200_whileOrderStatusUpdated() {
+        perform(SUCCESS, post(cancel).param("orderNo", orderUnPaid));
+        assertOrderStatus(CANCELED, detail, orderUnPaid);
+    }
+
+    @Test
+    public void testCancel_200_whileProductStockRestored() {
+        perform(SUCCESS, post(cancel).param("orderNo", orderNo));
+
+        assertProductStock(101, productId);
+        assertProductStock(7, productId2);
+        assertProductStock(8, productId3);
     }
 
     private void assertCartItemCount(int expectedCount) {

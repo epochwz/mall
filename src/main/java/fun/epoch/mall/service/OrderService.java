@@ -128,6 +128,7 @@ public class OrderService {
         return createOrder(order, orderItems);
     }
 
+    @Transactional
     public ServerResponse cancel(int userId, long orderNo) {
         Order order = orderMapper.selectByOrderNo(orderNo);
         if (order == null) {
@@ -136,7 +137,16 @@ public class OrderService {
         if (order.getUserId() != userId) {
             return ServerResponse.error(FORBIDDEN, "无权限，该订单不属于当前用户");
         }
-        return updateOrderStatus(orderNo, CANCELED.getCode(), SHIPPED, OrderStatus.SUCCESS, CLOSED);
+        ServerResponse updateOrderStatus = updateOrderStatus(orderNo, CANCELED.getCode(), SHIPPED, OrderStatus.SUCCESS, CLOSED);
+        if (updateOrderStatus.isSuccess()) {
+            try {
+                restoreProductStock(orderNo);
+            } catch (OrderUpdateException e) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return ServerResponse.error(INTERNAL_SERVER_ERROR, e.getMessage());
+            }
+        }
+        return updateOrderStatus;
     }
 
     public ServerResponse<QrCodeVo> pay(int userId, long orderNo, int paymentType, int paymentPlatform) {

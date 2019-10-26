@@ -387,6 +387,8 @@ public class OrderServiceTest {
             return order.getStatus() == CANCELED.getCode() ? 1 : 0;
         });
 
+        doNothing().when(service).restoreProductStock(anyLong());
+
         when(orderMapper.selectByOrderNo(orderNo)).thenReturn(Order.builder().userId(userId).status(CANCELED.getCode()).build());
         testIfCodeEqualsSuccess(service.cancel(userId, orderNo));
 
