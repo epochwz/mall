@@ -207,7 +207,8 @@ public class OrderTest extends CustomMvcTest {
 
     /**
      * 取消订单
-     * 404  找不到该订单 (该订单不属于当前用户)
+     * 404  找不到该订单
+     * 403  无权限，该订单不属于当前用户
      * 400  取消失败：已发货 / 已完成 / 已关闭
      * 200  取消成功 (可取消的订单状态：已取消 / 未付款 / 已付款)
      * 200  取消成功，更新订单状态
@@ -219,7 +220,7 @@ public class OrderTest extends CustomMvcTest {
     }
 
     @Test
-    public void testCancel_404_whenOrderNotBelongCurrentUser() {
+    public void testCancel_403_whenOrderNotBelongCurrentUser() {
         this.session(userId2, CONSUMER).perform(FORBIDDEN, post(cancel).param("orderNo", orderNo));
     }
 
@@ -250,6 +251,31 @@ public class OrderTest extends CustomMvcTest {
         assertProductStock(101, productId);
         assertProductStock(7, productId2);
         assertProductStock(8, productId3);
+    }
+
+    /**
+     * 支付订单
+     * 404  找不到该订单
+     * 403  无权限，该订单不属于当前用户
+     * 400  支付失败：订单已支付 (除了未支付状态，都视作已支付)
+     */
+    @Test
+    public void testPay_404_whenOrderNotExist() {
+        perform(NOT_FOUND, post(pay).param("orderNo", idNotExist));
+    }
+
+    @Test
+    public void testPay_403_whenOrderNotBelongCurrentUser() {
+        this.session(userId2, CONSUMER).perform(FORBIDDEN, post(pay).param("orderNo", orderNo));
+    }
+
+    @Test
+    public void testPay_400_whenOrderAlreadyPaid() {
+        perform(ERROR, post(pay).param("orderNo", orderCanceled));
+        perform(ERROR, post(pay).param("orderNo", orderPaid));
+        perform(ERROR, post(pay).param("orderNo", orderShipped));
+        perform(ERROR, post(pay).param("orderNo", orderFinished));
+        perform(ERROR, post(pay).param("orderNo", orderClosed));
     }
 
     private void assertCartItemCount(int expectedCount) {
