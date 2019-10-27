@@ -10,9 +10,14 @@ import com.alipay.demo.trade.service.AlipayTradeService;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
 import com.alipay.demo.trade.utils.ZxingUtils;
 import fun.epoch.mall.common.Constant;
+import fun.epoch.mall.dao.OrderMapper;
+import fun.epoch.mall.dao.PaymentInfoMapper;
+import fun.epoch.mall.entity.Order;
 import fun.epoch.mall.entity.OrderItem;
+import fun.epoch.mall.entity.PaymentInfo;
 import fun.epoch.mall.service.FTPService;
 import fun.epoch.mall.service.PaymentService;
+import fun.epoch.mall.utils.DateTimeUtils;
 import fun.epoch.mall.utils.TextUtils;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
@@ -20,11 +25,16 @@ import fun.epoch.mall.vo.QrCodeVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static fun.epoch.mall.common.Constant.OrderStatus.PAID;
+import static fun.epoch.mall.common.Constant.PaymentPlatform.ALIPAY;
 import static fun.epoch.mall.utils.response.ResponseCode.INTERNAL_SERVER_ERROR;
 
 @Slf4j
@@ -41,6 +51,12 @@ public class AlipayService implements PaymentService {
     @Autowired
     FTPService ftp;
 
+    @Autowired
+    OrderMapper orderMapper;
+
+    @Autowired
+    PaymentInfoMapper paymentInfoMapper;
+
     @Override
     public ServerResponse<QrCodeVo> preOrder(OrderVo order) {
         ServerResponse<String> sendPreOrderRequest = sendPreOrderRequest(toPreOrderRequest(order));
@@ -50,6 +66,48 @@ public class AlipayService implements PaymentService {
 
         String qrCode = sendPreOrderRequest.getData();
         return uploadQrCode(qrCode, order.getOrderNo());
+    }
+
+    @Transactional
+    @Override
+    public ServerResponse<Object> callback(Map<String, String> params) {
+        if (params == null || params.size() == 0) {
+            return ServerResponse.error("支付宝回调：回调参数异常");
+        }
+
+        long orderNo = Long.parseLong(params.get("out_trade_no"));
+
+        Order order = orderMapper.selectByOrderNo(orderNo);
+        if (order == null) {
+            return ServerResponse.error(String.format("支付宝回调：找不到订单 [%s]", orderNo));
+        }
+
+        if (order.getStatus() >= PAID.getCode()) {
+            return ServerResponse.success("支付宝回调：重复回调");
+        }
+
+        String tradeNo = params.get("trade_no");
+        String tradeStatus = params.get("trade_status");
+        if (Constant.AlipayCallbackCode.TRADE_STATUS_TRADE_SUCCESS.equals(tradeStatus)) {
+            order.setPaymentTime(DateTimeUtils.from(params.get("gmt_payment")));
+            order.setStatus(PAID.getCode());
+            if (orderMapper.updateSelectiveByPrimaryKey(order) != 1) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return ServerResponse.error(String.format("支付宝回调：更新订单 [%s] 状态失败", orderNo));
+            }
+        }
+
+        PaymentInfo payInfo = new PaymentInfo();
+        payInfo.setUserId(order.getUserId());
+        payInfo.setOrderNo(order.getOrderNo());
+        payInfo.setPlatform(ALIPAY.getCode());
+        payInfo.setPlatformNumber(tradeNo);
+        payInfo.setPlatformStatus(tradeStatus);
+        if (paymentInfoMapper.insert(payInfo) != 1) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ServerResponse.error("支付宝回调：生成支付信息表失败");
+        }
+        return ServerResponse.success();
     }
 
     /* ****************************** 上传支付二维码 ****************************** */
