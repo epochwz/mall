@@ -161,7 +161,7 @@ public class OrderService {
             return ServerResponse.error("订单已支付");
         }
         PaymentService paymentService = choosePaymentService(paymentType, paymentPlatform);
-        return paymentService.preOrder(order);
+        return paymentService.preOrder(toOrderVo(order));
     }
 
     private PaymentService choosePaymentService(int paymentType, int paymentPlatform) {

@@ -42,4 +42,11 @@ public class FTPService extends FTPUploader {
         }
         return null;
     }
+
+    public String uploadWithUrl(String remotePath, File file) {
+        if (upload(remotePath, file)) {
+            return imageHost + remotePath + "/" + file.getName();
+        }
+        return null;
+    }
 }
