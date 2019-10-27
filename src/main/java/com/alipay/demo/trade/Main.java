@@ -4,27 +4,26 @@ import com.alipay.api.AlipayResponse;
 import com.alipay.api.domain.TradeFundBill;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
-import com.alipay.api.response.MonitorHeartbeatSynResponse;
 import com.alipay.demo.trade.config.Configs;
 import com.alipay.demo.trade.model.ExtendParams;
 import com.alipay.demo.trade.model.GoodsDetail;
-import com.alipay.demo.trade.model.builder.*;
-import com.alipay.demo.trade.model.hb.*;
+import com.alipay.demo.trade.model.builder.AlipayTradePayRequestBuilder;
+import com.alipay.demo.trade.model.builder.AlipayTradePrecreateRequestBuilder;
+import com.alipay.demo.trade.model.builder.AlipayTradeQueryRequestBuilder;
+import com.alipay.demo.trade.model.builder.AlipayTradeRefundRequestBuilder;
 import com.alipay.demo.trade.model.result.AlipayF2FPayResult;
 import com.alipay.demo.trade.model.result.AlipayF2FPrecreateResult;
 import com.alipay.demo.trade.model.result.AlipayF2FQueryResult;
 import com.alipay.demo.trade.model.result.AlipayF2FRefundResult;
-import com.alipay.demo.trade.service.AlipayMonitorService;
 import com.alipay.demo.trade.service.AlipayTradeService;
-import com.alipay.demo.trade.service.impl.AlipayMonitorServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
-import com.alipay.demo.trade.service.impl.AlipayTradeWithHBServiceImpl;
 import com.alipay.demo.trade.utils.Utils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by liuyangkly on 15/8/9.
@@ -37,12 +36,6 @@ public class Main {
     // 支付宝当面付2.0服务
     private static AlipayTradeService tradeService;
 
-    // 支付宝当面付2.0服务（集成了交易保障接口逻辑）
-    private static AlipayTradeService tradeWithHBService;
-
-    // 支付宝交易保障接口服务，供测试接口api使用，请先阅读readme.txt
-    private static AlipayMonitorService monitorService;
-
     static {
         /** 一定要在创建AlipayTradeService之前调用Configs.init()设置默认参数
          *  Configs会读取classpath下的zfbinfo.properties文件配置信息，如果找不到该文件则确认该文件是否在classpath目录
@@ -53,14 +46,6 @@ public class Main {
          *  AlipayTradeService可以使用单例或者为静态成员对象，不需要反复new
          */
         tradeService = new AlipayTradeServiceImpl.ClientBuilder().build();
-
-        // 支付宝当面付2.0服务（集成了交易保障接口逻辑）
-        tradeWithHBService = new AlipayTradeWithHBServiceImpl.ClientBuilder().build();
-
-        /** 如果需要在程序中覆盖Configs提供的默认参数, 可以使用ClientBuilder类的setXXX方法修改默认参数 否则使用代码中的默认设置 */
-        monitorService = new AlipayMonitorServiceImpl.ClientBuilder()
-                .setGatewayUrl("http://mcloudmonitor.com/gateway.do").setCharset("GBK")
-                .setFormat("json").build();
     }
 
     // 简单打印应答
@@ -78,15 +63,6 @@ public class Main {
     public static void main(String[] args) {
         Main main = new Main();
 
-        // 系统商商测试交易保障接口api
-        //        main.test_monitor_sys();
-
-        // POS厂商测试交易保障接口api
-        //        main.test_monitor_pos();
-
-        // 测试交易保障接口调度
-        //        main.test_monitor_schedule_logic();
-
         // 测试当面付2.0支付（使用未集成交易保障接口的当面付2.0服务）
         //        main.test_trade_pay(tradeService);
 
@@ -98,100 +74,6 @@ public class Main {
 
         // 测试当面付2.0生成支付二维码
         main.test_trade_precreate();
-    }
-
-    // 测试系统商交易保障调度
-    public void test_monitor_schedule_logic() {
-        // 启动交易保障线程
-        DemoHbRunner demoRunner = new DemoHbRunner(monitorService);
-        demoRunner.setDelay(5); // 设置启动后延迟5秒开始调度，不设置则默认3秒
-        demoRunner.setDuration(10); // 设置间隔10秒进行调度，不设置则默认15 * 60秒
-        demoRunner.schedule();
-
-        // 启动当面付，此处每隔5秒调用一次支付接口，并且当随机数为0时交易保障线程退出
-        while (Math.random() != 0) {
-            test_trade_pay(tradeWithHBService);
-            Utils.sleep(5 * 1000);
-        }
-
-        // 满足退出条件后可以调用shutdown优雅安全退出
-        demoRunner.shutdown();
-    }
-
-    // 系统商的调用样例，填写了所有系统商商需要填写的字段
-    public void test_monitor_sys() {
-        // 系统商使用的交易信息格式，json字符串类型
-        List<SysTradeInfo> sysTradeInfoList = new ArrayList<SysTradeInfo>();
-        sysTradeInfoList.add(SysTradeInfo.newInstance("00000001", 5.2, HbStatus.S));
-        sysTradeInfoList.add(SysTradeInfo.newInstance("00000002", 4.4, HbStatus.F));
-        sysTradeInfoList.add(SysTradeInfo.newInstance("00000003", 11.3, HbStatus.P));
-        sysTradeInfoList.add(SysTradeInfo.newInstance("00000004", 3.2, HbStatus.X));
-        sysTradeInfoList.add(SysTradeInfo.newInstance("00000005", 4.1, HbStatus.X));
-
-        // 填写异常信息，如果有的话
-        List<ExceptionInfo> exceptionInfoList = new ArrayList<ExceptionInfo>();
-        exceptionInfoList.add(ExceptionInfo.HE_SCANER);
-        //        exceptionInfoList.add(ExceptionInfo.HE_PRINTER);
-        //        exceptionInfoList.add(ExceptionInfo.HE_OTHER);
-
-        // 填写扩展参数，如果有的话
-        Map<String, Object> extendInfo = new HashMap<String, Object>();
-        //        extendInfo.put("SHOP_ID", "BJ_ZZ_001");
-        //        extendInfo.put("TERMINAL_ID", "1234");
-
-        String appAuthToken = "应用授权令牌";//根据真实值填写
-
-        AlipayHeartbeatSynRequestBuilder builder = new AlipayHeartbeatSynRequestBuilder()
-                .setAppAuthToken(appAuthToken).setProduct(Product.FP).setType(Type.CR)
-                .setEquipmentId("cr1000001").setEquipmentStatus(EquipStatus.NORMAL)
-                .setTime(Utils.toDate(new Date())).setStoreId("store10001").setMac("0a:00:27:00:00:00")
-                .setNetworkType("LAN").setProviderId("2088911212323549") // 设置系统商pid
-                .setSysTradeInfoList(sysTradeInfoList) // 系统商同步trade_info信息
-                //                .setExceptionInfoList(exceptionInfoList)  // 填写异常信息，如果有的话
-                .setExtendInfo(extendInfo) // 填写扩展信息，如果有的话
-                ;
-
-        MonitorHeartbeatSynResponse response = monitorService.heartbeatSyn(builder);
-        dumpResponse(response);
-    }
-
-    // POS厂商的调用样例，填写了所有pos厂商需要填写的字段
-    public void test_monitor_pos() {
-        // POS厂商使用的交易信息格式，字符串类型
-        List<PosTradeInfo> posTradeInfoList = new ArrayList<PosTradeInfo>();
-        posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.S, "1324", 7));
-        posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.X, "1326", 15));
-        posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.S, "1401", 8));
-        posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.F, "1405", 3));
-
-        // 填写异常信息，如果有的话
-        List<ExceptionInfo> exceptionInfoList = new ArrayList<ExceptionInfo>();
-        exceptionInfoList.add(ExceptionInfo.HE_PRINTER);
-
-        // 填写扩展参数，如果有的话
-        Map<String, Object> extendInfo = new HashMap<String, Object>();
-        //        extendInfo.put("SHOP_ID", "BJ_ZZ_001");
-        //        extendInfo.put("TERMINAL_ID", "1234");
-
-        AlipayHeartbeatSynRequestBuilder builder = new AlipayHeartbeatSynRequestBuilder()
-                .setProduct(Product.FP)
-                .setType(Type.SOFT_POS)
-                .setEquipmentId("soft100001")
-                .setEquipmentStatus(EquipStatus.NORMAL)
-                .setTime("2015-09-28 11:14:49")
-                .setManufacturerPid("2088000000000009")
-                // 填写机具商的支付宝pid
-                .setStoreId("store200001").setEquipmentPosition("31.2433190000,121.5090750000")
-                .setBbsPosition("2869719733-065|2896507033-091").setNetworkStatus("gggbbbgggnnn")
-                .setNetworkType("3G").setBattery("98").setWifiMac("0a:00:27:00:00:00")
-                .setWifiName("test_wifi_name").setIp("192.168.1.188")
-                .setPosTradeInfoList(posTradeInfoList) // POS厂商同步trade_info信息
-                //                .setExceptionInfoList(exceptionInfoList) // 填写异常信息，如果有的话
-                .setExtendInfo(extendInfo) // 填写扩展信息，如果有的话
-                ;
-
-        MonitorHeartbeatSynResponse response = monitorService.heartbeatSyn(builder);
-        dumpResponse(response);
     }
 
     // 测试当面付2.0支付
