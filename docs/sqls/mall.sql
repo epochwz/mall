@@ -51,6 +51,9 @@ CREATE TABLE `user`
     AUTO_INCREMENT = 1000000
     DEFAULT CHARSET = utf8mb4;
 
+INSERT INTO user(id, username, password, email, mobile, question, answer, role)
+VALUES (999999, 'admin', '0F9C57820F575425E7A75A60B118E747', 'admin@gmail.com', '', '', '',
+        0);
 -- ----------------------------
 --  Table structure for `shipping`
 -- ----------------------------
