@@ -52,37 +52,3 @@
     "code": 200
   }
   ```
-
-## 重置密码 (已登录状态)
-
-- **POST** `/manage/user/reset_password.do`
-- request
-
-  ```json
-  {
-    "oldPass": "epoch_pass",
-    "newPass": "epoch_pass_new"
-  }
-  // 参数校验规则
-  // oldPass  是否符合密码统一校验规则
-  // newPass  是否符合密码统一校验规则
-  ```
-- response
-
-  ```json
-  // success
-  {
-    "code": 200
-  }
-  // error
-  {
-    "code": 401,
-    "msg": "旧密码错误"
-
-    // "code": 403,
-    // "msg": "无访问权限 (不是管理员账号)"
-    
-    // "code": 999,
-    // "msg": "未登录"
-  }
-  ```
