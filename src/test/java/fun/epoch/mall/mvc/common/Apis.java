@@ -58,7 +58,6 @@ public interface Apis {
 
     interface manage {
         interface user {
-            String reset_password = "/manage/user/reset_password.do";
             String login = "/manage/user/login.do";
             String logout = "/manage/user/logout.do";
         }

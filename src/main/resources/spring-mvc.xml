@@ -57,7 +57,6 @@
       <mvc:mapping path="/user/update.do"/>
       <mvc:mapping path="/user/info.do"/>
       <mvc:mapping path="/user/reset_password.do"/>
-      <mvc:mapping path="/manage/user/reset_password.do"/>
       <bean class="fun.epoch.mall.controller.common.AuthorityInterceptor"/>
     </mvc:interceptor>
   </mvc:interceptors>

@@ -11,7 +11,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.util.UUID;
 
 import static fun.epoch.mall.common.Constant.AccountRole.CONSUMER;
-import static fun.epoch.mall.common.Constant.AccountRole.MANAGER;
 import static fun.epoch.mall.common.Constant.AccountType.*;
 import static fun.epoch.mall.mvc.common.Apis.portal.user.*;
 import static fun.epoch.mall.mvc.common.Keys.ErrorKeys.*;
@@ -352,44 +351,6 @@ public class UserTest extends CustomMvcTest {
                 .param("username", username)
                 .param("password", password)
         );
-    }
-
-    /**
-     * 后台：重置密码 (已登录状态)
-     * <p>
-     * 200  重置密码成功
-     * 401  旧密码错误
-     */
-    @Test
-    public void testManageResetPassword_200() {
-        perform(SUCCESS, post(Apis.manage.user.login)
-                .param("username", admin)
-                .param("password", adminPassword)
-        );
-
-        perform(SUCCESS, post(Apis.manage.user.reset_password)
-                .param("oldPass", adminPassword)
-                .param("newPass", passwordNotExist)
-        );
-
-        perform(SUCCESS, post(Apis.manage.user.login)
-                .param("username", admin)
-                .param("password", passwordNotExist)
-        );
-
-        perform(UN_AUTHORIZED, post(Apis.manage.user.login)
-                .param("username", admin)
-                .param("password", adminPassword)
-        );
-    }
-
-    @Test
-    public void testManageResetPassword_401_whenPasswordError() {
-        this.session(adminId, MANAGER).
-                perform(UN_AUTHORIZED, post(Apis.manage.user.reset_password)
-                        .param("oldPass", passwordNotExist)
-                        .param("newPass", password)
-                );
     }
 
     /**

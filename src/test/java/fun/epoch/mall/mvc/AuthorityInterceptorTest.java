@@ -60,9 +60,7 @@ public class AuthorityInterceptorTest extends CustomMvcTest {
     };
 
     private static final String[] managerUrls = {
-            Apis.manage.user.reset_password
-
-            , Apis.manage.product.add
+            Apis.manage.product.add
             , Apis.manage.product.update
             , Apis.manage.product.shelve
             , Apis.manage.product.search
