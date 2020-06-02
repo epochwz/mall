@@ -103,8 +103,8 @@
       ```
 
    2. 按需修改配置
-      - `$MALL_CONF_PROD/conf/file.epoch.fun` 修改图片服务器域名
-      - `$MALL_CONF_PROD/conf/mall.epoch.fun` 修改项目的访问域名
+      - `$MALL_CONF_PROD/conf/file.epoch.fun.conf` 修改图片服务器域名
+      - `$MALL_CONF_PROD/conf/mall.epoch.fun.conf` 修改项目的访问域名
       - `$MALL_CONF_PROD/resources.pro/ftp.properties` 修改图片服务器 IP
       - `$MALL_CONF_PROD/resources.pro/mall.properties` 修改相关域名
       - `$MALL_CONF_PROD/resources.pro/alipay.properties` 修改支付宝相关配置 (私钥，公钥)

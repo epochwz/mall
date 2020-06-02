@@ -18,7 +18,7 @@ cp -r $MALL_CONF_SRC $MALL_CONF_DES
 cd $MALL_PATH && git pull
 
 # 打包
-mvn clean package -Dmaven.test.skip=true -Ppro
+mvn clean package -Dmaven.test.skip=true -Ppro -Dmaven.test.skip=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
 # 清除
 rm -rf $CATALINA_HOME/webapps/mall*
 rm -rf $CATALINA_HOME/work/Catalina/localhost/mall
