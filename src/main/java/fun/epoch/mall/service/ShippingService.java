@@ -61,7 +61,9 @@ public class ShippingService {
     }
 
     public ServerResponse<PageInfo<Shipping>> list(int userId, int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        return ServerResponse.success(new PageInfo<>(shippingMapper.selectByUserId(userId)));
+        PageInfo<Shipping> page = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(
+                () -> shippingMapper.selectByUserId(userId)
+        );
+        return ServerResponse.success(page);
     }
 }

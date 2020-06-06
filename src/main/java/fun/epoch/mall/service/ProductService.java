@@ -16,7 +16,6 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
@@ -135,9 +134,9 @@ public class ProductService {
     }
 
     private ServerResponse<PageInfo<ProductVo>> getPageInfoServerResponse(int pageNum, int pageSize, Product selective) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<Product> products = productMapper.selectSelective(selective);
-        List<ProductVo> productVos = products.stream().map(ProductVo::new).collect(Collectors.toList());
-        return ServerResponse.success(new PageInfo<>(productVos));
+        PageInfo<ProductVo> page = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(
+                () -> productMapper.selectSelective(selective).stream().map(ProductVo::new).collect(Collectors.toList())
+        );
+        return ServerResponse.success(page);
     }
 }

@@ -64,11 +64,10 @@ public class OrderService {
     }
 
     public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<Order> orders = orderMapper.search(orderNo, userId, keyword, status, startTime, endTime);
-        List<OrderVo> orderVos = orders.stream().map(this::toOrderVo).collect(Collectors.toList());
-        PageInfo page = new PageInfo<>(orders);
-        page.setList(orderVos);
+        PageInfo<OrderVo> page = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(
+                () -> orderMapper.search(orderNo, userId, keyword, status, startTime, endTime)
+                        .stream().map(this::toOrderVo).collect(Collectors.toList())
+        );
         return ServerResponse.success(page);
     }
 
