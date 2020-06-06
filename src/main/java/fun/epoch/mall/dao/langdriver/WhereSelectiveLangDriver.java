@@ -30,6 +30,7 @@ public class WhereSelectiveLangDriver extends AbsLangDriver {
                 String fieldName = field.getName();
                 String columnName = LOWER_CAMEL.to(LOWER_UNDERSCORE, fieldName);
                 String sqlTag;
+                if (fieldName.equals("orderBy")) continue;
                 if (field.getType() == String.class) {
                     String like = "CONCAT('%',#{" + fieldName + "},'%')";
                     sqlTag = String.format(" <if test=\"%s != null\"> AND %s like %s</if> ", fieldName, columnName, like);
@@ -40,7 +41,16 @@ public class WhereSelectiveLangDriver extends AbsLangDriver {
             }
         }
 
-        return String.format("<where>%s</where>", sb.toString());
+        String sql = String.format("<where>%s</where>", sb.toString());
+
+        try {
+            String fieldName = parameterType.getDeclaredField("orderBy").getName();
+            sql += String.format(" <if test=\"%s != null\"> ORDER BY \\${%s} </if> ", fieldName, fieldName);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+
+        return sql;
     }
 
     @Override

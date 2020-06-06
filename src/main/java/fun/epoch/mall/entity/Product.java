@@ -24,6 +24,8 @@ public class Product {
     private Integer stock;
     private Integer status;
     @JsonIgnore
+    private String orderBy;
+    @JsonIgnore
     private Date createTime;
     @JsonIgnore
     private Date updateTime;

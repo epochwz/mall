@@ -232,7 +232,7 @@ public class ProductServiceTest {
             return Collections.emptyList();
         });
 
-        ServerResponse<PageInfo<ProductVo>> response = testIfCodeEqualsSuccess(service.searchOnlyOnSale(null, null, 1, 5));
+        ServerResponse<PageInfo<ProductVo>> response = testIfCodeEqualsSuccess(service.searchOnlyOnSale(null, null, null, 1, 5));
 
         assertEquals(1, response.getData().getSize());
         for (int i = 0; i < response.getData().getSize(); i++) {

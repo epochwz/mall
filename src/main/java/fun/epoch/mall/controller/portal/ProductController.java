@@ -27,9 +27,10 @@ public class ProductController {
     public ServerResponse<PageInfo<ProductVo>> search(
             Integer categoryId,
             String keyword,
+            String orderBy,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "5") int pageSize
     ) {
-        return productService.searchOnlyOnSale(categoryId, keyword, pageNum, pageSize);
+        return productService.searchOnlyOnSale(categoryId, keyword, orderBy, pageNum, pageSize);
     }
 }

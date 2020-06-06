@@ -45,8 +45,8 @@ public class ProductService {
         return ServerResponse.success(new ProductVo(product));
     }
 
-    public ServerResponse<PageInfo<ProductVo>> searchOnlyOnSale(Integer categoryId, String keyword, int pageNum, int pageSize) {
-        Product selective = Product.builder().categoryId(categoryId).name(keyword).status(ON_SALE).build();
+    public ServerResponse<PageInfo<ProductVo>> searchOnlyOnSale(Integer categoryId, String keyword, String orderBy, int pageNum, int pageSize) {
+        Product selective = Product.builder().categoryId(categoryId).name(keyword).status(ON_SALE).orderBy(orderBy).build();
         return getPageInfoServerResponse(pageNum, pageSize, selective);
     }
 

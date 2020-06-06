@@ -27,8 +27,8 @@ public class ProductControllerTest {
 
     @Test
     public void testSearchProduct_returnSuccess_whenCallServiceSuccess() {
-        when(service.searchOnlyOnSale(categoryId, keyword, pageNum, pageSize)).thenReturn(ServerResponse.success());
-        testIfCodeEqualsSuccess(controller.search(categoryId, keyword, pageNum, pageSize));
+        when(service.searchOnlyOnSale(categoryId, keyword, null, pageNum, pageSize)).thenReturn(ServerResponse.success());
+        testIfCodeEqualsSuccess(controller.search(categoryId, keyword, null, pageNum, pageSize));
     }
 
     // 合法值
