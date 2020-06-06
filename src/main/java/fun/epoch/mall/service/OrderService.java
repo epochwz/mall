@@ -10,6 +10,7 @@ import fun.epoch.mall.exception.OrderCreateException;
 import fun.epoch.mall.exception.OrderUpdateException;
 import fun.epoch.mall.service.pay.AlipayService;
 import fun.epoch.mall.utils.DateTimeUtils;
+import fun.epoch.mall.utils.PageUtils;
 import fun.epoch.mall.utils.TextUtils;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.OrderVo;
@@ -64,11 +65,11 @@ public class OrderService {
     }
 
     public ServerResponse<PageInfo<OrderVo>> search(Long orderNo, Integer userId, String keyword, Integer status, Long startTime, Long endTime, int pageNum, int pageSize) {
-        PageInfo<OrderVo> page = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(
+        PageInfo<Order> page = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(
                 () -> orderMapper.search(orderNo, userId, keyword, status, startTime, endTime)
-                        .stream().map(this::toOrderVo).collect(Collectors.toList())
         );
-        return ServerResponse.success(page);
+        List<OrderVo> orderVos = page.getList().stream().map(this::toOrderVo).collect(Collectors.toList());
+        return ServerResponse.success(PageUtils.convert(page, orderVos));
     }
 
     public ServerResponse ship(long orderNo) {

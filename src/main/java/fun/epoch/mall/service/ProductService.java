@@ -7,6 +7,7 @@ import fun.epoch.mall.dao.CategoryMapper;
 import fun.epoch.mall.dao.ProductMapper;
 import fun.epoch.mall.entity.Category;
 import fun.epoch.mall.entity.Product;
+import fun.epoch.mall.utils.PageUtils;
 import fun.epoch.mall.utils.response.ServerResponse;
 import fun.epoch.mall.vo.ProductVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static fun.epoch.mall.common.Constant.SaleStatus.ON_SALE;
@@ -134,9 +136,10 @@ public class ProductService {
     }
 
     private ServerResponse<PageInfo<ProductVo>> getPageInfoServerResponse(int pageNum, int pageSize, Product selective) {
-        PageInfo<ProductVo> page = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(
-                () -> productMapper.selectSelective(selective).stream().map(ProductVo::new).collect(Collectors.toList())
+        PageInfo<Product> page = PageHelper.startPage(pageNum, pageSize).doSelectPageInfo(
+                () -> productMapper.selectSelective(selective)
         );
-        return ServerResponse.success(page);
+        List<ProductVo> productVos = page.getList().stream().map(ProductVo::new).collect(Collectors.toList());
+        return ServerResponse.success(PageUtils.convert(page, productVos));
     }
 }
